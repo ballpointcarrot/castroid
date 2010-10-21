@@ -1,10 +1,10 @@
-package com.cornerofseven.castdroid;
+package com.cornerofseven.castroid;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.widget.ExpandableListAdapter;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.ExpandableListView;
-import android.widget.SimpleExpandableListAdapter;
 
 
 public class Castroid extends Activity {	
@@ -15,7 +15,15 @@ public class Castroid extends Activity {
         setContentView(R.layout.main);
         ExpandableListView podcastList = (ExpandableListView) 
         		findViewById(R.id.podcastList);
-        ExpandableListAdapter podcastAdapter = new PodcastExpandableListAdapter();
+        podcastList.setAdapter(new PodcastExpandableListAdapter());
         
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
     }
 }
