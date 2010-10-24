@@ -14,7 +14,7 @@ public class PodcastDataProvider extends ContentProvider{
     private static final String TAG = "PodcastDataProvider";
     //TODO: Instantiate with a real object.
     private static final UriMatcher uriMatcher = null; // the JavaDocs show
-    												   // this exists, but  new UriMatcher();
+    												   // this exists, but new UriMatcher();
     												   // doesn't actually exist in the API
 
     private final DbHelper helper;
@@ -72,8 +72,8 @@ public class PodcastDataProvider extends ContentProvider{
 
 	@Override
 	public boolean onCreate() {
-		// TODO Auto-generated method stub
-		return false;
+		helper.onCreate(helper.getWritableDatabase());
+		return true;
 	}
 
 	@Override
