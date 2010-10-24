@@ -3,7 +3,7 @@ package com.cornerofseven.castroid.data;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-public static final class Feed implements BaseColumns{
+public final class Feed implements BaseColumns{
 	public static final String BASE_AUTH = "com.cornerofseven.castroid.data.podcastdataprovider";
 
 	//Non-instantiable class.

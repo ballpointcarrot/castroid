@@ -15,8 +15,7 @@ public class Castroid extends Activity {
         setContentView(R.layout.main);
         ExpandableListView podcastList = (ExpandableListView) 
         		findViewById(R.id.podcastList);
-        podcastList.setAdapter(new PodcastExpandableListAdapter());
-        
+        podcastList.setAdapter(new PodcastExpandableListAdapter(this));
     }
 
     @Override
