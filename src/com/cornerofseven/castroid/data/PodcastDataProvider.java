@@ -35,10 +35,18 @@ public class PodcastDataProvider extends ContentProvider{
         public void onCreate(SQLiteDatabase db){
             db.execSQL("CREATE TABLE " + Feed.TABLE_NAME + "(" + 
                     Feed._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    Feed.LINK + " TEXT NOT NULL," +
+                    Feed.LINK + " TEXT NOT NULL, " +
                     Feed.TITLE + " TEXT NOT NULL, " +
                     Feed.DESCRIPTION + " TEXT NOT NULL, " +
                     Feed.IMAGE + " TEXT);");
+            
+            db.execSQL("CREATE TABLE " + Item.TABLE_NAME + "(" +
+            		Item._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            		Item.OWNER + " INTEGER, " +  //foreign key  to the  
+            		Item.TITLE + " TEXT NOT NULL, " +
+            		Item.LINK  + " TEXT NOT NULL, " +
+            		Item.DESC  + " TEXT NOT NLLL, "
+            );
         }
 
         @Override
@@ -46,8 +54,7 @@ public class PodcastDataProvider extends ContentProvider{
             Log.w(TAG, "Upgrading database from version" + oldVersion +" to " +
                     newVersion + ". Existing data will be deleted.");
             db.execSQL("DROP TABLE IF EXISTS "+Feed.TABLE_NAME);
-            /*redundant?
-            db.execSQL("DROP TABLE IF EXISTS "+Entry.TABLE_NAME);*/
+            db.execSQL("DROP TABLE IF EXISTS "+Item.TABLE_NAME);
             onCreate(db);
         }
     }

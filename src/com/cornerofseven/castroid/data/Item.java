@@ -35,6 +35,18 @@ public final class Item implements BaseColumns{
      * Database Columns           *
      * Column Name - SQL Datatype *
      ******************************/
+    /**
+     * Name of the table.
+     */
+    public static final String TABLE_NAME = "ITEMS";
 
+	public static final String OWNER = "OWNER";
+
+	public static final String TITLE = "TITLE";
+
+	public static final String LINK = "LINK";
+
+	public static final String DESC = "DESC";
+    
 
 }
