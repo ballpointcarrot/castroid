@@ -1,5 +1,6 @@
 package com.cornerofseven.castroid;
 
+import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.PodcastDataProvider;
 import com.cornerofseven.castroid.dialogs.DialogBuilder;
 import com.cornerofseven.castroid.dialogs.DialogHelpers;
@@ -8,6 +9,8 @@ import com.cornerofseven.castroid.dialogs.DialogResult;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,9 +44,21 @@ public class Castroid extends Activity {
 			}
 		});
         
-//        ExpandableListView podcastList = (ExpandableListView) 
-//        		findViewById(R.id.podcastList);
-//        podcastList.setAdapter(new PodcastExpandableListAdapter(this));
+        Intent intent = getIntent();
+        if (intent.getData() == null) {
+            intent.setData(Feed.CONTENT_URI);
+        }
+        
+        Cursor feedCursor = managedQuery(
+        		Feed.CONTENT_URI, 
+        		new String[]{
+        				Feed._ID,
+        				Feed.TITLE
+        		}, null, null, Feed.DEFAULT_SORT);
+        
+        ExpandableListView podcastList = (ExpandableListView) 
+        		findViewById(R.id.podcastList);
+       podcastList.setAdapter(new PodcastExpandableListAdapter(this, feedCursor));
     }
 
     @Override
