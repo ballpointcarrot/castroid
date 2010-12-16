@@ -14,10 +14,12 @@ public class PodcastExpandableListAdapter extends SimpleCursorTreeAdapter {
 
 	private PodcastDataProvider dataProvider;
 	
-	private static final String SELECT_ITEMS = "";
+	private static final String SELECT_ITEMS = Item.OWNER + " = ?";
 	private static final String[] PROJECTION = new String[]{
-		Item._ID
-		
+		Item._ID,
+		Item.TITLE,
+		Item.LINK,
+		Item.DESC
 	};
 	
 	public PodcastExpandableListAdapter(Context context, Cursor cursor){
@@ -25,16 +27,14 @@ public class PodcastExpandableListAdapter extends SimpleCursorTreeAdapter {
 			-1, -1, null, null, -1, -1, null, null);
 		dataProvider = new PodcastDataProvider(context);
 		
-	}
-	
+	}	
 
 	@Override
 	protected Cursor getChildrenCursor(Cursor groupCursor) {
-		
 		String[] selectionArgs = new String[]{
-				
+			""	
 		};
-		
+
 		return dataProvider.query(Item.CONTENT_URI, 
 				PROJECTION, SELECT_ITEMS, selectionArgs, Item.DEFAULT_SORT);
 	}
