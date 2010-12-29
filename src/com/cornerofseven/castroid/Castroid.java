@@ -1,11 +1,5 @@
 package com.cornerofseven.castroid;
 
-import com.cornerofseven.castroid.data.Feed;
-import com.cornerofseven.castroid.data.PodcastDataProvider;
-import com.cornerofseven.castroid.dialogs.DialogBuilder;
-import com.cornerofseven.castroid.dialogs.DialogHelpers;
-import com.cornerofseven.castroid.dialogs.DialogResult;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -17,8 +11,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ExpandableListView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
+
+import com.cornerofseven.castroid.data.Feed;
+import com.cornerofseven.castroid.data.PodcastDataProvider;
+import com.cornerofseven.castroid.dialogs.DialogBuilder;
+import com.cornerofseven.castroid.dialogs.DialogResult;
 
 
 public class Castroid extends Activity {
@@ -27,6 +28,7 @@ public class Castroid extends Activity {
 	
 	protected PodcastDataProvider mDataProvider;
 	protected Button mBtnAdd;
+	protected ListView mFeedList;
 	
 	/**
 	 * ID Number for the input RSS dialog
@@ -63,6 +65,29 @@ public class Castroid extends Activity {
 //        ExpandableListView podcastList = (ExpandableListView) 
 //        		findViewById(R.id.podcastList);
 //       podcastList.setAdapter(new PodcastExpandableListAdapter(this, feedCursor));
+        mFeedList = (ListView)findViewById(R.id.main_feedlist);
+        final String[] FEED_PROJECTION ={
+        		Feed._ID,
+        		Feed.TITLE,
+        		Feed.DESCRIPTION,
+        		Feed.LINK
+        };
+        Cursor c = managedQuery(Feed.CONTENT_URI, 
+        		FEED_PROJECTION, null, null, null);
+        c.setNotificationUri(getContentResolver(), Feed.CONTENT_URI);
+        ListAdapter feedListAdapter = new SimpleCursorAdapter(
+        		this, R.layout.feed_information, c, new String[]{
+        				Feed.TITLE,
+        				Feed.DESCRIPTION,
+        				Feed.LINK
+        		}, new int[]{
+        				R.id.feed_info_title,
+        				R.id.feed_info_desc,
+        				R.id.feed_info_link
+        		});
+        		
+        
+        mFeedList.setAdapter(feedListAdapter);
     }
 
     @Override

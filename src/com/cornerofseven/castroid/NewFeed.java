@@ -170,10 +170,11 @@ public class NewFeed extends Activity{
 			values.put(Feed.DESCRIPTION, feed.getmDesc());
 			Uri feedUri = content.insert(Feed.CONTENT_URI, values);
 			
-			String frag = feedUri.getFragment();
-			Log.d(Castroid.TAG, feedUri.toString());
-			Log.d(Castroid.TAG, "Feed fragment " + frag);
-			int feedId = -1;
+			
+			String frag = feedUri.getLastPathSegment();
+//			Log.d(Castroid.TAG, feedUri.toString());
+//			Log.d(Castroid.TAG, "Feed fragment " + frag);
+			int feedId = Integer.parseInt(frag);
 			
 			Iterator<RSSItem> itemsIter = feed.itemsIterator();
 			while(itemsIter.hasNext()){
