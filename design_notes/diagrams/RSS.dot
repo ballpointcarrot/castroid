@@ -1,0 +1,27 @@
+digraph rss{
+   // rankdir="LR";
+    size="5,5"
+    label="RSS Processing"
+
+    node[shape="diamond"];
+    vURI[label="Valid URL?"];
+    C1[label="More Items?"];
+    
+    node[shape="circle"];
+    S0[label="FeedTitle"];
+    S1[label="Items"];
+    S2[label="Item Title"];
+    S3[label="Item Desc"];
+    S4[label="Item Enc"];
+
+    F[label="DONE" shape="doublecircle"];
+
+    vURI -> S0 [label="Yes"];
+    vURI -> F [label="No"];
+
+    S0 -> S1;
+    S1 -> S2 -> S3 -> S4 -> C1;
+    C1 -> S1 [label="Yes"];
+    C1 -> F [label="No"];
+    
+}

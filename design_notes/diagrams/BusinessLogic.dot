@@ -1,0 +1,13 @@
+digraph bl{
+    rankdir="LR";
+
+    bl[shape="square" label="Logic"];
+
+    node[shape="circle"];
+    addFeed[label="New Feed"];
+    items[label="Update Items"];
+    rss[label="RSS"];
+
+    bl -> addFeed -> rss;
+    bl -> items -> rss;
+}

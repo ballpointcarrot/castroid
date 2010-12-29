@@ -1,0 +1,14 @@
+digraph ui{
+    size="4,4";
+    usr[shape="square", label="USER"];
+    node[shape="circle"];
+    ap[label="Add"];
+    feedInfo[label="Info"];
+    dl[label="Download"];
+    show[label="List Items"];
+
+    usr -> ap;
+    usr -> feedInfo;
+    usr -> dl;
+    usr -> show;
+}

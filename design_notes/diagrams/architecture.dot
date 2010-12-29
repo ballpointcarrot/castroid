@@ -1,0 +1,34 @@
+digraph arch{
+	size="5,3";
+	rankdir="LR";
+	
+	
+	ui[label="User Interface"];
+	bus[label="Business Logic" shape="diamond"];
+	dl [label="Download Manager" shape="square"];
+	rss [label="RSS Processor" shape="square"];
+	
+	node [rank = same]; 
+		db[label="Data Adapter" shape="square"]
+		prov[label="Data Provider" shape="square"];
+	
+	ui -> bus [color="blue"];
+	bus -> ui [color="red"];
+	
+	/*---------------------------------*/
+	
+	bus -> db [color="blue"];
+	db -> bus [color="red"];
+	
+	bus -> dl [color="blue"];
+	dl -> bus [color="red"];
+	
+	bus -> rss [color="blue"];
+	rss -> bus [color="red"];
+	
+	/*---------------------------------*/
+	
+	db -> prov [color="blue"];
+	prov -> db [color="red"];
+	
+}
