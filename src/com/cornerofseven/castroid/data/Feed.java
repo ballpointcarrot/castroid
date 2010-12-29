@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 public final class Feed implements BaseColumns{
-	public static final String BASE_AUTH = "com.cornerofseven.castroid.data.podcastdataprovider";
+	public static final String BASE_AUTH = "com.cornerofseven.castroid.data.PodcastDataProvider";
 
 	//Non-instantiable class.
 	private Feed(){}
@@ -69,4 +69,5 @@ public final class Feed implements BaseColumns{
 	 * Feed Last Modified Date - INTEGER
 	 */
 	public static final String MODIFIED_DATE = "modified";
+	
 }

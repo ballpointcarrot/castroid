@@ -4,4 +4,8 @@
 	<string name="addFeedLabel">Add Feed</string>
 	<string name="settingsLabel">Settings</string>
 	<string name="app_name">CastDroid</string>
+	<string-array name="dummy">
+		<item>D1</item>
+		<item>D2</item>
+	</string-array>
 </resources>

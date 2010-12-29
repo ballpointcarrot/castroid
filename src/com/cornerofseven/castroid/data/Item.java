@@ -5,7 +5,6 @@ import android.provider.BaseColumns;
 
 
 public final class Item implements BaseColumns{
-    public static final String BASE_AUTH = "com.cornerofseven.castroid.data.podcastdataprovider";
 
     //Non-instantiable class.
     private Item(){}
@@ -13,7 +12,7 @@ public final class Item implements BaseColumns{
     /**
      * URI used to retrieve the content.
      */
-    public static final Uri CONTENT_URI = Uri.parse("content://" + BASE_AUTH + "/items");
+    public static final Uri CONTENT_URI = Uri.parse("content://" + Feed.BASE_AUTH + "/items");
 
     /**
      * Feed MIME type for Directory for Content Provider
@@ -38,7 +37,7 @@ public final class Item implements BaseColumns{
     /**
      * Name of the table.
      */
-    public static final String TABLE_NAME = "ITEMS";
+    public static final String TABLE_NAME = "items";
 
 	public static final String OWNER = "OWNER";
 

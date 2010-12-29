@@ -25,7 +25,7 @@ public class PodcastExpandableListAdapter extends SimpleCursorTreeAdapter {
 	public PodcastExpandableListAdapter(Context context, Cursor cursor){
 		super(context, cursor,
 			-1, -1, null, null, -1, -1, null, null);
-		dataProvider = new PodcastDataProvider(context);
+		//dataProvider = new PodcastDataProvider(context);
 		
 	}	
 

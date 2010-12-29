@@ -35,7 +35,7 @@ public class Castroid extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        mDataProvider = new PodcastDataProvider(this);
+        //mDataProvider = new PodcastDataProvider(this);
         mBtnAdd = (Button)findViewById(R.id.btn_add_podcast);
         mBtnAdd.setOnClickListener(new View.OnClickListener() {
 			@Override
