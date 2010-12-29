@@ -33,6 +33,7 @@ public class DialogBuilder {
 			final DialogInterface.OnClickListener cancelAction,
 			final boolean clearInputField,
 			final DialogHelpers.ChoiceResponse<String> resultHolder){
+		
 		AlertDialog.Builder alert = new AlertDialog.Builder(context);
 		alert.setTitle(title);
 		alert.setMessage(message);

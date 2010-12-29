@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class PodcastDataProvider extends ContentProvider{
@@ -19,8 +20,8 @@ public class PodcastDataProvider extends ContentProvider{
 	private DbHelper helper;
 
 	//Constants for choosing how to processes URI's
-	private static final int CHANNEL = 1;
-	private static final int ITEM = CHANNEL + 1;
+	private static final int FEED = 1;
+	private static final int ITEM = FEED + 1;
 
 //	public PodcastDataProvider(Context context){
 //		super();
@@ -125,7 +126,7 @@ public class PodcastDataProvider extends ContentProvider{
 	@Override
 	public String getType(Uri uri) {
 		switch(uriMatcher.match(uri)){
-		case CHANNEL : return Feed.CONTENT_TYPE;
+		case FEED : return Feed.CONTENT_TYPE;
 		case ITEM : return Feed.CONTENT_ITEM_TYPE;
 		default:
 			unknownURI(uri);
@@ -146,11 +147,12 @@ public class PodcastDataProvider extends ContentProvider{
 		SQLiteDatabase db;
 		long rowId;
 		switch(uriMatcher.match(uri)){
-		case CHANNEL: 
+		case FEED: 
 			db = helper.getWritableDatabase();
 			rowId = helper.insertFeed(db,values);
 			if(rowId > 0){
 				Uri contentUri = ContentUris.withAppendedId(Feed.CONTENT_URI, rowId);
+				getContext().getContentResolver().notifyChange(contentUri, null);
 				return contentUri;
 			}
 			else break;
@@ -159,6 +161,7 @@ public class PodcastDataProvider extends ContentProvider{
 			rowId = helper.insertItem(db,values);
 			if(rowId > 0){
 				Uri contentUri = ContentUris.withAppendedId(Item.CONTENT_URI, rowId);
+				getContext().getContentResolver().notifyChange(contentUri, null);
 				return contentUri;
 			}
 			else break;
@@ -177,13 +180,37 @@ public class PodcastDataProvider extends ContentProvider{
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
-		// TODO Auto-generated method stub
-		return null;
+		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+		//set the default sort order in the switch.
+		//Then we can use a single check for setting the orderby claus.
+		String defaultSortOrder ="";
+		switch(uriMatcher.match(uri)){
+		case FEED:
+			qb.setTables(Feed.TABLE_NAME);
+			defaultSortOrder = Feed.DEFAULT_SORT;
+			break;
+		default: unknownURI(uri); 
+		}
+		
+		String orderBy;
+		if(TextUtils.isEmpty(sortOrder)){
+			//should be set in the URI switch above
+			orderBy = defaultSortOrder;
+		}else{
+			orderBy = sortOrder;
+		}
+		
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
+		
+		c.setNotificationUri(getContext().getContentResolver(), uri);
+		return c;
 	}
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
+		
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -193,14 +220,14 @@ public class PodcastDataProvider extends ContentProvider{
 	 * @param uri
 	 */
 	private static void unknownURI(Uri uri){
-		throw new IllegalArgumentException("Unknown URI" + uri.toString());
+		throw new IllegalArgumentException("Unknown URI " + uri.toString());
 	}
 
 	static{
 		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 		//the podcast/rss data model has a table for feeds (channels in RSS parlance)
 
-		uriMatcher.addURI(Feed.BASE_AUTH, "feed", CHANNEL);
+		uriMatcher.addURI(Feed.BASE_AUTH, Feed.FEED_PATH, FEED);
 		uriMatcher.addURI(Feed.BASE_AUTH, "item", ITEM);
 	}
 

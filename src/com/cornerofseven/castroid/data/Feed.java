@@ -4,15 +4,20 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 public final class Feed implements BaseColumns{
+	/**
+	 * Base for all content authorization for the CastRoid program.
+	 */
 	public static final String BASE_AUTH = "com.cornerofseven.castroid.data.PodcastDataProvider";
-
+	
+	public static final String FEED_PATH = "feeds";
+	
 	//Non-instantiable class.
 	private Feed(){}
 
 	/**
 	 * URI used to retrieve the content.
 	 */
-	public static final Uri CONTENT_URI = Uri.parse("content://" + BASE_AUTH + "/feeds");
+	public static final Uri CONTENT_URI = Uri.parse("content://" + BASE_AUTH + "/" + FEED_PATH);
 
 	/**
 	 * Feed MIME type for Directory for Content Provider
@@ -23,11 +28,6 @@ public final class Feed implements BaseColumns{
 	 * Feed MIME type for Item for Content Provider
 	 */
 	public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.dir/vnd.cornerofseven.feed";
-
-	/**
-	 * How Feeds are sorted by default
-	 */
-	public static final String DEFAULT_SORT = "createdDt DESC";
 
 
 	/******************************
@@ -69,5 +69,10 @@ public final class Feed implements BaseColumns{
 	 * Feed Last Modified Date - INTEGER
 	 */
 	public static final String MODIFIED_DATE = "modified";
-	
+
+	/**
+	 * How Feeds are sorted by default
+	 */
+	public static final String DEFAULT_SORT = TITLE;
+
 }
