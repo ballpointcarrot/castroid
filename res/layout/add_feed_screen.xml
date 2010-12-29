@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical">
+	<!-- Layout for the add feed screen. In this layout we need: 1. An input 
+		box 2. A button labeled check 3. Fields to display the Feed(Channel) Title, 
+		Desc, Link and Image 4. A list to display the Items in the feed. 4.1 Item 
+		displays: Title, Enclosure, Desc. -->
+	<EditText android:id="@+id/afs_url" 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+	<Button android:id="@+id/afs_check" 
+		android:text="@string/afs_checkLabel"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" />
+	<include android:id="@+id/afs_feedinfo" layout="@layout/feed_information"/>
+	<ListView android:id="@+id/afs_items" 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+	<Button android:id="@+id/afs_savefeed" 
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		android:text="@string/afs_savefeedLabel" />
+</LinearLayout>

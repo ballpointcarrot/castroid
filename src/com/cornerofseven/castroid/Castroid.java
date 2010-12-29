@@ -14,6 +14,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
@@ -21,6 +22,8 @@ import android.widget.Toast;
 
 
 public class Castroid extends Activity {
+	
+	public static final String TAG = "Castroid";
 	
 	protected PodcastDataProvider mDataProvider;
 	protected Button mBtnAdd;
@@ -40,7 +43,8 @@ public class Castroid extends Activity {
         mBtnAdd.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public final void onClick(View v) {
-				showDialog(DLG_INPUT_RSS);
+				addFeed();
+				//showDialog(DLG_INPUT_RSS);
 			}
 		});
         
@@ -49,16 +53,16 @@ public class Castroid extends Activity {
             intent.setData(Feed.CONTENT_URI);
         }
         
-        Cursor feedCursor = managedQuery(
-        		Feed.CONTENT_URI, 
-        		new String[]{
-        				Feed._ID,
-        				Feed.TITLE
-        		}, null, null, Feed.DEFAULT_SORT);
-        
-        ExpandableListView podcastList = (ExpandableListView) 
-        		findViewById(R.id.podcastList);
-       podcastList.setAdapter(new PodcastExpandableListAdapter(this, feedCursor));
+//        Cursor feedCursor = managedQuery(
+//        		Feed.CONTENT_URI, 
+//        		new String[]{
+//        				Feed._ID,
+//        				Feed.TITLE
+//        		}, null, null, Feed.DEFAULT_SORT);
+//        
+//        ExpandableListView podcastList = (ExpandableListView) 
+//        		findViewById(R.id.podcastList);
+//       podcastList.setAdapter(new PodcastExpandableListAdapter(this, feedCursor));
     }
 
     @Override
@@ -88,6 +92,11 @@ public class Castroid extends Activity {
     	Toast.makeText(this, "Should add " + url, Toast.LENGTH_SHORT).show();
     }
     
+    protected void addFeed(){
+    	Intent intent = new Intent(this, NewFeed.class);
+    	startActivity(intent);
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         super.onCreateOptionsMenu(menu);
@@ -95,5 +104,18 @@ public class Castroid extends Activity {
         inflater.inflate(R.menu.menu, menu);
         return true;
     }
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		switch(item.getItemId()){
+		case R.id.addFeed:
+			addFeed();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+    
+
     
 }
