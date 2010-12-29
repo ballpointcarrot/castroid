@@ -46,7 +46,7 @@ public class FeedList extends ListActivity{
 				R.layout.feed_information, 
 				cursor, 
 				new String[]{Feed.TITLE, Feed.LINK, Feed.DESCRIPTION}, 
-				new int[]{});
+				new int[]{R.id.feed_info_title, R.id.feed_info_link, R.id.feed_info_desc});
 //		
 		//ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.array.dummy, R.id.feed_info_title);
 		setListAdapter(adapter);
