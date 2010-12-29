@@ -171,6 +171,8 @@ public class NewFeed extends Activity{
 			Uri feedUri = content.insert(Feed.CONTENT_URI, values);
 			
 			String frag = feedUri.getFragment();
+			Log.d(Castroid.TAG, feedUri.toString());
+			Log.d(Castroid.TAG, "Feed fragment " + frag);
 			int feedId = -1;
 			
 			Iterator<RSSItem> itemsIter = feed.itemsIterator();

@@ -9,10 +9,12 @@ public final class Item implements BaseColumns{
     //Non-instantiable class.
     private Item(){}
 
+    public static final String ITEM_PATH = "items";
+    
     /**
      * URI used to retrieve the content.
      */
-    public static final Uri CONTENT_URI = Uri.parse("content://" + Feed.BASE_AUTH + "/items");
+    public static final Uri CONTENT_URI = Uri.parse("content://" + Feed.BASE_AUTH + "/" + ITEM_PATH);
 
     /**
      * Feed MIME type for Directory for Content Provider

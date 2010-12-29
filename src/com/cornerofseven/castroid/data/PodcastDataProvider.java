@@ -1,5 +1,7 @@
 package com.cornerofseven.castroid.data;
 
+import com.cornerofseven.castroid.Castroid;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -92,13 +94,17 @@ public class PodcastDataProvider extends ContentProvider{
 		 * @param values
 		 * @return
 		 */
-		public int insertItem(SQLiteDatabase db, ContentValues values){
-			int newId = -1;
+		public long insertItem(SQLiteDatabase db, ContentValues values){
+			long newId = -1;
 
-			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-
-			qb.setTables(Item.TABLE_NAME);
-
+			ensureValue(values, Item.TITLE, "No title");
+			ensureValue(values, Item.LINK, "No link");
+			ensureValue(values, Item.DESC, "No Description");
+			if(values.get(Item.OWNER) == null){
+				values.put(Item.OWNER, -1);
+			}
+			newId = db.insert(Item.TABLE_NAME, "", values);
+			
 			return newId;
 		}
 		
@@ -150,6 +156,7 @@ public class PodcastDataProvider extends ContentProvider{
 		case FEED: 
 			db = helper.getWritableDatabase();
 			rowId = helper.insertFeed(db,values);
+			Log.d(Castroid.TAG, "Feed id " + rowId);
 			if(rowId > 0){
 				Uri contentUri = ContentUris.withAppendedId(Feed.CONTENT_URI, rowId);
 				getContext().getContentResolver().notifyChange(contentUri, null);
@@ -159,6 +166,7 @@ public class PodcastDataProvider extends ContentProvider{
 		case ITEM:
 			db = helper.getWritableDatabase();
 			rowId = helper.insertItem(db,values);
+			Log.d(Castroid.TAG, "Item id " + rowId);
 			if(rowId > 0){
 				Uri contentUri = ContentUris.withAppendedId(Item.CONTENT_URI, rowId);
 				getContext().getContentResolver().notifyChange(contentUri, null);
@@ -228,7 +236,7 @@ public class PodcastDataProvider extends ContentProvider{
 		//the podcast/rss data model has a table for feeds (channels in RSS parlance)
 
 		uriMatcher.addURI(Feed.BASE_AUTH, Feed.FEED_PATH, FEED);
-		uriMatcher.addURI(Feed.BASE_AUTH, "item", ITEM);
+		uriMatcher.addURI(Feed.BASE_AUTH, Item.ITEM_PATH, ITEM);
 	}
 
 
