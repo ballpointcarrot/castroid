@@ -1,9 +1,10 @@
 package com.cornerofseven.castroid.test;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
-public class CastRoidTest {
+import android.test.AndroidTestCase;
+
+public class CastRoidTest extends AndroidTestCase{
 
 	@Test
 	public void dummyTest(){
