@@ -11,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -75,7 +76,7 @@ public class Castroid extends Activity {
         Cursor c = managedQuery(Feed.CONTENT_URI, 
         		FEED_PROJECTION, null, null, null);
         c.setNotificationUri(getContentResolver(), Feed.CONTENT_URI);
-        ListAdapter feedListAdapter = new SimpleCursorAdapter(
+        /*ListAdapter feedListAdapter = new SimpleCursorAdapter(
         		this, R.layout.feed_information, c, new String[]{
         				Feed.TITLE,
         				Feed.DESCRIPTION,
@@ -87,7 +88,10 @@ public class Castroid extends Activity {
         		});
         		
         
-        mFeedList.setAdapter(feedListAdapter);
+        mFeedList.setAdapter(feedListAdapter);*/
+        PodcastExpandableListAdapter adapter =
+        	new PodcastExpandableListAdapter(this, c);
+        ((ExpandableListView)findViewById(R.id.podcastList)).setAdapter(adapter);
     }
 
     @Override

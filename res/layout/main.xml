@@ -2,14 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-	<ExpandableListView android:id="@+id/podcastList"
-		android:layout_width="fill_parent" android:layout_height="wrap_content">
-	</ExpandableListView>
-
 	<ListView android:id="@+id/main_feedlist"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"/>	
+		android:layout_width="fill_parent" android:layout_height="wrap_content" />
 	<Button android:id="@+id/btn_add_podcast" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:text="@string/addFeedLabel" />
-	
+	<ExpandableListView android:id="@+id/podcastList"
+		android:layout_width="fill_parent" android:layout_height="fill_parent">
+	</ExpandableListView>
 </LinearLayout>

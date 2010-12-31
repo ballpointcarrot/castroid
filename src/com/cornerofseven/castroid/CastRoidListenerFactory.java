@@ -27,8 +27,20 @@ import android.widget.Toast;
  */
 public class CastRoidListenerFactory {
 
+	/**
+	 * Get the click listener instance for adding a new feed to the database.
+	 * @return
+	 */
 	public static View.OnClickListener getAddFeedListener(){
 		return AddFeedListener.instance;
+	}
+	
+	/**
+	 * Get the click listener for downloading a podcast.
+	 * @return
+	 */
+	public static View.OnClickListener getDownloadItemListener(){
+		return DownloadItemListener.instance;
 	}
 	
 	private static class AddFeedListener implements View.OnClickListener{
@@ -92,5 +104,23 @@ public class CastRoidListenerFactory {
 		
 		//Hide the constructor.  This is a singleton.
 		private AddFeedListener(){}
+	}
+
+	private static class DownloadItemListener implements View.OnClickListener{
+		private static final DownloadItemListener instance;
+		
+		static{
+			instance = new DownloadItemListener();
+		}
+
+		/* (non-Javadoc)
+		 * @see android.view.View.OnClickListener#onClick(android.view.View)
+		 */
+		@Override
+		public void onClick(View arg0) {
+			final Context context = arg0.getContext();
+			String itemToDownload = "?";
+			Toast.makeText(context, "Download " + itemToDownload, Toast.LENGTH_SHORT).show();
+		}
 	}
 }

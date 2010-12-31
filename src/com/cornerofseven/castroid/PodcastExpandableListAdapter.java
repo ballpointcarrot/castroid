@@ -25,21 +25,20 @@ public class PodcastExpandableListAdapter extends SimpleCursorTreeAdapter {
 		Item.DESC
 	};
 	
+	private static final int GROUP_LAYOUT = android.R.layout.simple_expandable_list_item_1;
+	private static final String[] GROUP_FROM = {Feed.TITLE};
+	private static final int[] GROUP_TO = {android.R.id.text1};
+	private static final int CHILD_LAYOUT = android.R.layout.simple_expandable_list_item_1;
+	private static final String[] CHILD_FROM = {Item.TITLE};
+	private static final int[] CHILD_TO = {android.R.id.text1};
+	
 	public PodcastExpandableListAdapter(Context context, Cursor cursor){
-		/*
-		(Context context, 
-		Cursor cursor, 
-		int collapsedGroupLayout, 
-		int expandedGroupLayout, 
-		String[] groupFrom, int[] groupTo, 
-		int childLayout, int lastChildLayout, 
-		String[] childFrom, int[] childTo)
-		*/
-		super(context, cursor,
-			-1, -1, null, null, -1, -1, null, null);
-		//dataProvider = new PodcastDataProvider(context);
+		super(context, cursor, 
+				GROUP_LAYOUT, GROUP_FROM, GROUP_TO,
+				 CHILD_LAYOUT, CHILD_FROM, CHILD_TO
+		);
 		
-	}	
+	}
 
 	@Override
 	protected Cursor getChildrenCursor(Cursor groupCursor) {
