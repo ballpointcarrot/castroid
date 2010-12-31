@@ -23,7 +23,8 @@ public class PodcastDataProviderTests extends ProviderTestCase2<PodcastDataProvi
 	private ContentResolver mContentResolver;
 	
 	public PodcastDataProviderTests(){
-		this(PodcastDataProvider.class, "content://" + Feed.BASE_AUTH);
+		//this(PodcastDataProvider.class, "content://" + Feed.BASE_AUTH);
+		this(PodcastDataProvider.class, Feed.BASE_AUTH);
 	}
 	
 	public PodcastDataProviderTests(Class<PodcastDataProvider> providerClass,
@@ -35,8 +36,9 @@ public class PodcastDataProviderTests extends ProviderTestCase2<PodcastDataProvi
 	 * @see android.test.AndroidTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		mContentResolver = getMockContentResolver();
 		super.setUp();
+		mContentResolver = getMockContentResolver();
+		
 	}
 
 	@Override
@@ -50,16 +52,23 @@ public class PodcastDataProviderTests extends ProviderTestCase2<PodcastDataProvi
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		mContentResolver = null;
 	}
 
+	public void testProvider(){
+		assertNotNull(getProvider());
+	}
+	
 	////////////////////MIME TYPES////////////////
 	public void testFeedMimeType(){
 		String feedMime = mContentResolver.getType(Feed.CONTENT_URI);
+		assertNotNull(feedMime);
 		fail("Is this the correct mime type? " + feedMime);
 	}
 	
 	public void testItemMimeType(){
 		String itemMime = mContentResolver.getType(Item.CONTENT_URI);
+		assertNotNull(itemMime);
 		fail("Is this the correct mime type? " + itemMime);
 	}
 	
