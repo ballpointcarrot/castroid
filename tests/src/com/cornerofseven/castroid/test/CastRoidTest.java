@@ -1,13 +1,10 @@
 package com.cornerofseven.castroid.test;
 
-import org.junit.Test;
-
 import android.test.AndroidTestCase;
 
 public class CastRoidTest extends AndroidTestCase{
 
-	@Test
-	public void dummyTest(){
+	public void testDummy(){
 		fail("This is junk");
 	}
 }
