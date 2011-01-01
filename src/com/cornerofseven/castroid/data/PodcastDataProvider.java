@@ -197,6 +197,10 @@ public class PodcastDataProvider extends ContentProvider{
 			qb.setTables(Feed.TABLE_NAME);
 			defaultSortOrder = Feed.DEFAULT_SORT;
 			break;
+		case ITEM:
+			qb.setTables(Item.TABLE_NAME);
+			defaultSortOrder = Item.DEFAULT_SORT;
+			break;
 		default: unknownURI(uri); 
 		}
 		
