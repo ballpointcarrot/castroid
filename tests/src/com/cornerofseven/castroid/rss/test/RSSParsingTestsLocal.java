@@ -37,6 +37,7 @@ import android.test.AndroidTestCase;
 import android.util.Log;
 
 import com.cornerofseven.castroid.Castroid;
+import com.cornerofseven.castroid.rss.MalformedRSSException;
 import com.cornerofseven.castroid.rss.RSSFeedBuilder;
 import com.cornerofseven.castroid.rss.RSSProcessorFactory;
 import com.cornerofseven.castroid.rss.RSSProcessor;
@@ -106,7 +107,7 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 
 	private static final String TAG = "RSSParsingLocalTests";
 
-	public void testParseRSS20Example() throws ParserConfigurationException, IOException, SAXException{
+	public void testParseRSS20Example() throws ParserConfigurationException, IOException, SAXException, MalformedRSSException{
 
 		//getContext().ge
 		
@@ -125,8 +126,8 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 		assertNotNull(channel);
 
 		final String expectedChannelTitle = "Liftoff News";
-		final String expectedChannelDesc = "http://liftoff.msfc.nasa.gov/";
-		final String expectedChannelLink = "Liftoff to Space Exploration.";
+		final String expectedChannelLink = "http://liftoff.msfc.nasa.gov/";
+		final String expectedChannelDesc = "Liftoff to Space Exploration.";
 
 		final int EXPECTED_ITEMS = 4;
 		//test data from the items
