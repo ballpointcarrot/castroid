@@ -13,6 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
+
 package com.cornerofseven.castroid.rss.test;
 
 import java.io.File;
@@ -26,45 +27,40 @@ import android.net.Uri;
 import android.test.AndroidTestCase;
 
 import com.cornerofseven.castroid.rss.RSSFeedBuilder;
-import com.cornerofseven.castroid.rss.RSSProcessorFactory;
 import com.cornerofseven.castroid.rss.RSSProcessor;
+import com.cornerofseven.castroid.rss.RSSProcessorFactory;
 import com.cornerofseven.castroid.rss.feed.RSSChannel;
 import com.cornerofseven.castroid.rss.feed.RSSItem;
 
 /**
- * Test cases for parsing an RSS file that is located locally on the device.
- * 
- * Currently runs a plain junit3 set of tests for the parsing. This will
- * be switched to an Android test once some of the logic is in place, 
- * and I figure out how to get eclipse to copy the test files automatically.
+ * RSSParsing tests for the feeds that are
+ * located remotely.  Requires an active Internet connection to work.
  * 
  * @author Sean Mooney
- *
  */
-public class RSSParsingTestsLocal extends AndroidTestCase{
-	
+public class RSSParsingTestRemote extends AndroidTestCase{
+
 	public void testParseRSS20Example() throws ParserConfigurationException, IOException, SAXException{
-		File file = new File("testfiles/rss/rss2sample.xml");
-		
-		Uri uri = Uri.fromFile(file);
-		
+		String address = "http://cyber.law.harvard.edu/rss/examples/rss2sample.xml";
+		Uri uri = Uri.parse(address);
+
 		RSSProcessor proc = RSSProcessorFactory.getRSS2_0Processor(uri);
-		
+
 		RSSFeedBuilder builder = proc.getBuilder();
 		assertNotNull(builder);
-		
+
 		proc.process();
 		RSSChannel channel = builder.getFeed();
 		assertNotNull(channel);
-		
+
 		final String expectedChannelTitle = "Liftoff News";
 		final String expectedChannelDesc = "http://liftoff.msfc.nasa.gov/";
 		final String expectedChannelLink = "Liftoff to Space Exploration.";
-		
+
 		final int EXPECTED_ITEMS = 4;
 		//test data from the items
 		//title, link, desc, enclosure
-		
+
 		//name the indexes for easier reading.
 		final int TITLE_INDEX = 0;
 		final int LINK_INDEX = 1;
@@ -76,13 +72,13 @@ public class RSSParsingTestsLocal extends AndroidTestCase{
 				{"The Engine That Does More", "http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp", "Before man travels to Mars, NASA hopes to design new engines that will let us fly through the Solar System more quickly.  The proposed VASIMR engine would do that.", ""},
 				{"Astronauts' Dirty Laundry", "http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp", "Compared to earlier spacecraft, the International Space Station has many luxuries, but laundry facilities are not one of them.  Instead, astronauts have other options.", ""}
 		};
-		
+
 		assertEquals(expectedChannelTitle, channel.getmTitle());
 		assertEquals(expectedChannelLink, channel.getmLink());
 		assertEquals(expectedChannelDesc, channel.getmDesc());
-	
+
 		RSSItem[] items = channel.itemsAsArray();
-		
+
 		/*
 		 * this will array index out of bounds if too many items 
 		 * are returned. 
@@ -94,7 +90,7 @@ public class RSSParsingTestsLocal extends AndroidTestCase{
 			assertEquals(expectedItemData[i][DESC_INDEX], cur.getmDesc());
 			assertEquals(expectedItemData[i][ENC_INDEX], cur.getmEnclosure());
 		}
-		
+
 		final String errorMsg = "Expected " + EXPECTED_ITEMS + " found " + items.length;
 		assertEquals(errorMsg, EXPECTED_ITEMS, items.length);
 	}
