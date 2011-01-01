@@ -1,6 +1,10 @@
 package com.cornerofseven.castroid.rss.internal;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -9,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import android.net.Uri;
 
@@ -33,31 +38,39 @@ import com.cornerofseven.castroid.rss.RSSProcessor;
 public class SimpleFeedProcessor implements RSSProcessor{
 
 	private RSSFeedBuilder mFeedBuilder = null;
-	private Uri feedLocation;
+	private Uri mFeedLocation;
 	
 	public SimpleFeedProcessor(Uri feedLocation){
-		this.feedLocation = feedLocation;
+		this.mFeedLocation = feedLocation;
 	}
 	
 	@Override
-	public void process() throws ParserConfigurationException {
+	public void process() throws ParserConfigurationException, IOException, SAXException {
 		Node root = null;
 		
 		DocumentBuilder builder 
 			= DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document document 
-			=null;
-//			builder.getDOMImplementation()
-//			//.createDocument(namespaceURI, qualifiedName, doctype)
-//			.createDocument(feedLocation.getAuthority(), feedLocation.getPath(), );
-		
+		InputStream feedstream = getIntputStream();
+		Document document = builder.parse(feedstream);
 		root = document.getDocumentElement();
+		feedstream.close();
 		
 		findFeedInfo(root);
 		findFeedItems(root);
 		mFeedBuilder.finishFeed();
 	}
 
+	/**
+	 * Convert the feed URI to an inputstream.
+	 * The client is responsible for closing the stream.
+	 * @return An InputStream from the URI for the feed location.
+	 * @throws IOException 
+	 */
+	protected InputStream getIntputStream() throws IOException{
+		URL url = new URL(mFeedLocation.toString());
+		return url.openConnection().getInputStream();
+	}
+	
 	@Override
 	public void setBuilder(RSSFeedBuilder builder) {
 		mFeedBuilder = builder;
