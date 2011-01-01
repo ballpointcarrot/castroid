@@ -16,9 +16,12 @@
 
 package com.cornerofseven.castroid;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
@@ -129,8 +132,10 @@ public class NewFeed extends Activity{
 		
 			mFeed = builder.getFeed();
 			bindFeedInfo();
-		}catch(ParserConfigurationException pce){
-			Toast.makeText(this, "Unable to parse the feed", Toast.LENGTH_LONG);
+		}catch(Exception ex){
+			Toast.makeText(this, "Unable to parse the feed\n " 
+					+ ex.getMessage()
+					, Toast.LENGTH_LONG);
 		}
 	}
 

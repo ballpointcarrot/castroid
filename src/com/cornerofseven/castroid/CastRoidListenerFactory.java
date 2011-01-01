@@ -20,8 +20,9 @@ import android.widget.Toast;
  * all the listeners in the system.
  * 
  * All the methods return singletons.  If the same event needs to
- * be handeled in multiple places, the getter can be called multiple
+ * be handled in multiple places, the getter can be called multiple
  * times and always returns the same object.
+ * 
  * @author Sean Mooney
  *
  */

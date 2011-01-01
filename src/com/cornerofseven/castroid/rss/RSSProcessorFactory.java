@@ -23,8 +23,8 @@ public class RSSProcessorFactory {
 	 * @return
 	 */
 	public static RSSProcessor getRSS2_0Processor(Uri feedLocation, RSSFeedBuilder builder){
-		//SimpleFeedProcessor sfp = new SimpleFeedProcessor(feedLocation);
-		TestRSSProcessor sfp = new TestRSSProcessor(feedLocation);
+		SimpleFeedProcessor sfp = new SimpleFeedProcessor(feedLocation);
+		//TestRSSProcessor sfp = new TestRSSProcessor(feedLocation);
 		sfp.setBuilder(builder);
 		return sfp;
 	}

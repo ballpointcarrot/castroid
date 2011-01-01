@@ -14,13 +14,16 @@ public final class RSSTags {
 	
 	public static final String RSS = "rss";
 	public static final String RSS_VERSION = "version";
+	
 	public static final String CHANNEL = "channel";
 	public static final String CHNL_TITLE = "title";
 	public static final String CHNL_LINK = "link";
 	public static final String CHNL_DESC = "description";
+	
 	public static final String ITEM = "item";
 	public static final String ITEM_TITLE = "title";
 	public static final String ITEM_LINK = "link";
 	public static final String ITEM_DESC = "description";
+	public static final String ITEM_ENC = "enclosure";
 	
 }
