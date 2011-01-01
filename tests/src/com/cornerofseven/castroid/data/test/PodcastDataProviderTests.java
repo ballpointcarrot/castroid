@@ -18,32 +18,11 @@ import android.test.ProviderTestCase2;
  * @author Sean Mooney 
  *
  */
-public class PodcastDataProviderTests extends ProviderTestCase2<PodcastDataProvider>{
-
-	private ContentResolver mContentResolver;
-	
-	public PodcastDataProviderTests(){
-		//this(PodcastDataProvider.class, "content://" + Feed.BASE_AUTH);
-		this(PodcastDataProvider.class, Feed.BASE_AUTH);
-	}
-	
-	public PodcastDataProviderTests(Class<PodcastDataProvider> providerClass,
-			String providerAuthority) {
-		super(providerClass, providerAuthority);
-	}
-	
-	/* (non-Javadoc)
-	 * @see android.test.AndroidTestCase#setUp()
-	 */
-	protected void setUp() throws Exception {
-		super.setUp();
-		mContentResolver = getMockContentResolver();
-		
-	}
+public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 
 	@Override
 	public void testAndroidTestCaseSetupProperly(){
-		assertNotNull(mContentResolver);
+		assertNotNull(getMockContentResolver());
 		super.testAndroidTestCaseSetupProperly();
 	}
 	
@@ -52,7 +31,6 @@ public class PodcastDataProviderTests extends ProviderTestCase2<PodcastDataProvi
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		mContentResolver = null;
 	}
 
 	public void testProvider(){
@@ -61,13 +39,13 @@ public class PodcastDataProviderTests extends ProviderTestCase2<PodcastDataProvi
 	
 	////////////////////MIME TYPES////////////////
 	public void testFeedMimeType(){
-		String feedMime = mContentResolver.getType(Feed.CONTENT_URI);
+		String feedMime = getMockContentResolver().getType(Feed.CONTENT_URI);
 		assertNotNull(feedMime);
 		fail("Is this the correct mime type? " + feedMime);
 	}
 	
 	public void testItemMimeType(){
-		String itemMime = mContentResolver.getType(Item.CONTENT_URI);
+		String itemMime = getMockContentResolver().getType(Item.CONTENT_URI);
 		assertNotNull(itemMime);
 		fail("Is this the correct mime type? " + itemMime);
 	}
@@ -80,7 +58,7 @@ public class PodcastDataProviderTests extends ProviderTestCase2<PodcastDataProvi
 		values.put(Feed.TITLE, "Example Podcast");
 		values.put(Feed.IMAGE, "nothing");
 		
-		Uri uri = mContentResolver.insert(Feed.CONTENT_URI, values);
+		Uri uri = getMockContentResolver().insert(Feed.CONTENT_URI, values);
 		assertNotNull(uri);
 	
 		//TODO: anything else needed in this test?
@@ -93,7 +71,7 @@ public class PodcastDataProviderTests extends ProviderTestCase2<PodcastDataProvi
 		String[] selectionArgs = {};
 		int expectedNumber = 1;
 		
-		int itemsDeleted = mContentResolver.delete(Feed.CONTENT_URI, where, selectionArgs);
+		int itemsDeleted = getMockContentResolver().delete(Feed.CONTENT_URI, where, selectionArgs);
 	
 		assertEquals(expectedNumber, itemsDeleted);
 		//Currently this test should fail on the assertEquals
