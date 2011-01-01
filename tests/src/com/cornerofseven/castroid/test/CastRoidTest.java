@@ -1,10 +1,24 @@
 package com.cornerofseven.castroid.test;
 
-import android.test.AndroidTestCase;
+import com.cornerofseven.castroid.Castroid;
 
-public class CastRoidTest extends AndroidTestCase{
+import android.test.ActivityInstrumentationTestCase2;
 
-	public void testDummy(){
-		fail("This is junk");
+/**
+ * 
+ * @author Sean Mooney
+ *
+ */
+public class CastRoidTest extends ActivityInstrumentationTestCase2<Castroid>{
+
+	private Castroid mActivity;
+	
+	public CastRoidTest(){
+		super("com.cornerofsever.castroid.Castroid", Castroid.class);
+	}
+	
+	@Override
+	public void setUp() throws Exception{
+		mActivity = this.getActivity();
 	}
 }
