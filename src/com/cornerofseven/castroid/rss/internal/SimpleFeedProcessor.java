@@ -1,3 +1,19 @@
+/*
+   Copyright 2010 Christopher Kruse and Sean Mooney
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package com.cornerofseven.castroid.rss.internal;
 
 import java.io.IOException;
@@ -10,6 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -211,7 +228,8 @@ public class SimpleFeedProcessor implements RSSProcessor{
 			else if(RSSTags.ITEM_TITLE.equals(childName)){
 				name = child.getFirstChild().getNodeValue();
 			}else if(RSSTags.ITEM_ENC.equals(childName)){
-				encURI = child.getFirstChild().getNodeValue();
+				Enclosure enc = processEnclosure(child);
+				encURI = enc.url;
 			}else if(RSSTags.ITEM_DESC.equals(childName)){
 				desc = child.getFirstChild().getNodeValue();
 			}
@@ -222,5 +240,61 @@ public class SimpleFeedProcessor implements RSSProcessor{
 		}
 		
 		builder.addItem(name, desc, encURI);
+	}
+	
+	/**
+	 * Process an enclosure node.  
+	 * An enclosure is of the form:
+	 * 
+	 * <enclosure url="" length="" type=""/>
+	 * 
+	 * @param encNode
+	 */
+	private Enclosure processEnclosure(Node encNode){
+		Enclosure enc = new Enclosure();
+		
+		//the enclosure's data are stored as attributes
+		//of the tag, not as sub-children
+		NamedNodeMap attrs = encNode.getAttributes();
+		
+		/*local named reference for the attribute 
+		* we are currently working on. */
+		Node attr;
+		
+		attr = attrs.getNamedItem(RSSTags.ENC_URL);
+		if(attr != null){
+			enc.url = attr.getNodeValue();
+		}
+		
+		//the length attr represents a integer type.
+		attr = attrs.getNamedItem(RSSTags.ENC_LEN);
+		if(attr != null){
+			String stLen = attr.getNodeValue();
+			try{
+				enc.length = Long.parseLong(stLen);
+			}catch(NumberFormatException nfe){
+				Log.i(TAG, "Invalid length " + stLen);
+			}
+		}
+		
+		attr = attrs.getNamedItem(RSSTags.ENC_TYPE);
+		if(attr != null){
+			enc.type = attr.getNodeValue();
+		}
+		
+		
+		return enc;
+	}
+	
+	/**
+	 * Simple holder for the enclusure data.
+	 * 
+	 * @author sean
+	 *
+	 */
+	private static class Enclosure{
+		String url;
+		long length;
+		String type;
 	}
 }
