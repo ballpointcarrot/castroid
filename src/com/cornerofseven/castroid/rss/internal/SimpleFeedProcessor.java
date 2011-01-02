@@ -44,9 +44,9 @@ public class SimpleFeedProcessor implements RSSProcessor{
 	private static final String TAG = "SimpleFeedProcessor";
 	
 	private RSSFeedBuilder mFeedBuilder = null;
-	private Uri mFeedLocation;
+	private URL mFeedLocation;
 	
-	public SimpleFeedProcessor(Uri feedLocation){
+	public SimpleFeedProcessor(URL feedLocation){
 		this.mFeedLocation = feedLocation;
 	}
 	
@@ -92,8 +92,7 @@ public class SimpleFeedProcessor implements RSSProcessor{
 	 * @throws IOException 
 	 */
 	protected InputStream getIntputStream() throws IOException{
-		URL url = new URL(mFeedLocation.toString());
-		return url.openConnection().getInputStream();
+		return mFeedLocation.openConnection().getInputStream();
 	}
 	
 	@Override

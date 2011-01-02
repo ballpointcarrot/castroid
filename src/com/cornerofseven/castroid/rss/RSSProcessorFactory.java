@@ -1,10 +1,9 @@
 package com.cornerofseven.castroid.rss;
 
-import android.net.Uri;
+import java.net.URL;
 
 import com.cornerofseven.castroid.rss.internal.SimpleFeedProcessor;
 import com.cornerofseven.castroid.rss.internal.SimpleRSSFeedBuilder;
-import com.cornerofseven.castroid.rss.internal.TestRSSProcessor;
 
 /**
  * Factory to produce RSS processors, based on the type of feed
@@ -22,7 +21,7 @@ public class RSSProcessorFactory {
 	 * @param builder
 	 * @return
 	 */
-	public static RSSProcessor getRSS2_0Processor(Uri feedLocation, RSSFeedBuilder builder){
+	public static RSSProcessor getRSS2_0Processor(URL feedLocation, RSSFeedBuilder builder){
 		SimpleFeedProcessor sfp = new SimpleFeedProcessor(feedLocation);
 		//TestRSSProcessor sfp = new TestRSSProcessor(feedLocation);
 		sfp.setBuilder(builder);
@@ -34,7 +33,7 @@ public class RSSProcessorFactory {
 	 * @param feedLocation
 	 * @return
 	 */
-	public static RSSProcessor getRSS2_0Processor(Uri feedLocation){
+	public static RSSProcessor getRSS2_0Processor(URL feedLocation){
 		RSSFeedBuilder builder = new SimpleRSSFeedBuilder();
 		return getRSS2_0Processor(feedLocation, builder);
 	}

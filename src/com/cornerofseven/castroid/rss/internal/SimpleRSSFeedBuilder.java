@@ -34,11 +34,11 @@ public class SimpleRSSFeedBuilder implements RSSFeedBuilder {
 		mChannel.addItem(item);
 	}
 
+	/**
+	 * Nothing to be done.
+	 */
 	@Override
-	public void finishFeed() {
-		// TODO Auto-generated method stub
-
-	}
+	public void finishFeed() {}
 	
 	@Override
 	public RSSChannel getFeed(){

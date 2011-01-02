@@ -16,31 +16,27 @@
 package com.cornerofseven.castroid.rss.test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.URL;
 import java.util.Scanner;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import android.R;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Environment;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.AndroidTestCase;
 import android.util.Log;
 
 import com.cornerofseven.castroid.Castroid;
 import com.cornerofseven.castroid.rss.MalformedRSSException;
 import com.cornerofseven.castroid.rss.RSSFeedBuilder;
-import com.cornerofseven.castroid.rss.RSSProcessorFactory;
 import com.cornerofseven.castroid.rss.RSSProcessor;
+import com.cornerofseven.castroid.rss.RSSProcessorFactory;
 import com.cornerofseven.castroid.rss.feed.RSSChannel;
 import com.cornerofseven.castroid.rss.feed.RSSItem;
 
@@ -115,8 +111,9 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 		File file = new File(dataFolder, RSS2_0SampleFile);
 
 		Uri uri = Uri.fromFile(file);
-
-		RSSProcessor proc = RSSProcessorFactory.getRSS2_0Processor(uri);
+		URL url = new URL(uri.toString());
+		
+		RSSProcessor proc = RSSProcessorFactory.getRSS2_0Processor(url);
 
 		RSSFeedBuilder builder = proc.getBuilder();
 		assertNotNull(builder);

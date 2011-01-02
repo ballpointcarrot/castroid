@@ -17,6 +17,7 @@
 package com.cornerofseven.castroid;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Iterator;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -58,6 +59,8 @@ import android.widget.Toast;
  */
 public class NewFeed extends Activity{
 
+	private static final String TAG = "NewFeed"; 
+	
 	//The controls we will need from the activity's view//
 	private Button mCreate = null;
 	private EditText mInputText;
@@ -115,7 +118,7 @@ public class NewFeed extends Activity{
 	 * rss feed.  
 	 * @param uriString string representation of the Uri where the feed is located.
 	 */
-	protected void loadFeedOrError(String uriString){
+	protected void loadFeedOrError(String urlString){
 		/*General idea
 		 * -> Convert the String to a URI object.
 		 * -> Pass the URI as an argument to the RSS feed creator
@@ -123,19 +126,25 @@ public class NewFeed extends Activity{
 		 * -> If no problems, keep track of the feed, so we don't have to reprossess and display its information
 		 */
 
-		Uri feedLocation = Uri.parse(uriString);
-		RSSProcessor processor = RSSProcessorFactory.getRSS2_0Processor(feedLocation);
-
 		try{
+			//TODO: Delete me!
+			Log.d(TAG, "Checking " + urlString);
+			URL feedLocation = new URL(urlString);
+			Log.i(TAG, feedLocation.toString());
+			RSSProcessor processor = RSSProcessorFactory.getRSS2_0Processor(feedLocation);
+			Log.d(TAG, "Using processor " + processor.getClass().toString());
+			
 			processor.process();
 			RSSFeedBuilder builder = processor.getBuilder();
 		
 			mFeed = builder.getFeed();
+			Log.d(TAG, mFeed.toString());
 			bindFeedInfo();
 		}catch(Exception ex){
+			Log.e(TAG, ex.getMessage());
 			Toast.makeText(this, "Unable to parse the feed\n " 
 					+ ex.getMessage()
-					, Toast.LENGTH_LONG);
+					, Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -145,6 +154,8 @@ public class NewFeed extends Activity{
 	protected void bindFeedInfo(){
 		final RSSChannel feed = mFeed;
 		
+		//TODO: Delete me
+		Log.d(TAG, "Binding feed information");
 		if(feed != null){
 			mFeedTitle.setText(feed.getmTitle());
 			mFeedDesc.setText(feed.getmDesc());

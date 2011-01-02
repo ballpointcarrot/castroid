@@ -18,6 +18,7 @@ package com.cornerofseven.castroid.rss.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -44,8 +45,10 @@ public class RSSParsingTestRemote extends AndroidTestCase{
 	public void testParseRSS20Example() throws ParserConfigurationException, IOException, SAXException, MalformedRSSException{
 		String address = "http://cyber.law.harvard.edu/rss/examples/rss2sample.xml";
 		Uri uri = Uri.parse(address);
+		URL url = new URL(uri.toString());
+		
+		RSSProcessor proc = RSSProcessorFactory.getRSS2_0Processor(url);
 
-		RSSProcessor proc = RSSProcessorFactory.getRSS2_0Processor(uri);
 
 		RSSFeedBuilder builder = proc.getBuilder();
 		assertNotNull(builder);

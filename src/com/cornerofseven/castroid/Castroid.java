@@ -112,5 +112,6 @@ public class Castroid extends Activity {
         }
 
 
+    //TODO: Context menu to delete feeds/items from the database
 
 }
