@@ -63,6 +63,15 @@ public class PodcastDataProvider extends ContentProvider{
 			db.execSQL("DROP TABLE IF EXISTS "+Item.TABLE_NAME);
 			onCreate(db);
 		}
+		
+		/**
+		 * Clear out all the data from the database.
+		 * @param db
+		 */
+		public void clearDatabase(SQLiteDatabase db){
+			db.delete(Feed.TABLE_NAME, null, null);
+			db.delete(Item.TABLE_NAME, null, null);
+		}
 
 		/**
 		 * Convenience method to simplify adding a feed to the database
@@ -227,6 +236,13 @@ public class PodcastDataProvider extends ContentProvider{
 		return 0;
 	}
 
+	/**
+	 * Delete all the information in the DB tables, but leave the tables intact.
+	 */
+	public void deleteAll(){
+		helper.clearDatabase(helper.getWritableDatabase());
+	}
+	
 	/**
 	 * Utility method to make handling an unknown URI consistent.
 	 * @param uri

@@ -11,3 +11,4 @@ Database:
 1. Need to keep track of feeds seen/downloaded/download name. 
 2. Prevent duplicate podcast URL's from being added to the database
 3. Delete Feed option.
+4. Worry about SQL injection attacks?

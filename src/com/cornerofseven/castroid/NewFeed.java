@@ -26,6 +26,7 @@ import org.xml.sax.SAXException;
 
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
+import com.cornerofseven.castroid.data.PodcastDAO;
 import com.cornerofseven.castroid.rss.RSSFeedBuilder;
 import com.cornerofseven.castroid.rss.RSSProcessor;
 import com.cornerofseven.castroid.rss.RSSProcessorFactory;
@@ -180,28 +181,11 @@ public class NewFeed extends Activity{
 		final RSSChannel feed = mFeed;
 		if(feed != null){
 			ContentResolver content = getContentResolver();
-			ContentValues values = new ContentValues();
-			values.put(Feed.TITLE, feed.getmTitle());
-			values.put(Feed.LINK, feed.getmLink());
-			values.put(Feed.DESCRIPTION, feed.getmDesc());
-			Uri feedUri = content.insert(Feed.CONTENT_URI, values);
 			
-			
-			String frag = feedUri.getLastPathSegment();
-//			Log.d(Castroid.TAG, feedUri.toString());
-//			Log.d(Castroid.TAG, "Feed fragment " + frag);
-			int feedId = Integer.parseInt(frag);
-			
-			Iterator<RSSItem> itemsIter = feed.itemsIterator();
-			while(itemsIter.hasNext()){
-				RSSItem item = itemsIter.next();
-				values = new ContentValues();
-				values.put(Item.OWNER, feedId);
-				values.put(Item.DESC, item.getDesc());
-				values.put(Item.TITLE, item.getTitle());
-				values.put(Item.LINK, item.getLink());
-				content.insert(Item.CONTENT_URI, values);
+			if(!PodcastDAO.addRSS(content, feed)){
+				Toast.makeText(this, "Unable to add the feed", Toast.LENGTH_SHORT).show();
 			}
+			
 		}else{
 			Toast.makeText(this, "No feed to save", Toast.LENGTH_SHORT).show();
 		}
