@@ -32,60 +32,60 @@ public class Castroid extends Activity {
 
     /** Called when the activity is first created. */
     @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.main);
-            mBtnAdd = (Button)findViewById(R.id.btn_add_podcast);
-            mBtnAdd.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public final void onClick(View v) {
-                    addFeed();
-                }
-            });
+    public void onCreate(Bundle savedInstanceState) {
+    	super.onCreate(savedInstanceState);
+    	setContentView(R.layout.main);
+    	mBtnAdd = (Button)findViewById(R.id.btn_add_podcast);
+    	mBtnAdd.setOnClickListener(new View.OnClickListener() {
+    		@Override
+    		public final void onClick(View v) {
+    			addFeed();
+    		}
+    	});
 
-            mFeedList = (ListView)findViewById(R.id.main_feedlist);
-            final String[] FEED_PROJECTION ={
-                Feed._ID,
-                Feed.TITLE,
-                Feed.DESCRIPTION,
-                Feed.LINK
-            };
-            Cursor c = managedQuery(Feed.CONTENT_URI, 
-                    FEED_PROJECTION, null, null, null);
-            c.setNotificationUri(getContentResolver(), Feed.CONTENT_URI);
-            
-            final int GROUP_LAYOUT = android.R.layout.simple_expandable_list_item_1;
-            final String[] GROUP_FROM = {Feed.TITLE};
-            final int[] GROUP_TO = {android.R.id.text1};
-            final int CHILD_LAYOUT = android.R.layout.simple_expandable_list_item_1;
-            final String[] CHILD_FROM = {Item.TITLE};
-            final int[] CHILD_TO = {android.R.id.text1};
+    	mFeedList = (ListView)findViewById(R.id.main_feedlist);
+    	final String[] FEED_PROJECTION ={
+    			Feed._ID,
+    			Feed.TITLE,
+    			Feed.DESCRIPTION,
+    			Feed.LINK
+    	};
+    	Cursor c = managedQuery(Feed.CONTENT_URI, 
+    			FEED_PROJECTION, null, null, null);
+    	c.setNotificationUri(getContentResolver(), Feed.CONTENT_URI);
 
-            ((ExpandableListView)findViewById(R.id.podcastList)).setAdapter(
-            new SimpleCursorTreeAdapter(this,c,
-                GROUP_LAYOUT, GROUP_FROM, GROUP_TO,
-                CHILD_LAYOUT, CHILD_FROM, CHILD_TO){
+    	final int GROUP_LAYOUT = android.R.layout.simple_expandable_list_item_1;
+    	final String[] GROUP_FROM = {Feed.TITLE};
+    	final int[] GROUP_TO = {android.R.id.text1};
+    	final int CHILD_LAYOUT = android.R.layout.simple_expandable_list_item_1;
+    	final String[] CHILD_FROM = {Item.TITLE};
+    	final int[] CHILD_TO = {android.R.id.text1};
 
-                @Override
-                protected Cursor getChildrenCursor(Cursor groupCursor) {
-                    final String[] PROJECTION = new String[]{
-                        Item._ID,
-                Item.OWNER,
-                Item.TITLE,
-                Item.LINK,
-                Item.DESC
-                    };
-                    final String SELECT_ITEMS = Item.OWNER + " = ?";
-                    int feedId = groupCursor.getInt(groupCursor.getColumnIndex(Feed._ID));
-                    String[] selectionArgs = new String[]{
-                        Integer.toString(feedId)	
-                    };
-                    return managedQuery(Item.CONTENT_URI, PROJECTION,
-                        SELECT_ITEMS, selectionArgs, Item.DEFAULT_SORT);
-                }
+    	((ExpandableListView)findViewById(R.id.podcastList)).setAdapter(
+    			new SimpleCursorTreeAdapter(this,c,
+    					GROUP_LAYOUT, GROUP_FROM, GROUP_TO,
+    					CHILD_LAYOUT, CHILD_FROM, CHILD_TO){
 
-            });
-        }
+    				@Override
+    				protected Cursor getChildrenCursor(Cursor groupCursor) {
+    					final String[] PROJECTION = new String[]{
+    							Item._ID,
+    							Item.OWNER,
+    							Item.TITLE,
+    							Item.LINK,
+    							Item.DESC
+    					};
+    					final String SELECT_ITEMS = Item.OWNER + " = ?";
+    					int feedId = groupCursor.getInt(groupCursor.getColumnIndex(Feed._ID));
+    					String[] selectionArgs = new String[]{
+    							Integer.toString(feedId)	
+    					};
+    					return managedQuery(Item.CONTENT_URI, PROJECTION,
+    							SELECT_ITEMS, selectionArgs, Item.DEFAULT_SORT);
+    				}
+
+    			});
+    }
 
     protected void addFeed(){
         Intent intent = new Intent(this, NewFeed.class);
@@ -93,23 +93,23 @@ public class Castroid extends Activity {
     }
 
     @Override
-        public boolean onCreateOptionsMenu(Menu menu){
-            super.onCreateOptionsMenu(menu);
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.menu, menu);
-            return true;
-        }
+    public boolean onCreateOptionsMenu(Menu menu){
+    	super.onCreateOptionsMenu(menu);
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.menu, menu);
+    	return true;
+    }
 
     @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
 
-            switch(item.getItemId()){
-                case R.id.addFeed:
-                    addFeed();
-                    return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
+    	switch(item.getItemId()){
+    	case R.id.addFeed:
+    		addFeed();
+    		return true;
+    	}
+    	return super.onOptionsItemSelected(item);
+    }
 
 
     //TODO: Context menu to delete feeds/items from the database
