@@ -1,0 +1,13 @@
+Ideas that came to me while using the application.
+
+UI
+1. Wait progress bar of some sort when downloading/parsing Podcast feed.
+2. Sort order choice for items in an RSS feed.
+
+URLs
+1. Smarting DNS resolution of feed.  Currently fails if the http and www are missing.
+
+Database:
+1. Need to keep track of feeds seen/downloaded/download name. 
+2. Prevent duplicate podcast URL's from being added to the database
+3. Delete Feed option.
