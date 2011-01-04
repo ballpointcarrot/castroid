@@ -18,7 +18,9 @@ package com.cornerofseven.castroid.rss.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Iterator;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -26,6 +28,7 @@ import org.xml.sax.SAXException;
 
 import android.net.Uri;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import com.cornerofseven.castroid.rss.MalformedRSSException;
 import com.cornerofseven.castroid.rss.RSSFeedBuilder;
@@ -42,6 +45,8 @@ import com.cornerofseven.castroid.rss.feed.RSSItem;
  */
 public class RSSParsingTestRemote extends AndroidTestCase{
 
+	private static final String TAG = "RSSRemoteTests";
+	
 	public void testParseRSS20Example() throws ParserConfigurationException, IOException, SAXException, MalformedRSSException{
 		String address = "http://cyber.law.harvard.edu/rss/examples/rss2sample.xml";
 		Uri uri = Uri.parse(address);
@@ -97,5 +102,40 @@ public class RSSParsingTestRemote extends AndroidTestCase{
 
 		final String errorMsg = "Expected " + EXPECTED_ITEMS + " found " + items.length;
 		assertEquals(errorMsg, EXPECTED_ITEMS, items.length);
+	}
+	
+	/**
+	 * Parse the Wait Wait Don't Tell me feed.
+	 * @throws MalformedRSSException 
+	 * @throws SAXException 
+	 * @throws IOException 
+	 * @throws ParserConfigurationException 
+	 */
+	public void testWaitWaitFeed() throws ParserConfigurationException, IOException, SAXException, MalformedRSSException{
+		final String addr = "http://www.npr.org/rss/podcast.php?id=35";
+		final URL wwURL = new URL(addr);
+		
+		RSSProcessor proc = RSSProcessorFactory.getRSS2_0Processor(wwURL);
+		proc.process();
+		
+		RSSChannel channel = proc.getBuilder().getFeed();
+		
+		final String SUB_TAG = TAG + "_WaitWait";
+		
+		Log.i(SUB_TAG, channel.getmTitle());
+		Log.i(SUB_TAG, channel.getmDesc());
+		Log.i(SUB_TAG, channel.getmLink());
+	
+		Log.i(SUB_TAG, "Items:");
+		
+		Iterator<RSSItem> items = channel.itemsIterator();
+		while(items.hasNext()){
+			RSSItem item = items.next();
+			StringBuilder sb = new StringBuilder();
+			sb.append(item.getmTitle()); sb.append(":");
+			sb.append(item.getmDesc()); sb.append(":");
+			sb.append(item.getmLink()); sb.append(":");
+			sb.append(item.getmEnclosure()); sb.append(":");
+		}
 	}
 }
