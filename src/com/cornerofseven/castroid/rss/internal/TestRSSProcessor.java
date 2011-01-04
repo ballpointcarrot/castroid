@@ -20,6 +20,7 @@ import android.net.Uri;
 
 import com.cornerofseven.castroid.rss.RSSFeedBuilder;
 import com.cornerofseven.castroid.rss.RSSProcessor;
+import com.cornerofseven.castroid.rss.feed.RSSItem;
 
 /**
  * RSS processor for test purposes.
@@ -61,7 +62,11 @@ public class TestRSSProcessor implements RSSProcessor{
 			String itemName = "Item " + feedIndex + "_" + i;
 			String itemDesc = "This is item " + feedIndex + "_" + i;
 			String itemLink = "http://localhost/" + feedIndex + "_" + i + ".mp3";
-			builder.addItem(itemName, itemDesc, itemLink);
+			RSSItem item = builder.addItem();
+			
+			item.setmLink(itemLink);
+			item.setmDesc(itemDesc);
+			item.setmTitle(itemName);
 		}
 	}
 

@@ -38,6 +38,7 @@ import com.cornerofseven.castroid.rss.MalformedRSSException;
 import com.cornerofseven.castroid.rss.RSSFeedBuilder;
 import com.cornerofseven.castroid.rss.RSSProcessor;
 import com.cornerofseven.castroid.rss.RSSTags;
+import com.cornerofseven.castroid.rss.feed.RSSItem;
 
 /**
  * An example RSS file:
@@ -209,37 +210,37 @@ public class SimpleFeedProcessor implements RSSProcessor{
 	}
 	
 	/**
-	 * 
-	 * @param item
+	 * Process a single item sub-element in the RSS structure.
+	 * @param itemNode
 	 */
-	private void processItem(Node item){
+	private void processItem(Node itemNode){
 		RSSFeedBuilder builder = mFeedBuilder;
+		RSSItem newItem = builder.addItem();
 		
-		String name = "", desc = "", encURI = "";
-		
-		NodeList itemElements = item.getChildNodes();
+		NodeList itemElements = itemNode.getChildNodes();
 		for(int i = 0; i < itemElements.getLength(); i++){
+			String tmp;
 			Node child = itemElements.item(i);
 			String childName = child.getNodeName();
-			//choose which child node we have
-			if(RSSTags.ITEM.equals(childName)){
-				processItem(child);
-			}
-			else if(RSSTags.ITEM_TITLE.equals(childName)){
-				name = child.getFirstChild().getNodeValue();
+			if(RSSTags.ITEM_TITLE.equals(childName)){
+				tmp = child.getFirstChild().getNodeValue();
+				newItem.setmTitle(tmp);
 			}else if(RSSTags.ITEM_ENC.equals(childName)){
 				Enclosure enc = processEnclosure(child);
-				encURI = enc.url;
+				//TODO: The RSS item should store an enclosure, or at least all the information an enclosure encodes
+				newItem.setmEnclosure(enc.url);
 			}else if(RSSTags.ITEM_DESC.equals(childName)){
-				desc = child.getFirstChild().getNodeValue();
+				tmp = child.getFirstChild().getNodeValue();
+				newItem.setmDesc(tmp);
+			}else if(RSSTags.ITEM_LINK.equals(childName)){
+				tmp = child.getFirstChild().getNodeValue();
+				newItem.setmLink(tmp);
 			}
 			else{
 				//TODO: Delete me when debugging done.
 				Log.d(TAG, "Ignoring " + childName);
 			}
 		}
-		
-		builder.addItem(name, desc, encURI);
 	}
 	
 	/**

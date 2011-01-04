@@ -29,9 +29,10 @@ public class SimpleRSSFeedBuilder implements RSSFeedBuilder {
 	}
 	
 	@Override
-	public void addItem(String name, String desc, String encURI) {
-		RSSItem item = new RSSItem(name, "", desc, encURI);
+	public RSSItem addItem() {
+		RSSItem item = new RSSItem("", "", "", "");
 		mChannel.addItem(item);
+		return item;
 	}
 
 	/**

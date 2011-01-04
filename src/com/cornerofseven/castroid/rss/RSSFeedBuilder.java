@@ -1,6 +1,7 @@
 package com.cornerofseven.castroid.rss;
 
 import com.cornerofseven.castroid.rss.feed.RSSChannel;
+import com.cornerofseven.castroid.rss.feed.RSSItem;
 
 /**
  * Interface defining what RSS/Podcast data can be
@@ -40,8 +41,9 @@ public interface RSSFeedBuilder {
 	 * @param name
 	 * @param desc
 	 * @param encURI
+	 * @return reference to the item.  This reference's should be mutated add information to the item.
 	 */
-	public void addItem(String name, String desc, String encURI);
+	public RSSItem addItem();
 
 	/**
 	 * Do whatever clean/data commit/ect. that is needed for the feed.
