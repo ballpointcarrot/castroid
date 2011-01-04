@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Downloaded from NPR, 1/2/11 
+Most of the item elements were removed to simplify for testing.
+-->
+<?xml-stylesheet title="XSL_formatting" type="text/xsl" href="/include/xsl/podcast.xsl"?>
+<rss xmlns:npr="http://www.npr.org/rss/" xmlns:nprml="http://api.npr.org/nprml"
+	xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
+	<channel>
+		<title>NPR: Wait Wait... Don't Tell Me! Podcast</title>
+		<link>http://www.npr.org/templates/rundowns/rundown.php?prgId=35&amp;ft=2&amp;f=35</link>
+		<description><![CDATA[NPR's weekly current events quiz.  Have a laugh and test your news knowledge while figuring out what's real and what we've made up.]]></description>
+		<copyright>Copyright 2007 NPR - For Personal Use Only</copyright>
+		<generator>NPR API RSS Generator 0.93</generator>
+		<language>en-us</language>
+		<itunes:summary><![CDATA[NPR's weekly current events quiz.  Have a laugh and test your news knowledge while figuring out what's real and what we've made up.]]></itunes:summary>
+		<itunes:subtitle>NPR's weekly current events quiz. Have a laugh and
+			test your news knowledge while figuring out what</itunes:subtitle>
+		<itunes:keywords>NPR,National Public Radio,Wait Wait Don t Tell Me
+			,Washington,District of Columbia,Morning Edition,All Things
+			Considered,Fresh Air</itunes:keywords>
+		<itunes:author>NPR</itunes:author>
+		<itunes:owner>
+			<itunes:email />
+			<itunes:name />
+		</itunes:owner>
+		<itunes:category text="Games &amp; Hobbies" />
+		<itunes:image
+			href="http://media.npr.org/images/podcasts/primary/npr_wwdtm_image_300.jpg" />
+		<itunes:explicit>no</itunes:explicit>
+		<image>
+			<url>http://media.npr.org/images/podcasts/thumbnail/npr_wwdtm_image_75.jpg</url>
+			<title>NPR: Wait Wait... Don't Tell Me! Podcast</title>
+			<link>http://www.npr.org/templates/rundowns/rundown.php?prgId=35&amp;ft=2&amp;f=35</link>
+		</image>
+		<lastBuildDate>Sat, 01 Jan 2011 17:13:59 -0500</lastBuildDate>
+		<item>
+			<title>NPR: 01-01-2011 Wait Wait... Don't Tell Me!</title>
+			<description><![CDATA[Stories:  1) Who's Carl This Time? 2) Opening Panel Round 3) Bluff The Listener 4) Not My Job Guest: Nora Ephron 5) Panel Round Two 6) Limericks 7) Lightning Fill In The Blank 8) Prediction]]></description>
+			<pubDate>Sat, 01 Jan 2011 17:13:59 -0500</pubDate>
+			<link>http://www.npr.org/templates/rundowns/rundown.php?prgId=35&amp;ft=2&amp;f=35</link>
+			<guid>http://podcastdownload.npr.org/anon.npr-podcasts/podcast/35/132562081/npr_132562081.mp3</guid>
+			<itunes:summary><![CDATA[Stories:  1) Who's Carl This Time? 2) Opening Panel Round 3) Bluff The Listener 4) Not My Job Guest: Nora Ephron 5) Panel Round Two 6) Limericks 7) Lightning Fill In The Blank 8) Prediction]]></itunes:summary>
+			<itunes:keywords>NPR,National Public Radio,Wait Wait Don t Tell Me
+				,Washington,District of Columbia,Morning Edition,All Things
+				Considered,Fresh Air</itunes:keywords>
+			<itunes:duration>47:18</itunes:duration>
+			<itunes:explicit>no</itunes:explicit>
+			<enclosure
+				url="http://podcastdownload.npr.org/anon.npr-podcasts/podcast/35/132562081/npr_132562081.mp3"
+				length="22838978" type="audio/mpeg" />
+		</item>
+	</channel>
+</rss>
+
+
+<!-- Burned on demand at 2011-01-01 17:14:46 -->
+
+<!-- LIVE -->
+
+<!-- Burned 01/01/2011 17:14:46.380 --> 
+ 
