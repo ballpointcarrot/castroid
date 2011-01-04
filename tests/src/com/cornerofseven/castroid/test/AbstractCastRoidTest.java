@@ -54,10 +54,14 @@ public abstract class AbstractCastRoidTest extends ActivityInstrumentationTestCa
 		//clear the database before each test.
 		mDataprovider.deleteAll();
 	
-		
-		
 		mPodcastList = (ExpandableListView)(mActivity.findViewById(com.cornerofseven.castroid.R.id.podcastList));
 	}
 
-	
+	@Override
+	public void tearDown() throws Exception{
+		super.tearDown();
+		mActivity = null;
+		mPodcastList = null;
+		mDataprovider = null;
+	}
 }

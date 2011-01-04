@@ -37,6 +37,15 @@ public class PodcastDataProvider extends ContentProvider{
 		public DbHelper(Context ctx){
 			super(ctx, DB_NAME, null, DB_VERSION);
 		}
+		
+		@Override
+		public void onOpen(SQLiteDatabase db){
+			super.onOpen(db);
+			if(!db.isReadOnly()){
+				//enable foreign keys
+				db.execSQL("PRAGMA foreign_keys=ON;");
+			}
+		}
 
 		@Override
 		public void onCreate(SQLiteDatabase db){
@@ -49,7 +58,7 @@ public class PodcastDataProvider extends ContentProvider{
 
 			db.execSQL("CREATE TABLE " + Item.TABLE_NAME + "(" +
 					Item._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-					Item.OWNER + " INTEGER, " +  //foreign key  to the feed table 
+					Item.OWNER + " INTEGER REFERENCES " + Feed.TABLE_NAME + " ON DELETE CASCADE, " +  //foreign key  to the feed table 
 					Item.TITLE + " TEXT NOT NULL, " +
 					Item.LINK  + " TEXT NOT NULL, " +
 					Item.DESC  + " TEXT NOT NULL);");
@@ -134,8 +143,16 @@ public class PodcastDataProvider extends ContentProvider{
 	
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		SQLiteDatabase db = helper.getWritableDatabase();
+		switch(uriMatcher.match(uri)){
+		case FEED : 
+			return db.delete(Feed.TABLE_NAME, selection, selectionArgs);
+		case ITEM : 
+			return db.delete(Item.TABLE_NAME, selection, selectionArgs);
+		default:
+			unknownURI(uri);
+			return -1;
+		}
 	}
 
 	@Override
