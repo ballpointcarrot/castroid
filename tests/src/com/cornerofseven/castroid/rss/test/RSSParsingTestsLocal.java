@@ -213,10 +213,10 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 		 */
 		for(int i = 0; i<items.length; i++){
 			RSSItem cur = items[i];
-			assertEquals(expectedItemData[i][TITLE_INDEX], cur.getmTitle());
-			assertEquals(expectedItemData[i][LINK_INDEX], cur.getmLink());
-			assertEquals(expectedItemData[i][DESC_INDEX], cur.getmDesc());
-			assertEquals(expectedItemData[i][ENC_INDEX], cur.getmEnclosure());
+			assertEquals(expectedItemData[i][TITLE_INDEX], cur.getTitle());
+			assertEquals(expectedItemData[i][LINK_INDEX], cur.getLink());
+			assertEquals(expectedItemData[i][DESC_INDEX], cur.getDesc());
+			assertEquals(expectedItemData[i][ENC_INDEX], cur.getEnclosure());
 		}
 
 		//assume the number of item data elements passed in

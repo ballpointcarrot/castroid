@@ -197,9 +197,9 @@ public class NewFeed extends Activity{
 				RSSItem item = itemsIter.next();
 				values = new ContentValues();
 				values.put(Item.OWNER, feedId);
-				values.put(Item.DESC, item.getmDesc());
-				values.put(Item.TITLE, item.getmTitle());
-				values.put(Item.LINK, item.getmLink());
+				values.put(Item.DESC, item.getDesc());
+				values.put(Item.TITLE, item.getTitle());
+				values.put(Item.LINK, item.getLink());
 				content.insert(Item.CONTENT_URI, values);
 			}
 		}else{

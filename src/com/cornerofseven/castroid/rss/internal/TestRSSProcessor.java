@@ -64,9 +64,9 @@ public class TestRSSProcessor implements RSSProcessor{
 			String itemLink = "http://localhost/" + feedIndex + "_" + i + ".mp3";
 			RSSItem item = builder.addItem();
 			
-			item.setmLink(itemLink);
-			item.setmDesc(itemDesc);
-			item.setmTitle(itemName);
+			item.setLink(itemLink);
+			item.setDesc(itemDesc);
+			item.setTitle(itemName);
 		}
 	}
 

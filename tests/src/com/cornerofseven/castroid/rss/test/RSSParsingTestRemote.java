@@ -94,10 +94,10 @@ public class RSSParsingTestRemote extends AndroidTestCase{
 		 */
 		for(int i = 0; i<items.length; i++){
 			RSSItem cur = items[i];
-			assertEquals(expectedItemData[i][TITLE_INDEX], cur.getmTitle());
-			assertEquals(expectedItemData[i][LINK_INDEX], cur.getmLink());
-			assertEquals(expectedItemData[i][DESC_INDEX], cur.getmDesc());
-			assertEquals(expectedItemData[i][ENC_INDEX], cur.getmEnclosure());
+			assertEquals(expectedItemData[i][TITLE_INDEX], cur.getTitle());
+			assertEquals(expectedItemData[i][LINK_INDEX], cur.getLink());
+			assertEquals(expectedItemData[i][DESC_INDEX], cur.getDesc());
+			assertEquals(expectedItemData[i][ENC_INDEX], cur.getEnclosure());
 		}
 
 		final String errorMsg = "Expected " + EXPECTED_ITEMS + " found " + items.length;
@@ -132,10 +132,10 @@ public class RSSParsingTestRemote extends AndroidTestCase{
 		while(items.hasNext()){
 			RSSItem item = items.next();
 			StringBuilder sb = new StringBuilder();
-			sb.append(item.getmTitle()); sb.append(":");
-			sb.append(item.getmDesc()); sb.append(":");
-			sb.append(item.getmLink()); sb.append(":");
-			sb.append(item.getmEnclosure()); sb.append(":");
+			sb.append(item.getTitle()); sb.append(":");
+			sb.append(item.getDesc()); sb.append(":");
+			sb.append(item.getLink()); sb.append(":");
+			sb.append(item.getEnclosure()); sb.append(":");
 		}
 	}
 }

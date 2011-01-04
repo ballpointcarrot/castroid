@@ -224,17 +224,17 @@ public class SimpleFeedProcessor implements RSSProcessor{
 			String childName = child.getNodeName();
 			if(RSSTags.ITEM_TITLE.equals(childName)){
 				tmp = child.getFirstChild().getNodeValue();
-				newItem.setmTitle(tmp);
+				newItem.setTitle(tmp);
 			}else if(RSSTags.ITEM_ENC.equals(childName)){
 				Enclosure enc = processEnclosure(child);
 				//TODO: The RSS item should store an enclosure, or at least all the information an enclosure encodes
-				newItem.setmEnclosure(enc.url);
+				newItem.setEnclosure(enc.url);
 			}else if(RSSTags.ITEM_DESC.equals(childName)){
 				tmp = child.getFirstChild().getNodeValue();
-				newItem.setmDesc(tmp);
+				newItem.setDesc(tmp);
 			}else if(RSSTags.ITEM_LINK.equals(childName)){
 				tmp = child.getFirstChild().getNodeValue();
-				newItem.setmLink(tmp);
+				newItem.setLink(tmp);
 			}
 			else{
 				//TODO: Delete me when debugging done.

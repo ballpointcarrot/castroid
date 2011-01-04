@@ -25,56 +25,61 @@ public class RSSItem {
 	/**
 	 * @return the mTitle
 	 */
-	public final String getmTitle() {
+	public final String getTitle() {
 		return mTitle;
 	}
 
 	/**
 	 * @param mTitle the mTitle to set
 	 */
-	public final void setmTitle(String mTitle) {
+	public final void setTitle(String mTitle) {
 		this.mTitle = mTitle;
 	}
 
 	/**
 	 * @return the mLink
 	 */
-	public final String getmLink() {
+	public final String getLink() {
 		return mLink;
 	}
 
 	/**
 	 * @param mLink the mLink to set
 	 */
-	public final void setmLink(String mLink) {
+	public final void setLink(String mLink) {
 		this.mLink = mLink;
 	}
 
 	/**
 	 * @return the mDesc
 	 */
-	public final String getmDesc() {
+	public final String getDesc() {
 		return mDesc;
 	}
 
 	/**
 	 * @param mDesc the mDesc to set
 	 */
-	public final void setmDesc(String mDesc) {
+	public final void setDesc(String mDesc) {
 		this.mDesc = mDesc;
 	}
 
 	/**
 	 * @return the mEnclosure
 	 */
-	public final String getmEnclosure() {
+	public final String getEnclosure() {
 		return mEnclosure;
 	}
 
 	/**
 	 * @param mEnclosure the mEnclosure to set
 	 */
-	public final void setmEnclosure(String mEnclosure) {
+	public final void setEnclosure(String mEnclosure) {
 		this.mEnclosure = mEnclosure;
+	}
+	
+	@Override
+	public String toString(){
+		return this.mTitle;
 	}
 }
