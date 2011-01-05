@@ -17,7 +17,9 @@
 package com.cornerofseven.castroid;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -91,7 +93,7 @@ public class NewFeed extends Activity{
 		mSaveFeed = (Button)findViewById(R.id.afs_savefeed);
 		
 		final EditText input = mInputText;
-
+		
 		//connect the CheckFeed button on click action.
 		mCreate.setOnClickListener(new View.OnClickListener() {
 			/**
@@ -130,18 +132,23 @@ public class NewFeed extends Activity{
 		try{
 			//TODO: Delete me!
 			Log.d(TAG, "Checking " + urlString);
+			
 			URL feedLocation = new URL(urlString);
 			Log.i(TAG, feedLocation.toString());
 			RSSProcessor processor = RSSProcessorFactory.getRSS2_0Processor(feedLocation);
 			Log.d(TAG, "Using processor " + processor.getClass().toString());
-			
+
 			processor.process();
 			RSSFeedBuilder builder = processor.getBuilder();
-		
+
 			mFeed = builder.getFeed();
 			Log.d(TAG, mFeed.toString());
 			bindFeedInfo();
-		}catch(Exception ex){
+		}catch(UnknownHostException uhe){
+			Toast.makeText(this, "Unknown host " + urlString, Toast.LENGTH_SHORT).show();
+		}
+		catch(Exception ex){
+			Log.e(TAG, ex.getClass().toString());
 			Log.e(TAG, ex.getMessage());
 			Toast.makeText(this, "Unable to parse the feed\n " 
 					+ ex.getMessage()
@@ -179,17 +186,22 @@ public class NewFeed extends Activity{
 	 */
 	protected void saveRSSFeed(){
 		final RSSChannel feed = mFeed;
+		if(feed == null){ //check the feed if the user didn't
+			//try to load the feed on save.
+			loadFeedOrError(mInputText.getText().toString());
+		}
+		
+		//only save and finish the activity if something was loaded.
+		//preserve the activity if a feed couldn't be processed.
 		if(feed != null){
 			ContentResolver content = getContentResolver();
-			
 			if(!PodcastDAO.addRSS(content, feed)){
 				Toast.makeText(this, "Unable to add the feed", Toast.LENGTH_SHORT).show();
+			}else{
+				finish(); //only finish if an error didn't happen
 			}
-			
 		}else{
 			Toast.makeText(this, "No feed to save", Toast.LENGTH_SHORT).show();
 		}
-		
-		finish();
 	}
 }
