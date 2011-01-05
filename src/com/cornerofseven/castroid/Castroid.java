@@ -16,6 +16,8 @@
 
 package com.cornerofseven.castroid;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -23,6 +25,7 @@ import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -71,14 +74,30 @@ public class Castroid extends Activity {
     
     //DIALOG IDs
     public static final int PROGRESS_DIALOG_ID = 1;
+    public static final int PLAY_MEDIA_DIALOG_ID = 2;
     
     protected ProgressDialog mProgressDialog = null;
+    
+    //The media player to use for playing podcasts.
+    protected MediaPlayer mMediaPlayer;
     
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	setContentView(R.layout.main);
+    	
+    	//media player
+    	mMediaPlayer = new MediaPlayer();
+    	//whenever the media player finishes, make sure the dialog that 
+    	//came up to show the media was playing is dismissed.
+    	mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+			@Override
+			public void onCompletion(MediaPlayer paramMediaPlayer) {
+				dismissDialog(PLAY_MEDIA_DIALOG_ID);
+			}
+		});
+    	
     	mBtnAdd = (Button)findViewById(R.id.btn_add_podcast);
     	mBtnAdd.setOnClickListener(new View.OnClickListener() {
     		@Override
@@ -105,10 +124,10 @@ public class Castroid extends Activity {
     	final String[] CHILD_FROM = {Item.TITLE};
     	final int[] CHILD_TO = {android.R.id.text1};
     	
+    	
     	mPodcastTree = ((ExpandableListView)findViewById(R.id.podcastList));
     	//pull a local ref for better performance
     	final ExpandableListView podcastTree = mPodcastTree;
-    	
     	podcastTree.setAdapter(
     			new SimpleCursorTreeAdapter(this,c,
     					GROUP_LAYOUT, GROUP_FROM, GROUP_TO,
@@ -191,7 +210,8 @@ public class Castroid extends Activity {
 			public boolean onChildClick(ExpandableListView paramExpandableListView,
 					View paramView, int paramInt1, int paramInt2, long paramLong) {
 				// TODO Auto-generated method stub
-				downloadItem(paramLong);
+				//downloadItem(paramLong);
+				playStream(paramLong);
 				return true;
 			}
 		});
@@ -256,16 +276,17 @@ public class Castroid extends Activity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		Dialog dialog = null;
+		ProgressDialog pd;
 		switch(id){
 		case PROGRESS_DIALOG_ID:
-			ProgressDialog pd = new ProgressDialog(this);
-			
+			pd = new ProgressDialog(this);
+
 			pd.setTitle(R.string.downloading);
 			pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			pd.setCancelable(true);
-			
-			
-			
+
+
+
 			pd.setOnCancelListener(new Dialog.OnCancelListener() {
 				@Override
 				public final void onCancel(DialogInterface paramDialogInterface) {
@@ -274,14 +295,28 @@ public class Castroid extends Activity {
 						dlt.interrupt();
 						try {
 							dlt.join(); //wait for the download thread to really die
-										//will cause a UI "wait for finish" if it takes too long.
+							//will cause a UI "wait for finish" if it takes too long.
 						} catch (InterruptedException e) {}
 						mDownloadThread = null;
 					}
 				}
 			});
-			
+
 			mProgressDialog = pd;
+			dialog = pd;
+			break;
+		case PLAY_MEDIA_DIALOG_ID:
+			pd = new ProgressDialog(this);
+			pd.setTitle(R.string.playing);
+			pd.setCancelable(true);
+			pd.setOnCancelListener(new Dialog.OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface paramDialogInterface) {
+					if(mMediaPlayer != null){
+						mMediaPlayer.stop();
+					}
+				}
+			});
 			dialog = pd;
 			break;
 		default: dialog = super.onCreateDialog(id);
@@ -300,11 +335,48 @@ public class Castroid extends Activity {
 	 */
 	protected void downloadItem(long itemId){
 		DownloadManager manager = new DownloadManager(this);
-		DownloadThread dt = new DownloadThread(manager, itemId, handler);
+		DownloadThread dt = new DownloadThread(manager, itemId, progressHandler);
 		mDownloadThread = dt;
 		dt.start(); //spawn the thread off.  raw threading, I feel a little dirty...
 	}
 	
+	protected void playStream(long itemId){
+		showDialog(PLAY_MEDIA_DIALOG_ID);
+		
+		Uri queryUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
+		String encLink;
+		String mediaType;
+		Cursor c = managedQuery(
+				queryUri, 
+				new String[]{Item._ID, Item.ENC_LINK, Item.ENC_SIZE, Item.ENC_TYPE}, 
+				null, null, null);
+		
+		c.moveToFirst();
+		encLink = c.getString(c.getColumnIndex(Item.ENC_LINK));
+		mediaType = c.getString(c.getColumnIndex(Item.ENC_TYPE));
+		
+		MediaPlayer player = mMediaPlayer;
+		try {
+			if(player != null){ //I didn't new could return null, but from the docs, this one can.
+				//make sure the player is in an okay state, in case it was playing something before.
+				player.reset();
+				player.setDataSource(encLink);
+				player.prepare();
+				player.start();
+			}
+		} catch (IllegalArgumentException e) {//TODO: Sensible handeling of exceptions
+			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * A handler for updating/showing a progress.
@@ -312,7 +384,7 @@ public class Castroid extends Activity {
 	 * The msg should set it's what field to any of the WHAT_* constants 
 	 * in @see{com.cornerofsever.castroid.dialogs.ProgressBarHandler}.
 	 */
-	final Handler handler = new Handler(){
+	final Handler progressHandler = new Handler(){
 		@Override
 		public final void handleMessage(Message msg){
 			switch(msg.what){

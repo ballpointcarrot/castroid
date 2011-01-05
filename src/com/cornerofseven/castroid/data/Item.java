@@ -29,7 +29,7 @@ public final class Item implements BaseColumns{
     /**
      * How items are sorted by default
      */
-    public static final String DEFAULT_SORT = "TITLE";
+    public static final String DEFAULT_SORT = "TITLE DESC";
 
     
     /******************************
