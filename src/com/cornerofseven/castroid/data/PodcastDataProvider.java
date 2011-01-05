@@ -144,15 +144,21 @@ public class PodcastDataProvider extends ContentProvider{
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		SQLiteDatabase db = helper.getWritableDatabase();
+		int numDel = 0;
 		switch(uriMatcher.match(uri)){
 		case FEED : 
-			return db.delete(Feed.TABLE_NAME, selection, selectionArgs);
+			numDel = db.delete(Feed.TABLE_NAME, selection, selectionArgs); 
+			break;
 		case ITEM : 
-			return db.delete(Item.TABLE_NAME, selection, selectionArgs);
+			numDel = db.delete(Item.TABLE_NAME, selection, selectionArgs);
+			break;
 		default:
 			unknownURI(uri);
 			return -1;
 		}
+		
+		getContext().getContentResolver().notifyChange(uri, null);
+		return numDel;
 	}
 
 	@Override
