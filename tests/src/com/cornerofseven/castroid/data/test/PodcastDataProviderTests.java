@@ -96,15 +96,13 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String ITEM1_TITLE = "Item1";
 		final String ITEM1_LINK = "http://www.twit1.tv";
 		final String ITEM1_DESC = "Item1 desc";
-		final String ITEM1_ENC = "http://www.twit1.tv/item1.mp3";
 		
 		final String ITEM2_TITLE = "Item2";
 		final String ITEM2_LINK = "http://www.twit2.tv";
 		final String ITEM2_DESC = "Item2 desc";
-		final String ITEM2_ENC = "http://www.twit2.tv/item2.mp3";
 		
-		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_ENC);
-		final RSSItem item2 = new RSSItem(ITEM2_TITLE, ITEM2_LINK, ITEM2_DESC, ITEM2_ENC);
+		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC);
+		final RSSItem item2 = new RSSItem(ITEM2_TITLE, ITEM2_LINK, ITEM2_DESC);
 		
 		channel.addItem(item1);
 		channel.addItem(item2);
@@ -139,7 +137,6 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 	 * Test the delete context menu item for a feed.
 	 * Delete should delete all the feed and all of it's items.
 	 * 
-	 * TODO: Does this test belong in the PodcastDataProviderTests file?
 	 */
 	public void testDeleteOption(){
 		final String CHNL_TITLE = "Test1";
@@ -150,15 +147,13 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String ITEM1_TITLE = "Item1";
 		final String ITEM1_LINK = "http://www.twit1.tv";
 		final String ITEM1_DESC = "Item1 desc";
-		final String ITEM1_ENC = "http://www.twit1.tv/item1.mp3";
 		
 		final String ITEM2_TITLE = "Item2";
 		final String ITEM2_LINK = "http://www.twit2.tv";
 		final String ITEM2_DESC = "Item2 desc";
-		final String ITEM2_ENC = "http://www.twit2.tv/item2.mp3";
 		
-		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_ENC);
-		final RSSItem item2 = new RSSItem(ITEM2_TITLE, ITEM2_LINK, ITEM2_DESC, ITEM2_ENC);
+		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC);
+		final RSSItem item2 = new RSSItem(ITEM2_TITLE, ITEM2_LINK, ITEM2_DESC);
 		
 		channel.addItem(item1);
 		channel.addItem(item2);
@@ -243,14 +238,16 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String ITEM1_LINK = "http://www.twit1.tv";
 		final String ITEM1_DESC = "Item1 desc";
 		final String ITEM1_ENC = "http://www.twit1.tv/item1.mp3";
+		final int 	 ITEM1_ENC_SIZE = 100;
+		final String ITEM1_ENC_TYPE = "type/audio";
 		
 		final String ITEM2_TITLE = "Item2";
 		final String ITEM2_LINK = "http://www.twit2.tv";
 		final String ITEM2_DESC = "Item2 desc";
-		final String ITEM2_ENC = "http://www.twit2.tv/item2.mp3";
+		//final String ITEM2_ENC = "http://www.twit2.tv/item2.mp3";
 		
-		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_ENC);
-		final RSSItem item2 = new RSSItem(ITEM2_TITLE, ITEM2_LINK, ITEM2_DESC, ITEM2_ENC);
+		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_ENC, ITEM1_ENC_SIZE, ITEM1_ENC_TYPE);
+		final RSSItem item2 = new RSSItem(ITEM2_TITLE, ITEM2_LINK, ITEM2_DESC);
 		
 		channel.addItem(item1);
 		channel.addItem(item2);
@@ -289,7 +286,8 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		
 		Cursor itemCursor = dataProvider.query(Item.CONTENT_URI, 
 				new String[]{
-				Item._ID, Item.OWNER, Item.TITLE, Item.LINK, Item.DESC
+				Item._ID, Item.OWNER, Item.TITLE, Item.LINK, Item.DESC,
+				Item.ENC_LINK, Item.ENC_SIZE, Item.ENC_TYPE
 		}, 
 				Item.OWNER + " = ? " , 
 				new String[]{Integer.toString(fID)}, 
@@ -303,6 +301,10 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		assertEquals(ITEM1_TITLE, itemCursor.getString(2));
 		assertEquals(ITEM1_LINK, itemCursor.getString(3));
 		assertEquals(ITEM1_DESC, itemCursor.getString(4));
+		assertEquals(ITEM1_ENC, itemCursor.getString(5));
+		assertEquals(ITEM1_ENC_SIZE, itemCursor.getInt(6));
+		assertEquals(ITEM1_ENC_TYPE, itemCursor.getString(7));
+		
 		
 		itemCursor.moveToNext();
 		

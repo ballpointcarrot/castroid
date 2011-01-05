@@ -6,22 +6,43 @@ package com.cornerofseven.castroid.rss.feed;
  *
  */
 public class RSSItem {
-	private String mTitle, mLink, mDesc, mEnclosure;
-
+	private String mTitle, mLink, mDesc, mEnclosure, mEnclosureType;
+	private long mEncSize;
 	
 	/**
-	 * @param mTitle
-	 * @param mLink
-	 * @param mDesc
-	 * @param mEnclosure
+	 * 
 	 */
-	public RSSItem(String mTitle, String mLink, String mDesc, String mEnclosure) {
-		this.mTitle = mTitle;
-		this.mLink = mLink;
-		this.mDesc = mDesc;
-		this.mEnclosure = mEnclosure;
+	public RSSItem(){
+		this("", "", "", "", -1, "");
+	}
+	
+	/**
+	 * @param title
+	 * @param link
+	 * @param desc
+	 */
+	public RSSItem(String title, String link, String desc) {
+		this(title, link, desc, "", -1, "");
 	}
 
+	/**
+	 * 
+	 * @param title
+	 * @param link
+	 * @param desc
+	 * @param enclosure link for the enclosure data file
+	 * @param encSize
+	 * @param encType
+	 */
+	public RSSItem(String title, String link, String desc, String enclosure, long encSize, String encType )
+	{
+		this.mTitle = title;
+		this.mLink = link;
+		this.mDesc = desc;
+		this.mEnclosure = enclosure;
+		this.mEncSize = encSize;
+		this.mEnclosureType = encType;
+	}
 	/**
 	 * @return the mTitle
 	 */
@@ -78,6 +99,38 @@ public class RSSItem {
 		this.mEnclosure = mEnclosure;
 	}
 	
+	/**
+	 * 
+	 * @param type enclusure type
+	 */
+	public final void setEnclosureType(String type){
+		this.mEnclosureType = type;
+	}
+	
+	/**
+	 * 
+	 * @return 
+	 */
+	public final String getEnclosureType(){
+		return this.mEnclosureType;
+	}
+	
+	
+	
+	/**
+	 * @return the mEncSize
+	 */
+	public final long getEnclosureLength() {
+		return mEncSize;
+	}
+
+	/**
+	 * @param mEncSize the mEncSize to set
+	 */
+	public final void setEnclosureLength(long mEncSize) {
+		this.mEncSize = mEncSize;
+	}
+
 	@Override
 	public String toString(){
 		return this.mTitle;

@@ -62,7 +62,10 @@ public class PodcastDataProvider extends ContentProvider{
 					Item.OWNER + " INTEGER REFERENCES " + Feed.TABLE_NAME + " ON DELETE CASCADE, " +  //foreign key  to the feed table 
 					Item.TITLE + " TEXT NOT NULL, " +
 					Item.LINK  + " TEXT NOT NULL, " +
-					Item.DESC  + " TEXT NOT NULL);");
+					Item.DESC  + " TEXT NOT NULL," +
+					Item.ENC_LINK + " TEXT,		" + //TODO: Defaults/not null for these fields?
+					Item.ENC_SIZE + " INTEGER,	" +
+					Item.ENC_TYPE + " TEXT);");
 		}
 
 		@Override
@@ -119,6 +122,9 @@ public class PodcastDataProvider extends ContentProvider{
 			ensureValue(values, Item.TITLE, "No title");
 			ensureValue(values, Item.LINK, "No link");
 			ensureValue(values, Item.DESC, "No Description");
+			ensureValue(values, Item.ENC_LINK, "");
+			ensureValue(values, Item.ENC_TYPE, "");
+			ensureValue(values, Item.ENC_SIZE, -1);
 			if(values.get(Item.OWNER) == null){
 				values.put(Item.OWNER, -1);
 			}
@@ -135,6 +141,12 @@ public class PodcastDataProvider extends ContentProvider{
 		 * @param defaultValue
 		 */
 		private void ensureValue(ContentValues values, String field, String defaultValue){
+			if(values.containsKey(field) == false){
+				values.put(field, defaultValue);
+			}
+		}
+		
+		private void ensureValue(ContentValues values, String field, int defaultValue){
 			if(values.containsKey(field) == false){
 				values.put(field, defaultValue);
 			}

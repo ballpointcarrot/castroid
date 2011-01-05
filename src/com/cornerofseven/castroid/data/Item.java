@@ -41,13 +41,38 @@ public final class Item implements BaseColumns{
      */
     public static final String TABLE_NAME = "items";
 
+    /**
+     * Name of the owner field, foreign key.
+     */
 	public static final String OWNER = "OWNER";
 
+	/**
+	 * Title field for the item.
+	 */
 	public static final String TITLE = "TITLE";
 
+	/**
+	 * Link field for the item.
+	 */
 	public static final String LINK = "LINK";
 
+	/**
+	 * Description field for the item.
+	 */
 	public static final String DESC = "DESC";
     
-
+	/**
+	 * Link from the enclosure sub-element.
+	 */
+	public static final String ENC_LINK = "ENC_LINK";
+	
+	/**
+	 * Type attribute from the enclosure element.
+	 */
+	public static final String ENC_TYPE = "ENC_TYPE";
+	
+	/**
+	 * Size field for the enclosure file to download.
+	 */
+	public static final String ENC_SIZE = "ENC_SIZE";
 }

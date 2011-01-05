@@ -60,6 +60,8 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 	static final int LINK_INDEX = 1;
 	static final int DESC_INDEX = 2;
 	static final int ENC_INDEX = 3;
+	static final int ENC_LEN_INDEX = 4;
+	static final int ENC_TYPE_INDEX = 5;
 	
 	
 	static final String RSS2_0SampleFile = "rss2sample";
@@ -124,10 +126,22 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 
 		
 		String[][] expectedItemData = {
-				{"Star City", "http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp", "How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia's <a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>.", ""},
-				{"", "", "Sky watchers in Europe, Asia, and parts of Alaska and Canada will experience a &lt;a href=\"http://science.nasa.gov/headlines/y2003/30may_solareclipse.htm\"&gt;partial eclipse of the Sun&lt;/a&gt; on Saturday, May 31st.", ""},
-				{"The Engine That Does More", "http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp", "Before man travels to Mars, NASA hopes to design new engines that will let us fly through the Solar System more quickly.  The proposed VASIMR engine would do that.", ""},
-				{"Astronauts' Dirty Laundry", "http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp", "Compared to earlier spacecraft, the International Space Station has many luxuries, but laundry facilities are not one of them.  Instead, astronauts have other options.", ""}
+				{"Star City", 
+					"http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp", 
+					"How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia's <a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>.", 
+					"",
+					"-1",
+					""},
+				{"", "", 
+				 "Sky watchers in Europe, Asia, and parts of Alaska and Canada will experience a <a href=\"http://science.nasa.gov/headlines/y2003/30may_solareclipse.htm\">partial eclipse of the Sun</a> on Saturday, May 31st.", 
+						"", "-1", ""},
+				{"The Engine That Does More", 
+							"http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp", "Before man travels to Mars, NASA hopes to design new engines that will let us fly through the Solar System more quickly.  The proposed VASIMR engine would do that.", 
+							"", "-1", ""},
+				{"Astronauts' Dirty Laundry", 
+								"http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp", 
+								"Compared to earlier spacecraft, the International Space Station has many luxuries, but laundry facilities are not one of them.  Instead, astronauts have other options.", 
+								"", "-1", ""}
 		};
 
 		doParsingTest(RSS2_0SampleFile, 
@@ -149,12 +163,14 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 		final String expectedDesc = "NPR's weekly current events quiz.  Have a laugh and test your news knowledge while figuring out what's real and what we've made up.";
 
 
-		String[][] expectedItemData = new String[1][4];
+		String[][] expectedItemData = new String[1][6];
 		
 		expectedItemData[0][TITLE_INDEX] = "NPR: 01-01-2011 Wait Wait... Don't Tell Me!";
 		expectedItemData[0][DESC_INDEX] = "Stories:  1) Who's Carl This Time? 2) Opening Panel Round 3) Bluff The Listener 4) Not My Job Guest: Nora Ephron 5) Panel Round Two 6) Limericks 7) Lightning Fill In The Blank 8) Prediction"; 
 		expectedItemData[0][LINK_INDEX] =	"http://www.npr.org/templates/rundowns/rundown.php?prgId=35";
 		expectedItemData[0][ENC_INDEX] =	"http://podcastdownload.npr.org/anon.npr-podcasts/podcast/35/132562081/npr_132562081.mp3";
+		expectedItemData[0][ENC_LEN_INDEX] = "22838978";
+        expectedItemData[0][ENC_TYPE_INDEX] = "audio/mpeg";
 
 		doParsingTest(WaitWaitSampleFile, 
 				expectedTitle, 
@@ -180,6 +196,8 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 	 * @throws SAXException 
 	 * @throws IOException 
 	 * @throws ParserConfigurationException 
+	 * 
+	 * //TODO: change expectedItemData to array of struct type things that can contain different types.
 	 */
 	protected void doParsingTest(String fileName, String expectedTitle, 
 			String expectedDesc, 
@@ -217,6 +235,10 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 			assertEquals(expectedItemData[i][LINK_INDEX], cur.getLink());
 			assertEquals(expectedItemData[i][DESC_INDEX], cur.getDesc());
 			assertEquals(expectedItemData[i][ENC_INDEX], cur.getEnclosure());
+			assertEquals(expectedItemData[i][ENC_INDEX], cur.getEnclosure());
+			assertEquals(expectedItemData[i][ENC_LEN_INDEX], Long.toString(cur.getEnclosureLength())); //convert to string just to keep the test data easy to manage.
+			assertEquals(expectedItemData[i][ENC_TYPE_INDEX], cur.getEnclosureType());
+			
 		}
 
 		//assume the number of item data elements passed in

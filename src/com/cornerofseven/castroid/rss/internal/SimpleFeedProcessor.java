@@ -226,9 +226,7 @@ public class SimpleFeedProcessor implements RSSProcessor{
 				tmp = child.getFirstChild().getNodeValue();
 				newItem.setTitle(tmp);
 			}else if(RSSTags.ITEM_ENC.equals(childName)){
-				Enclosure enc = processEnclosure(child);
-				//TODO: The RSS item should store an enclosure, or at least all the information an enclosure encodes
-				newItem.setEnclosure(enc.url);
+				processEnclosure(child, newItem);
 			}else if(RSSTags.ITEM_DESC.equals(childName)){
 				tmp = child.getFirstChild().getNodeValue();
 				newItem.setDesc(tmp);
@@ -251,8 +249,10 @@ public class SimpleFeedProcessor implements RSSProcessor{
 	 * 
 	 * @param encNode
 	 */
-	private Enclosure processEnclosure(Node encNode){
-		Enclosure enc = new Enclosure();
+	private void processEnclosure(Node encNode, RSSItem newItem){
+		//Enclosure enc = new Enclosure();
+		String encUrl = "", encType = "";
+		long encLength = -1;
 		
 		//the enclosure's data are stored as attributes
 		//of the tag, not as sub-children
@@ -264,7 +264,7 @@ public class SimpleFeedProcessor implements RSSProcessor{
 		
 		attr = attrs.getNamedItem(RSSTags.ENC_URL);
 		if(attr != null){
-			enc.url = attr.getNodeValue();
+			encUrl = attr.getNodeValue();
 		}
 		
 		//the length attr represents a integer type.
@@ -272,7 +272,7 @@ public class SimpleFeedProcessor implements RSSProcessor{
 		if(attr != null){
 			String stLen = attr.getNodeValue();
 			try{
-				enc.length = Long.parseLong(stLen);
+				encLength = Long.parseLong(stLen);
 			}catch(NumberFormatException nfe){
 				Log.i(TAG, "Invalid length " + stLen);
 			}
@@ -280,22 +280,11 @@ public class SimpleFeedProcessor implements RSSProcessor{
 		
 		attr = attrs.getNamedItem(RSSTags.ENC_TYPE);
 		if(attr != null){
-			enc.type = attr.getNodeValue();
+			encType = attr.getNodeValue();
 		}
 		
-		
-		return enc;
-	}
-	
-	/**
-	 * Simple holder for the enclusure data.
-	 * 
-	 * @author sean
-	 *
-	 */
-	private static class Enclosure{
-		String url;
-		long length;
-		String type;
+		newItem.setEnclosure(encUrl);
+		newItem.setEnclosureType(encType);
+		newItem.setEnclosureLength(encLength);
 	}
 }

@@ -30,7 +30,7 @@ public class SimpleRSSFeedBuilder implements RSSFeedBuilder {
 	
 	@Override
 	public RSSItem addItem() {
-		RSSItem item = new RSSItem("", "", "", "");
+		RSSItem item = new RSSItem();
 		mChannel.addItem(item);
 		return item;
 	}
