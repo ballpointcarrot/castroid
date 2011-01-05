@@ -35,6 +35,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.cornerofseven.castroid.R;
 import com.cornerofseven.castroid.data.Item;
 import com.cornerofseven.castroid.dialogs.ProgressBarHandler;
 
@@ -88,8 +89,11 @@ public class DownloadManager {
 		
 		Uri fileUri = Uri.parse(downloadLink);
 		fileName = fileUri.getLastPathSegment();
-		
-		File dest = new File(sdCardRoot, fileName);
+		File dataDir = new File(sdCardRoot, mContext.getString(R.string.download_root_dir));
+		if(!dataDir.mkdirs()){
+			Log.e(TAG, "Unable to create " + dataDir.getAbsolutePath());
+		}
+		File dest = new File(dataDir, fileName);
 		
 		return downloadFile(downloadLink, dest, handler);
 		//Toast.makeText(context, "Download " + downloadLink, Toast.LENGTH_LONG).show();
@@ -101,11 +105,9 @@ public class DownloadManager {
 	 */
 	public boolean downloadFile( String link, File dest, Handler handler)
 	{
-		
-		
+		BufferedInputStream bInputStream = null;
+		BufferedOutputStream bOutputStream = null;
 		boolean success = false;
-		
-		
 		
 		try{
 			URL url = new URL(link);
@@ -123,17 +125,18 @@ public class DownloadManager {
 			final int BUFFER_SIZE = 100 * 1024; //100K buffer;
 			
 			//buffer both streams.
-			BufferedInputStream bInputStream = new BufferedInputStream(inputStream, BUFFER_SIZE);
-			BufferedOutputStream bOutputStream = new BufferedOutputStream(fileOutput, BUFFER_SIZE);
+			bInputStream = new BufferedInputStream(inputStream, BUFFER_SIZE);
+			bOutputStream = new BufferedOutputStream(fileOutput, BUFFER_SIZE);
 			
 			int totalSize = urlConnection.getContentLength();
+			//TODO: How big of a file before this rolls over and is meaningless, or do we need a long?
 			int downloadSize = 0;
 			int bytesSinceLastLog = 0;
 			
 			byte[] buffer = new byte[1024];
 			int bytesRead = 0;
 			//update every 1 percent of total download size
-			final int K_PER_UPDATE = totalSize / (1024 * 100);
+			final int K_PER_UPDATE = (1024 * 100); //update every tenth meg downloaded
 			
 			if(handler != null){
 				Message msg = handler.obtainMessage(ProgressBarHandler.WHAT_START);
@@ -142,9 +145,7 @@ public class DownloadManager {
 				msg.setData(b);
 				handler.sendMessage(msg);
 			}
-			
-			
-			
+
 			//we'll do this the old fashioned way...copy buffered bytes from inputstream to output stream
 			while( ( bytesRead = bInputStream.read(buffer)) > 0){
 				
@@ -155,8 +156,8 @@ public class DownloadManager {
 				
 				
 				if(bytesSinceLastLog > K_PER_UPDATE){
-					float per = (float)downloadSize / (float)totalSize;
-					Log.i(TAG, "Downloaded " + downloadSize + " bytes " + per + "%");
+					//float per = (float)downloadSize / (float)totalSize;
+					//Log.i(TAG, "Downloaded " + downloadSize + " bytes " + per + "%");
 					bytesSinceLastLog = 0;
 					
 					if(handler != null){
@@ -166,18 +167,32 @@ public class DownloadManager {
 						msg.setData(b);
 						handler.sendMessage(msg);
 					}
+					
+					//sleep briefly to let interrupts happen
+					//FIXME: WRONG PLACE TO PUT THIS!
+					Thread.sleep(10);
 				}
 			}
-			
-			bOutputStream.close();
 			success = true;
-			bInputStream.close();
-			
-			
 		} catch (MalformedURLException e) {  
-			e.printStackTrace();  
-		} catch (IOException e) {  
-			e.printStackTrace();  
+			//TODO: Delete me
+			e.printStackTrace();
+		} catch (IOException e) { 
+			//TODO: Delete me
+			e.printStackTrace();
+		} catch( InterruptedException ex){
+			ex.printStackTrace();
+		}
+		finally{
+			if(bOutputStream != null)
+				try {
+					bOutputStream.close();
+				} catch (IOException e) {}//ignore, grumble grumble grumble
+			
+			if(bInputStream != null)
+				try {
+					bInputStream.close();
+				} catch (IOException e) {}
 		}
 		
 

@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -261,7 +262,24 @@ public class Castroid extends Activity {
 			
 			pd.setTitle(R.string.downloading);
 			pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			pd.setCancelable(false);
+			pd.setCancelable(true);
+			
+			
+			
+			pd.setOnCancelListener(new Dialog.OnCancelListener() {
+				@Override
+				public final void onCancel(DialogInterface paramDialogInterface) {
+					Thread dlt = mDownloadThread;
+					if( dlt != null ){
+						dlt.interrupt();
+						try {
+							dlt.join(); //wait for the download thread to really die
+										//will cause a UI "wait for finish" if it takes too long.
+						} catch (InterruptedException e) {}
+						mDownloadThread = null;
+					}
+				}
+			});
 			
 			mProgressDialog = pd;
 			dialog = pd;
@@ -272,12 +290,18 @@ public class Castroid extends Activity {
 	}
 	
 	/**
+	 * Maintain a reference to the thread used for downloading.
+	 * This field will be changed everytime a download is started.
+	 */
+	private DownloadThread mDownloadThread = null;
+	/**
 	 * Download the selected item in a seperate thread.
 	 * @param itemId
 	 */
 	protected void downloadItem(long itemId){
 		DownloadManager manager = new DownloadManager(this);
 		DownloadThread dt = new DownloadThread(manager, itemId, handler);
+		mDownloadThread = dt;
 		dt.start(); //spawn the thread off.  raw threading, I feel a little dirty...
 	}
 	
@@ -324,6 +348,7 @@ public class Castroid extends Activity {
 		private Handler mHandler;
 		
 		public DownloadThread(DownloadManager downloader, long itemId, Handler handler){
+			super("DOWNLOAD-"+itemId);
 			this.mDownloader = downloader;
 			mItemId = itemId;
 			mHandler = handler;

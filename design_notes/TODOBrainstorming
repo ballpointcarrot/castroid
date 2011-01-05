@@ -5,10 +5,11 @@ UI
 2. Sort order choice for items in an RSS feed.
 
 URLs
-1. Smarting DNS resolution of feed.  Currently fails if the http and www are missing.
+1. Smarter DNS resolution of feed.  Currently fails if the http and www are missing.
 
 Database:
 1. Need to keep track of feeds seen/downloaded/download name. 
 2. Prevent duplicate podcast URL's from being added to the database
-3. Delete Feed option.
+3. Delete Feed option. DONE
 4. Worry about SQL injection attacks?
+5. Update/Refresh stored podcasts.

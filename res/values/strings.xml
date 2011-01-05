@@ -14,4 +14,6 @@
 	<string name="menu_delete">Delete</string>
 	<string name="menu_download">Download</string>
 	<string name="downloading">Downloading...</string>
+
+	<string name="download_root_dir">Podcasts</string>
 </resources>
