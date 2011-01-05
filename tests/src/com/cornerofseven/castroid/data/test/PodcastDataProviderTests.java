@@ -73,16 +73,17 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 	public void testDeleteFeed(){
 		
 		String feedTitle = "DeleteMe";
-		String where = Feed.TITLE + "=" + feedTitle;
-		String[] selectionArgs = {};
+		ContentValues values = new ContentValues();
+		values.put(Feed.TITLE, feedTitle);
+		getMockContentResolver().insert(Feed.CONTENT_URI, values);
+		
+		String where = Feed.TITLE + "= ?";
+		String[] selectionArgs = {feedTitle};
 		int expectedNumber = 1;
 		
 		int itemsDeleted = getMockContentResolver().delete(Feed.CONTENT_URI, where, selectionArgs);
 	
 		assertEquals(expectedNumber, itemsDeleted);
-		//Currently this test should fail on the assertEquals
-		//Fail here, in case the assertPasses when it shouldn't
-		fail("Shouldn't reach here");
 	}
 
 	/**
