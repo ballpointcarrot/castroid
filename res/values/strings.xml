@@ -4,13 +4,12 @@
 	<string name="settingsLabel">Settings</string>
 	<string name="app_name">CastDroid</string>
 	<string name="afs_check_label">Check</string>
-	<string-array name="dummy">
-		<item>D1</item>
-		<item>D2</item>
-	</string-array>
+
 	
 	<string name="afs_savefeedLabel">Save</string>
 	<string name="afs_checkLabel">Check</string>
 	
 	<string name="resolve_addfeed">Add Feed</string>
+	
+	<string name="menu_delete">Delete</string>
 </resources>
