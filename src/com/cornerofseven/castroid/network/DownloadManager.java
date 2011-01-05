@@ -81,7 +81,6 @@ public class DownloadManager {
 		c.moveToFirst();
 		downloadLink = c.getString(c.getColumnIndex(Item.ENC_LINK));
 		c.close();
-		Log.i(TAG, "Download " + downloadLink);
 		
 		File sdCardRoot = Environment.getExternalStorageDirectory();
 		//TODO: Don't clobber existing files!
