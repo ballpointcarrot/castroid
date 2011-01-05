@@ -25,7 +25,8 @@ public class PodcastDataProvider extends ContentProvider{
 	private static final int FEED = 1;
 	private static final int ITEM = FEED + 1;
 	private static final int FEED_ID = ITEM + 1;
-
+	private static final int ITEM_ID = FEED_ID + 1;
+	
 //	public PodcastDataProvider(Context context){
 //		super();
 //		helper = new DbHelper(context);
@@ -171,6 +172,10 @@ public class PodcastDataProvider extends ContentProvider{
 		case ITEM : 
 			numDel = db.delete(Item.TABLE_NAME, where, whereArgs);
 			break;
+		case ITEM_ID:
+			String itemId = uri.getPathSegments().get(1);
+			numDel =  db.delete(Item.TABLE_NAME, Item._ID + "=" + itemId
+					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
 		default:
 			unknownURI(uri);
 			return -1;
@@ -183,8 +188,10 @@ public class PodcastDataProvider extends ContentProvider{
 	@Override
 	public String getType(Uri uri) {
 		switch(uriMatcher.match(uri)){
+		case FEED_ID: return Feed.CONTENT_TYPE;
 		case FEED : return Feed.CONTENT_TYPE;
 		case ITEM : return Feed.CONTENT_ITEM_TYPE;
+		case ITEM_ID : return Feed.CONTENT_ITEM_TYPE;
 		default:
 			unknownURI(uri);
 			return null;
@@ -252,6 +259,11 @@ public class PodcastDataProvider extends ContentProvider{
 			qb.setTables(Item.TABLE_NAME);
 			defaultSortOrder = Item.DEFAULT_SORT;
 			break;
+		case ITEM_ID:
+			qb.setTables(Item.TABLE_NAME);
+			qb.appendWhere(Item._ID + " = " + uri.getPathSegments().get(1));
+			defaultSortOrder = Item.DEFAULT_SORT;
+			break;
 		default: unknownURI(uri); 
 		}
 		
@@ -300,6 +312,7 @@ public class PodcastDataProvider extends ContentProvider{
 		uriMatcher.addURI(Feed.BASE_AUTH, Feed.FEED_PATH, FEED);
 		uriMatcher.addURI(Feed.BASE_AUTH, Feed.FEED_PATH + "/#", FEED_ID);
 		uriMatcher.addURI(Feed.BASE_AUTH, Item.ITEM_PATH, ITEM);
+		uriMatcher.addURI(Feed.BASE_AUTH, Item.ITEM_PATH + "/#", ITEM_ID);
 	}
 
 
