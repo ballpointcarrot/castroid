@@ -92,6 +92,9 @@ public class PodcastDAO {
 		values.put(Item.DESC, item.getDesc());
 		values.put(Item.TITLE, item.getTitle());
 		values.put(Item.LINK, item.getLink());
+		values.put(Item.ENC_LINK, item.getEnclosure());
+		values.put(Item.ENC_SIZE, item.getEnclosureLength());
+		values.put(Item.ENC_TYPE, item.getEnclosureType());
 		Uri itemUri = contentResolver.insert(Item.CONTENT_URI, values);
 		
 		return Integer.parseInt(itemUri.getLastPathSegment());
