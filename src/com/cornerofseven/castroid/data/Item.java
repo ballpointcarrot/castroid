@@ -31,7 +31,7 @@ public final class Item implements BaseColumns{
      */
     public static final String DEFAULT_SORT = "TITLE";
 
-
+    
     /******************************
      * Database Columns           *
      * Column Name - SQL Datatype *
@@ -75,4 +75,10 @@ public final class Item implements BaseColumns{
 	 * Size field for the enclosure file to download.
 	 */
 	public static final String ENC_SIZE = "ENC_SIZE";
+	
+	/**
+	 * Projection map for all the elements of the Item
+	 */
+	public static final String[] PROJECTION = {_ID, OWNER, TITLE, LINK, DESC, ENC_LINK, ENC_TYPE, ENC_SIZE};
+    
 }
