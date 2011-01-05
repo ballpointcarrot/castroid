@@ -1,7 +1,5 @@
 package com.cornerofseven.castroid.data;
 
-import com.cornerofseven.castroid.Castroid;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -16,6 +14,8 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.cornerofseven.castroid.Castroid;
+
 public class PodcastDataProvider extends ContentProvider{
 	private static final String TAG = "PodcastDataProvider";
 	private static final UriMatcher uriMatcher;
@@ -24,6 +24,7 @@ public class PodcastDataProvider extends ContentProvider{
 	//Constants for choosing how to processes URI's
 	private static final int FEED = 1;
 	private static final int ITEM = FEED + 1;
+	private static final int FEED_ID = ITEM + 1;
 
 //	public PodcastDataProvider(Context context){
 //		super();
@@ -142,15 +143,21 @@ public class PodcastDataProvider extends ContentProvider{
 
 	
 	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
+	public int delete(Uri uri, String where, String[] whereArgs) {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		int numDel = 0;
 		switch(uriMatcher.match(uri)){
 		case FEED : 
-			numDel = db.delete(Feed.TABLE_NAME, selection, selectionArgs); 
+			numDel = db.delete(Feed.TABLE_NAME, where, whereArgs); 
+			break;
+		case FEED_ID:
+			//Adapted from the NotePadProvider example.
+			String feedId = uri.getPathSegments().get(1);
+			numDel = db.delete(Feed.TABLE_NAME, Feed._ID + "=" + feedId
+					+ (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
 			break;
 		case ITEM : 
-			numDel = db.delete(Item.TABLE_NAME, selection, selectionArgs);
+			numDel = db.delete(Item.TABLE_NAME, where, whereArgs);
 			break;
 		default:
 			unknownURI(uri);
@@ -279,6 +286,7 @@ public class PodcastDataProvider extends ContentProvider{
 		//the podcast/rss data model has a table for feeds (channels in RSS parlance)
 
 		uriMatcher.addURI(Feed.BASE_AUTH, Feed.FEED_PATH, FEED);
+		uriMatcher.addURI(Feed.BASE_AUTH, Feed.FEED_PATH + "/#", FEED_ID);
 		uriMatcher.addURI(Feed.BASE_AUTH, Item.ITEM_PATH, ITEM);
 	}
 
