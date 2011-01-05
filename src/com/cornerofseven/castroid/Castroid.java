@@ -17,11 +17,15 @@
 package com.cornerofseven.castroid;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -38,6 +42,8 @@ import android.widget.Toast;
 
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
+import com.cornerofseven.castroid.dialogs.ProgressBarHandler;
+import com.cornerofseven.castroid.network.DownloadManager;
 
 
 public class Castroid extends Activity {
@@ -46,6 +52,7 @@ public class Castroid extends Activity {
 
     //constants for the menues
     static final int MENU_FEED_DELETE = 1;
+    static final int MENU_ITEM_DOWNLOAD = MENU_FEED_DELETE + 1;
     
     protected Button mBtnAdd;
     //protected ListView mFeedList;
@@ -55,6 +62,16 @@ public class Castroid extends Activity {
     //indexes for projection arrays for data adapter (e.g. FEED_PROJECTION in onCreat())
     static final int FEED_ID_COLUMN = 0;
     static final int FEED_TITLE_COLUMN = 1;
+    
+    //a field to allow the item context menu
+    //to communicate with the onContextItemSelected method.
+    //TODO: This breaks encapsulation, find a better way.
+    protected long mSelectedItemId = -1;
+    
+    //DIALOG IDs
+    public static final int PROGRESS_DIALOG_ID = 1;
+    
+    protected ProgressDialog mProgressDialog = null;
     
     /** Called when the activity is first created. */
     @Override
@@ -135,14 +152,6 @@ public class Castroid extends Activity {
 					int type =
 						ExpandableListView.getPackedPositionType(info.packedPosition);
 					
-					//Toast.makeText(paramView.getContext(), "Selected " + info.id, Toast.LENGTH_SHORT).show();				
-					
-//					Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-//			        if (cursor == null) {
-//			            // For some reason the requested item isn't available, do nothing
-//			            return;
-//			        }
-					
 					if(type == ExpandableListView.PACKED_POSITION_TYPE_CHILD){
 						createItemContextMenu(paramView, menu, info);
 					}else if(type == ExpandableListView.PACKED_POSITION_TYPE_GROUP){
@@ -167,10 +176,24 @@ public class Castroid extends Activity {
 			}
 			
 			private final void createItemContextMenu(View paramView, ContextMenu menu, ExpandableListView.ExpandableListContextMenuInfo info){
-				Toast.makeText(paramView.getContext(), "Selected " + info.id, Toast.LENGTH_SHORT).show();				
+				menu.setHeaderTitle("Item Options");
+				menu.add(0, MENU_ITEM_DOWNLOAD, 0, R.string.menu_download);
+				mSelectedItemId = info.id;
+				//Toast.makeText(paramView.getContext(), "Selected " + mSelectedItemId, Toast.LENGTH_SHORT).show();				
 			}
 		});
     	
+    	//Add a click listener to download a clicked on podcast
+    	//TODO: Is this the control flow we want?
+    	podcastTree.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+			@Override
+			public boolean onChildClick(ExpandableListView paramExpandableListView,
+					View paramView, int paramInt1, int paramInt2, long paramLong) {
+				// TODO Auto-generated method stub
+				downloadItem(paramLong);
+				return true;
+			}
+		});
     }
     
 
@@ -202,7 +225,7 @@ public class Castroid extends Activity {
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		
+		Uri queryUri; 
 		switch(item.getItemId()){
 		case MENU_FEED_DELETE: 
 			ListAdapter list = mPodcastTree.getAdapter();
@@ -215,13 +238,99 @@ public class Castroid extends Activity {
 			int feedID = cursor.getInt(FEED_ID_COLUMN);
 			//Toast.makeText(this, "Deleting channel " + feedID, Toast.LENGTH_SHORT).show();
 			
-			Uri delUri = ContentUris.withAppendedId(Feed.CONTENT_URI, feedID);
-			getContentResolver().delete(delUri, null, null);
+			queryUri = ContentUris.withAppendedId(Feed.CONTENT_URI, feedID);
+			getContentResolver().delete(queryUri, null, null);
 			
 			return true;
+		case MENU_ITEM_DOWNLOAD:
+			long itemID = mSelectedItemId;
+			downloadItem(itemID);
 		}
 		return super.onContextItemSelected(item);
-	}    
+	}
 
-    
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateDialog(int)
+	 */
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		Dialog dialog = null;
+		switch(id){
+		case PROGRESS_DIALOG_ID:
+			ProgressDialog pd = new ProgressDialog(this);
+			
+			pd.setTitle(R.string.downloading);
+			pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			pd.setCancelable(false);
+			
+			mProgressDialog = pd;
+			dialog = pd;
+			break;
+		default: dialog = super.onCreateDialog(id);
+		}
+		return dialog;
+	}
+	
+	/**
+	 * Download the selected item in a seperate thread.
+	 * @param itemId
+	 */
+	protected void downloadItem(long itemId){
+		DownloadManager manager = new DownloadManager(this);
+		DownloadThread dt = new DownloadThread(manager, itemId, handler);
+		dt.start(); //spawn the thread off.  raw threading, I feel a little dirty...
+	}
+	
+
+	/**
+	 * A handler for updating/showing a progress.
+	 * 
+	 * The msg should set it's what field to any of the WHAT_* constants 
+	 * in @see{com.cornerofsever.castroid.dialogs.ProgressBarHandler}.
+	 */
+	final Handler handler = new Handler(){
+		@Override
+		public final void handleMessage(Message msg){
+			switch(msg.what){
+			case ProgressBarHandler.WHAT_START:
+				showDialog(PROGRESS_DIALOG_ID);
+				int max = msg.getData().getInt(ProgressBarHandler.PROGRESS_MAX);
+				mProgressDialog.setMax(max);
+				mProgressDialog.setProgress(0);
+				break;
+			case ProgressBarHandler.WHAT_UPDATE:
+				int total = msg.getData().getInt(ProgressBarHandler.PROGRESS_UPDATE);
+				mProgressDialog.setProgress(total);
+				break;
+			case ProgressBarHandler.WHAT_DONE:
+				mProgressDialog.dismiss();
+				break;
+			default:
+				Log.e(TAG, "No case to for " + msg.what + " in handler.");
+			}
+		}
+	};
+	
+	/**
+	 * Create a separate thread to run the down load on.
+	 * 
+	 * @author Sean Mooney
+	 *
+	 */
+	private class DownloadThread extends Thread{
+		
+		private DownloadManager mDownloader;
+		private long mItemId;
+		private Handler mHandler;
+		
+		public DownloadThread(DownloadManager downloader, long itemId, Handler handler){
+			this.mDownloader = downloader;
+			mItemId = itemId;
+			mHandler = handler;
+		}
+		@Override
+		public void run(){
+			mDownloader.downloadItemEnc(mItemId, mHandler);
+		}
+	}
 }

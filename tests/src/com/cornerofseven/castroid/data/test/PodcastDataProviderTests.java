@@ -67,6 +67,50 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 	
 		//TODO: anything else needed in this test?
 	}
+	
+	public void testGetByItemID(){
+		final String CHNL_TITLE = "Test1";
+		final String CHNL_LINK = "http://www.twit.tv";
+		final String CHNL_DESC = "Test Desc";
+		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC);
+		
+		final String ITEM1_TITLE = "Item1";
+		final String ITEM1_LINK = "http://www.twit1.tv";
+		final String ITEM1_DESC = "Item1 desc";
+		final String ITEM1_ENC = "http://www.twit1.tv/item1.mp3";
+		final int 	 ITEM1_ENC_SIZE = 100;
+		final String ITEM1_ENC_TYPE = "type/audio";
+
+		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_ENC, ITEM1_ENC_SIZE, ITEM1_ENC_TYPE);
+		channel.addItem(item1);
+		
+		ContentResolver contentResolver = getMockContentResolver();
+		
+		assertTrue(PodcastDAO.addRSS(contentResolver, channel));
+		PodcastDataProvider dataProvider = 
+			(PodcastDataProvider)getMockContentResolver()
+			.acquireContentProviderClient(Feed.BASE_AUTH)
+			.getLocalContentProvider();
+		
+		int fID = feedID(contentResolver, CHNL_TITLE);
+		int itemID = itemID(contentResolver, CHNL_TITLE, ITEM1_TITLE);
+		
+		Cursor itemCursor;
+		
+		Uri itemSelectUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemID);
+		itemCursor = dataProvider.query(itemSelectUri, Item.PROJECTION, null, null, null);
+	
+		assertNotNull(itemCursor);
+		
+		itemCursor.moveToFirst();
+		assertEquals(fID, itemCursor.getInt(itemCursor.getColumnIndex(Item.OWNER)));
+		assertEquals(ITEM1_TITLE, itemCursor.getString(itemCursor.getColumnIndex(Item.TITLE)));
+		assertEquals(ITEM1_LINK, itemCursor.getString(itemCursor.getColumnIndex(Item.LINK)));
+		assertEquals(ITEM1_DESC, itemCursor.getString(itemCursor.getColumnIndex(Item.DESC)));
+		assertEquals(ITEM1_ENC, itemCursor.getString(itemCursor.getColumnIndex(Item.ENC_LINK)));
+		assertEquals(ITEM1_ENC_SIZE, itemCursor.getInt(itemCursor.getColumnIndex(Item.ENC_SIZE)));
+		assertEquals(ITEM1_ENC_TYPE, itemCursor.getString(itemCursor.getColumnIndex(Item.ENC_TYPE)));
+	}
 
 	public void testDeleteFeed(){
 		
@@ -81,6 +125,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		
 		int itemsDeleted = getMockContentResolver().delete(Feed.CONTENT_URI, where, selectionArgs);
 	
+		
 		assertEquals(expectedNumber, itemsDeleted);
 	}
 
@@ -317,6 +362,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		itemCursor = null;
 	}
 
+	
 
 	/////////////ITEM RELATED TESTS//////////////////////
 	/*Any item must be associated with a Feed id.*/

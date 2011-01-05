@@ -16,6 +16,7 @@
 package com.cornerofseven.castroid.test;
 
 import com.cornerofseven.castroid.data.test.PodcastDataProviderTests;
+import com.cornerofseven.castroid.network.test.DownloadTests;
 import com.cornerofseven.castroid.rss.test.RSSParsingTestRemote;
 import com.cornerofseven.castroid.rss.test.RSSParsingTestsLocal;
 
@@ -35,6 +36,7 @@ public class AllTests {
 		suite.addTestSuite(PodcastDataProviderTests.class);
 		suite.addTestSuite(RSSParsingTestsLocal.class);
 		suite.addTestSuite(RSSParsingTestRemote.class);
+		suite.addTestSuite(DownloadTests.class);
 		//$JUnit-END$
 		return suite;
 	}

@@ -12,4 +12,6 @@
 	<string name="resolve_addfeed">Add Feed</string>
 	
 	<string name="menu_delete">Delete</string>
+	<string name="menu_download">Download</string>
+	<string name="downloading">Downloading...</string>
 </resources>
