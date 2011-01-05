@@ -124,7 +124,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		feedId.close();
 		
 		Uri delUri = ContentUris.withAppendedId(Feed.CONTENT_URI, fid);
-		final int EXPECTED_DEL = 0;
+		final int EXPECTED_DEL = 1;
 		final int ACTUAL_DEL = contentResolver.delete(delUri, null, null);
 		assertEquals(EXPECTED_DEL, ACTUAL_DEL);
 	}
