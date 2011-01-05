@@ -73,6 +73,7 @@ public class DownloadTests extends AbstractPodcastDataProvider{
 		
 		Context mockContext = getMockContext();
 		assertNotNull(mockContext);
-		assertTrue(DownloadManager.downloadItemEnc(mockContext, itemId, null));
+		DownloadManager dm = new DownloadManager(mockContext);
+		assertTrue(dm.downloadItemEnc(itemId, null));
 	}
 }
