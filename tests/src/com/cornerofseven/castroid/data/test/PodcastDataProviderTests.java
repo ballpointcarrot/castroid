@@ -1,20 +1,18 @@
 package com.cornerofseven.castroid.data.test;
 
 
-import com.cornerofseven.castroid.Castroid;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
 import com.cornerofseven.castroid.data.PodcastDAO;
 import com.cornerofseven.castroid.data.PodcastDataProvider;
 import com.cornerofseven.castroid.rss.feed.RSSChannel;
 import com.cornerofseven.castroid.rss.feed.RSSItem;
-
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.test.ProviderTestCase2;
 
 /**
  * Tests for the PodcastDataProvider.
@@ -128,6 +126,13 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final int EXPECTED_DEL = 1;
 		final int ACTUAL_DEL = contentResolver.delete(delUri, null, null);
 		assertEquals(EXPECTED_DEL, ACTUAL_DEL);
+		
+		feedId = contentResolver.query(Feed.CONTENT_URI, 
+				new String[]{Feed._ID}, 
+				Feed.TITLE + " = ?" , 
+				new String[]{CHNL_TITLE}, null);
+		int feedCount = feedId.getCount();
+		assertEquals("Should not have found a feed.", 0, feedCount);
 	}
 	
 	/**
