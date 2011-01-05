@@ -23,10 +23,14 @@ public abstract class AbstractPodcastDataProvider extends ProviderTestCase2<Podc
 		super(providerClass, providerAuthority);
 	}
 	
-	/**
-	 * Initialize the simple data test provider
-	 */
-	public void initDatabase(){
+	public void setUp() throws Exception{
+		super.setUp();
 		
+		//clear out all the old data.
+		PodcastDataProvider dataProvider = 
+			(PodcastDataProvider)getMockContentResolver()
+			.acquireContentProviderClient(Feed.BASE_AUTH)
+			.getLocalContentProvider();
+		dataProvider.deleteAll();
 	}
 }
