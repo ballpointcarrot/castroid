@@ -77,8 +77,13 @@ public final class Item implements BaseColumns{
 	public static final String ENC_SIZE = "ENC_SIZE";
 	
 	/**
+	 * Last millisecond played in the stream
+	 */
+	public static final String STREAM_POS = "POSITION";
+	
+	/**
 	 * Projection map for all the elements of the Item
 	 */
-	public static final String[] PROJECTION = {_ID, OWNER, TITLE, LINK, DESC, ENC_LINK, ENC_TYPE, ENC_SIZE};
+	public static final String[] PROJECTION = {_ID, OWNER, TITLE, LINK, DESC, ENC_LINK, ENC_TYPE, ENC_SIZE, STREAM_POS};
     
 }

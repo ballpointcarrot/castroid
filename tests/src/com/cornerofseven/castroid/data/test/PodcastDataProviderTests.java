@@ -362,7 +362,72 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		itemCursor = null;
 	}
 
+	/**
+	 * Test updating an item with the full item id in the uri.
+	 */
+	public void testUpdateItemById(){
+		final String CHNL_TITLE = "Test1";
+		final String CHNL_LINK = "http://www.twit.tv";
+		final String CHNL_DESC = "Test Desc";
+		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC);
+		
+		final String ITEM1_TITLE = "Item1";
+		final String ITEM1_LINK = "http://www.twit1.tv";
+		final String ITEM1_DESC = "Item1 desc";
+		final String ITEM1_ENC = "http://www.twit1.tv/item1.mp3";
+		final int 	 ITEM1_ENC_SIZE = 100;
+		final String ITEM1_ENC_TYPE = "type/audio";
+
+		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_ENC, ITEM1_ENC_SIZE, ITEM1_ENC_TYPE);
+		channel.addItem(item1);
+		
+		ContentResolver contentResolver = getMockContentResolver();
+		
+		assertTrue(PodcastDAO.addRSS(contentResolver, channel));
+		PodcastDataProvider dataProvider = 
+			(PodcastDataProvider)getMockContentResolver()
+			.acquireContentProviderClient(Feed.BASE_AUTH)
+			.getLocalContentProvider();
+		
+		int itemId = itemID(contentResolver, CHNL_TITLE, ITEM1_TITLE);
 	
+		Uri updateUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
+		//should update exactly 1 row
+		ContentValues values = new ContentValues();
+		values.put(Item.STREAM_POS, 10);
+		String where = Item._ID + "=?";
+		String selectionArgs[] = new String[]{Integer.toString(itemId)};
+		assertEquals(1, contentResolver.update(updateUri, values, where, selectionArgs));
+	}
+	
+	/**
+	 * Test updating an item in the database
+	 */
+	public void testUpdateItem(){
+		
+		ContentResolver contentResolver = getMockContentResolver();
+		contentResolver.update(Item.CONTENT_URI, null, null, null);
+		
+		notImplemented();
+	}
+	
+	public void testUpdateFeed(){
+
+		ContentResolver contentResolver = getMockContentResolver();
+		contentResolver.update(Feed.CONTENT_URI, null, null, null);
+		
+		notImplemented();
+	}
+	
+	public void testUpdateFeedById(){
+
+		Uri fidURI = ContentUris.withAppendedId(Feed.CONTENT_URI, 1);
+		
+		ContentResolver contentResolver = getMockContentResolver();
+		contentResolver.update(fidURI, null, null, null);
+		
+		notImplemented();
+	}
 
 	/////////////ITEM RELATED TESTS//////////////////////
 	/*Any item must be associated with a Feed id.*/

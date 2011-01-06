@@ -82,4 +82,11 @@ public abstract class AbstractPodcastDataProvider extends ProviderTestCase2<Podc
 		
 		return itemID;
 	}
+	
+	/**
+	 * A general way to fail consistently for anything not yet implemented.
+	 */
+	public void notImplemented(){
+		fail("Not implemented");
+	}
 }

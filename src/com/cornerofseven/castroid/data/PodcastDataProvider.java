@@ -66,7 +66,8 @@ public class PodcastDataProvider extends ContentProvider{
 					Item.DESC  + " TEXT NOT NULL," +
 					Item.ENC_LINK + " TEXT,		" + //TODO: Defaults/not null for these fields?
 					Item.ENC_SIZE + " INTEGER,	" +
-					Item.ENC_TYPE + " TEXT);");
+					Item.ENC_TYPE + " TEXT, " +
+					Item.STREAM_POS + " INTEGER DEFAULT -1);");
 		}
 
 		@Override
@@ -283,11 +284,19 @@ public class PodcastDataProvider extends ContentProvider{
 	}
 
 	@Override
-	public int update(Uri uri, ContentValues values, String selection,
-			String[] selectionArgs) {
+	public int update(Uri uri, ContentValues values, String whereClause,
+			String[] whereArgs) {
+		SQLiteDatabase db = helper.getWritableDatabase();
+		int rowsUpdated = 0;
 		
-		// TODO Auto-generated method stub
-		return 0;
+		switch(uriMatcher.match(uri)){
+		case ITEM_ID:
+			rowsUpdated = db.update(Item.TABLE_NAME, values, whereClause, whereArgs);
+			break;
+		default: unknownURI(uri);
+		}
+		
+		return rowsUpdated;
 	}
 
 	/**
