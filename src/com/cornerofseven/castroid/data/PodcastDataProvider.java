@@ -288,10 +288,14 @@ public class PodcastDataProvider extends ContentProvider{
 			String[] whereArgs) {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		int rowsUpdated = 0;
+		String id = "";
 		
 		switch(uriMatcher.match(uri)){
 		case ITEM_ID:
-			rowsUpdated = db.update(Item.TABLE_NAME, values, whereClause, whereArgs);
+			id = uri.getPathSegments().get(1);
+			String where = Item._ID + "=?";
+			String selectionArgs[] = new String[]{id};
+			rowsUpdated = db.update(Item.TABLE_NAME, values, where, selectionArgs);
 			break;
 		default: unknownURI(uri);
 		}
