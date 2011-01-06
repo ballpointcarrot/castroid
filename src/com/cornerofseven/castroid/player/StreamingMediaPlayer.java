@@ -45,8 +45,8 @@ public class StreamingMediaPlayer extends VideoView {
 	}
 	
 	private void setupController(Context context){
-		mMediaController = new MediaController(context);
+		mMediaController = new MediaController(context, false);
 		setMediaController(mMediaController);
 	}
-
+	
 }
