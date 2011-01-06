@@ -384,10 +384,6 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		ContentResolver contentResolver = getMockContentResolver();
 		
 		assertTrue(PodcastDAO.addRSS(contentResolver, channel));
-		PodcastDataProvider dataProvider = 
-			(PodcastDataProvider)getMockContentResolver()
-			.acquireContentProviderClient(Feed.BASE_AUTH)
-			.getLocalContentProvider();
 		
 		int itemId = itemID(contentResolver, CHNL_TITLE, ITEM1_TITLE);
 	
@@ -395,9 +391,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		//should update exactly 1 row
 		ContentValues values = new ContentValues();
 		values.put(Item.STREAM_POS, 10);
-		String where = Item._ID + "=?";
-		String selectionArgs[] = new String[]{Integer.toString(itemId)};
-		assertEquals(1, contentResolver.update(updateUri, values, where, selectionArgs));
+		assertEquals(1, contentResolver.update(updateUri, values, null, null));
 	}
 	
 	/**
