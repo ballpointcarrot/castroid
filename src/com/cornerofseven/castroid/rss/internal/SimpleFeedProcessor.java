@@ -197,9 +197,6 @@ public class SimpleFeedProcessor implements RSSProcessor{
 				feedLink = child.getFirstChild().getNodeValue();
 			}else if(RSSTags.CHNL_DESC.equals(childName)){
 				feedDesc = child.getFirstChild().getNodeValue();
-			}else{
-				//TODO: Delete me when debugging done.
-				Log.d(TAG, "Ignoring " + childName);
 			}
 		}
 		
@@ -233,10 +230,6 @@ public class SimpleFeedProcessor implements RSSProcessor{
 			}else if(RSSTags.ITEM_LINK.equals(childName)){
 				tmp = child.getFirstChild().getNodeValue();
 				newItem.setLink(tmp);
-			}
-			else{
-				//TODO: Delete me when debugging done.
-				Log.d(TAG, "Ignoring " + childName);
 			}
 		}
 	}
