@@ -74,29 +74,18 @@ public class Castroid extends Activity {
     
     //DIALOG IDs
     public static final int PROGRESS_DIALOG_ID = 1;
-    public static final int PLAY_MEDIA_DIALOG_ID = 2;
-    
+  
     protected ProgressDialog mProgressDialog = null;
     
     //The media player to use for playing podcasts.
-    protected MediaPlayer mMediaPlayer;
+    //protected MediaPlayer mMediaPlayer;
     
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	setContentView(R.layout.main);
-    	
-    	//media player
-    	mMediaPlayer = new MediaPlayer();
-    	//whenever the media player finishes, make sure the dialog that 
-    	//came up to show the media was playing is dismissed.
-    	mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-			@Override
-			public void onCompletion(MediaPlayer paramMediaPlayer) {
-				dismissDialog(PLAY_MEDIA_DIALOG_ID);
-			}
-		});
+
     	
     	mBtnAdd = (Button)findViewById(R.id.btn_add_podcast);
     	mBtnAdd.setOnClickListener(new View.OnClickListener() {
@@ -305,20 +294,6 @@ public class Castroid extends Activity {
 			mProgressDialog = pd;
 			dialog = pd;
 			break;
-		case PLAY_MEDIA_DIALOG_ID:
-			pd = new ProgressDialog(this);
-			pd.setTitle(R.string.playing);
-			pd.setCancelable(true);
-			pd.setOnCancelListener(new Dialog.OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface paramDialogInterface) {
-					if(mMediaPlayer != null){
-						mMediaPlayer.stop();
-					}
-				}
-			});
-			dialog = pd;
-			break;
 		default: dialog = super.onCreateDialog(id);
 		}
 		return dialog;
@@ -341,41 +316,9 @@ public class Castroid extends Activity {
 	}
 	
 	protected void playStream(long itemId){
-		showDialog(PLAY_MEDIA_DIALOG_ID);
-		
-		Uri queryUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
-		String encLink;
-		String mediaType;
-		Cursor c = managedQuery(
-				queryUri, 
-				new String[]{Item._ID, Item.ENC_LINK, Item.ENC_SIZE, Item.ENC_TYPE}, 
-				null, null, null);
-		
-		c.moveToFirst();
-		encLink = c.getString(c.getColumnIndex(Item.ENC_LINK));
-		mediaType = c.getString(c.getColumnIndex(Item.ENC_TYPE));
-		
-		MediaPlayer player = mMediaPlayer;
-		try {
-			if(player != null){ //I didn't new could return null, but from the docs, this one can.
-				//make sure the player is in an okay state, in case it was playing something before.
-				player.reset();
-				player.setDataSource(encLink);
-				player.prepare();
-				player.start();
-			}
-		} catch (IllegalArgumentException e) {//TODO: Sensible handeling of exceptions
-			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Intent intent = new Intent(this, MediaStreamer.class);
+    	intent.putExtra(MediaStreamer.ITEM_ID, itemId);
+    	startActivity(intent);
 	}
 
 	/**
