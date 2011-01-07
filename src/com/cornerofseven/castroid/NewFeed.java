@@ -62,146 +62,146 @@ import android.widget.Toast;
  */
 public class NewFeed extends Activity{
 
-	private static final String TAG = "NewFeed"; 
-	
-	//The controls we will need from the activity's view//
-	private Button mCreate = null;
-	private EditText mInputText;
-	private TextView mFeedTitle; 
-	private TextView mFeedDesc;
-	private TextView mFeedLink;
-	private ListView mFeedItems;
-	private Button mSaveFeed;
-	///////////////////////////////////////////////////////
+    private static final String TAG = "NewFeed"; 
 
-	private RSSChannel mFeed = null;
-	
-	@Override
-	public void onCreate(Bundle savedInstance){
-		super.onCreate(savedInstance);
+    //The controls we will need from the activity's view//
+    private Button mCreate = null;
+    private EditText mInputText;
+    private TextView mFeedTitle; 
+    private TextView mFeedDesc;
+    private TextView mFeedLink;
+    private ListView mFeedItems;
+    private Button mSaveFeed;
+    ///////////////////////////////////////////////////////
 
-		//find the NewFeed interface.
-		setContentView(R.layout.add_feed_screen); 
+    private RSSChannel mFeed = null;
 
-		//find all the controls in the view
-		mCreate = (Button)findViewById(R.id.afs_check);
-		mInputText = (EditText)findViewById(R.id.afs_url);
-		mFeedTitle = (TextView)findViewById(R.id.feed_info_title);
-		mFeedLink = (TextView)findViewById(R.id.feed_info_link);
-		mFeedDesc = (TextView)findViewById(R.id.feed_info_desc);
-		mFeedItems = (ListView)findViewById(R.id.afs_items);
-		mSaveFeed = (Button)findViewById(R.id.afs_savefeed);
-		
-		final EditText input = mInputText;
-		
-		//connect the CheckFeed button on click action.
-		mCreate.setOnClickListener(new View.OnClickListener() {
-			/**
-			 * Redirect to the class method to handel checking,
-			 * parsing, display, etc. a new feed.
-			 */
-			@Override
-			public final void onClick(View v) {
-				loadFeedOrError(input.getText().toString());
-			}
-		});
-		
-		mSaveFeed.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				saveRSSFeed();
-			}
-		});
+    @Override
+    public void onCreate(Bundle savedInstance){
+        super.onCreate(savedInstance);
 
-		//all done!
-	}
+        //find the NewFeed interface.
+        setContentView(R.layout.add_feed_screen); 
 
-	/**
-	 * Check the url given to see if it contains a valid
-	 * rss feed.  
-	 * @param uriString string representation of the Uri where the feed is located.
-	 */
-	protected void loadFeedOrError(String urlString){
-		/*General idea
-		 * -> Convert the String to a URI object.
-		 * -> Pass the URI as an argument to the RSS feed creator
-		 * -> Let the Feed creator run. It will signal any problems with the url
-		 * -> If no problems, keep track of the feed, so we don't have to reprossess and display its information
-		 */
+        //find all the controls in the view
+        mCreate = (Button)findViewById(R.id.afs_check);
+        mInputText = (EditText)findViewById(R.id.afs_url);
+        mFeedTitle = (TextView)findViewById(R.id.feed_info_title);
+        mFeedLink = (TextView)findViewById(R.id.feed_info_link);
+        mFeedDesc = (TextView)findViewById(R.id.feed_info_desc);
+        mFeedItems = (ListView)findViewById(R.id.afs_items);
+        mSaveFeed = (Button)findViewById(R.id.afs_savefeed);
 
-		try{
-			//TODO: Delete me!
-			Log.d(TAG, "Checking " + urlString);
-			
-			URL feedLocation = new URL(urlString);
-			Log.i(TAG, feedLocation.toString());
-			RSSProcessor processor = RSSProcessorFactory.getRSS2_0Processor(feedLocation);
-			Log.d(TAG, "Using processor " + processor.getClass().toString());
+        final EditText input = mInputText;
 
-			processor.process();
-			RSSFeedBuilder builder = processor.getBuilder();
+        //connect the CheckFeed button on click action.
+        mCreate.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Redirect to the class method to handel checking,
+             * parsing, display, etc. a new feed.
+             */
+            @Override
+            public final void onClick(View v) {
+                loadFeedOrError(input.getText().toString());
+            }
+        });
 
-			mFeed = builder.getFeed();
-			Log.d(TAG, mFeed.toString());
-			bindFeedInfo();
-		}catch(UnknownHostException uhe){
-			Toast.makeText(this, "Unknown host " + urlString, Toast.LENGTH_SHORT).show();
-		}
-		catch(Exception ex){
-			Log.e(TAG, ex.getClass().toString());
-			Log.e(TAG, ex.getMessage());
-			Toast.makeText(this, "Unable to parse the feed\n " 
-					+ ex.getMessage()
-					, Toast.LENGTH_LONG).show();
-		}
-	}
+        mSaveFeed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveRSSFeed();
+            }
+        });
 
-	/**
-	 * Bind the rss feed information into the correct view elements
-	 */
-	protected void bindFeedInfo(){
-		final RSSChannel feed = mFeed;
-		
-		//TODO: Delete me
-		Log.d(TAG, "Binding feed information");
-		if(feed != null){
-			mFeedTitle.setText(feed.getmTitle());
-			mFeedDesc.setText(feed.getmDesc());
-			mFeedLink.setText(feed.getmLink());
-		
-			final ListView itemView = mFeedItems;
-			final ListAdapter adapter 
-				= new ArrayAdapter<RSSItem>(this, R.layout.item_view, feed.itemsAsArray());
-			itemView.setAdapter(adapter);
-			
-			Log.d(Castroid.TAG, "Items in " + feed.getmTitle());
-			Iterator<RSSItem> itemsIter = feed.itemsIterator();
-			while(itemsIter.hasNext())
-				Log.d(Castroid.TAG, itemsIter.next().toString());
-		}
-	}
-	
-	/**
-	 * Save the feed into the dataprovider
-	 */
-	protected void saveRSSFeed(){
-		final RSSChannel feed = mFeed;
-		if(feed == null){ //check the feed if the user didn't
-			//try to load the feed on save.
-			loadFeedOrError(mInputText.getText().toString());
-		}
-		
-		//only save and finish the activity if something was loaded.
-		//preserve the activity if a feed couldn't be processed.
-		if(feed != null){
-			ContentResolver content = getContentResolver();
-			if(!PodcastDAO.addRSS(content, feed)){
-				Toast.makeText(this, "Unable to add the feed", Toast.LENGTH_SHORT).show();
-			}else{
-				finish(); //only finish if an error didn't happen
-			}
-		}else{
-			Toast.makeText(this, "No feed to save", Toast.LENGTH_SHORT).show();
-		}
-	}
+        //all done!
+    }
+
+    /**
+     * Check the url given to see if it contains a valid
+     * rss feed.  
+     * @param uriString string representation of the Uri where the feed is located.
+     */
+    protected void loadFeedOrError(String urlString){
+        /*General idea
+         * -> Convert the String to a URI object.
+         * -> Pass the URI as an argument to the RSS feed creator
+         * -> Let the Feed creator run. It will signal any problems with the url
+         * -> If no problems, keep track of the feed, so we don't have to reprossess and display its information
+         */
+
+        try{
+            //TODO: Delete me!
+            Log.d(TAG, "Checking " + urlString);
+
+            URL feedLocation = new URL(urlString);
+            Log.i(TAG, feedLocation.toString());
+            RSSProcessor processor = RSSProcessorFactory.getRSS2_0Processor(feedLocation);
+            Log.d(TAG, "Using processor " + processor.getClass().toString());
+
+            processor.process();
+            RSSFeedBuilder builder = processor.getBuilder();
+
+            mFeed = builder.getFeed();
+            Log.d(TAG, mFeed.toString());
+            bindFeedInfo();
+        }catch(UnknownHostException uhe){
+            Toast.makeText(this, "Unknown host " + urlString, Toast.LENGTH_SHORT).show();
+        }
+        catch(Exception ex){
+            Log.e(TAG, ex.getClass().toString());
+            Log.e(TAG, ex.getMessage());
+            Toast.makeText(this, "Unable to parse the feed\n " 
+                    + ex.getMessage()
+                    , Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Bind the rss feed information into the correct view elements
+     */
+    protected void bindFeedInfo(){
+        final RSSChannel feed = mFeed;
+
+        //TODO: Delete me
+        Log.d(TAG, "Binding feed information");
+        if(feed != null){
+            mFeedTitle.setText(feed.getmTitle());
+            mFeedDesc.setText(feed.getmDesc());
+            mFeedLink.setText(feed.getmLink());
+
+            final ListView itemView = mFeedItems;
+            final ListAdapter adapter 
+            = new ArrayAdapter<RSSItem>(this, R.layout.item_view, feed.itemsAsArray());
+            itemView.setAdapter(adapter);
+
+            Log.d(Castroid.TAG, "Items in " + feed.getmTitle());
+            Iterator<RSSItem> itemsIter = feed.itemsIterator();
+            while(itemsIter.hasNext())
+                Log.d(Castroid.TAG, itemsIter.next().toString());
+        }
+    }
+
+    /**
+     * Save the feed into the dataprovider
+     */
+    protected void saveRSSFeed(){
+        final RSSChannel feed = mFeed;
+        if(feed == null){ //check the feed if the user didn't
+            //try to load the feed on save.
+            loadFeedOrError(mInputText.getText().toString());
+        }
+
+        //only save and finish the activity if something was loaded.
+        //preserve the activity if a feed couldn't be processed.
+        if(feed != null){
+            ContentResolver content = getContentResolver();
+            if(!PodcastDAO.addRSS(content, feed)){
+                Toast.makeText(this, "Unable to add the feed", Toast.LENGTH_SHORT).show();
+            }else{
+                finish(); //only finish if an error didn't happen
+            }
+        }else{
+            Toast.makeText(this, "No feed to save", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
