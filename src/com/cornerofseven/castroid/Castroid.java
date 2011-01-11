@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License
-*/
+ */
 
 package com.cornerofseven.castroid;
 
@@ -22,13 +22,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -37,6 +34,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorTreeAdapter;
@@ -44,378 +42,229 @@ import android.widget.Toast;
 
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
-import com.cornerofseven.castroid.data.UpdateChannel;
-import com.cornerofseven.castroid.dialogs.ProgressBarHandler;
-import com.cornerofseven.castroid.network.DownloadManager;
-import com.cornerofseven.castroid.rss.MalformedRSSException;
+import com.cornerofseven.castroid.dialogs.DownloadDialog;
 
 public class Castroid extends Activity {
+	public static final String TAG = "Castroid";
 
-    public static final String TAG = "Castroid";
+	// constants for the menus
+	static final int MENU_FEED_DELETE = 1;
+	// TODO: This notation is weird... I'd rather see
+	// static final int MENU_ITEM_DOWNLOAD = 2;
+	static final int MENU_ITEM_DOWNLOAD = MENU_FEED_DELETE + 1;
 
-    // constants for the menus
-    static final int MENU_FEED_DELETE = 1;
-    static final int MENU_ITEM_DOWNLOAD = MENU_FEED_DELETE + 1;
-    static final int MENU_FEED_UPDATE = MENU_ITEM_DOWNLOAD + 1;
-    
-    protected Button mBtnAdd;
-    // protected ListView mFeedList;e
-    protected ExpandableListView mPodcastTree;
+	// Referenced Widgets
+	protected Button mBtnAdd;
+	protected ExpandableListView mPodcastTree;
 
-    // indexes for projection arrays for data adapter (e.g. FEED_PROJECTION in
-    // onCreate())
-    static final int FEED_ID_COLUMN = 0;
-    static final int FEED_TITLE_COLUMN = 1;
+	// References to cursor columns
+	static final String[] FEED_PROJECTION = { Feed._ID, Feed.TITLE,
+			Feed.DESCRIPTION, Feed.LINK };
+	static final String[] ITEM_PROJECTION = new String[] { Item._ID,
+			Item.OWNER, Item.TITLE, Item.LINK, Item.DESC };
 
-    // DIALOG IDs
-    public static final int PROGRESS_DIALOG_ID = 1;
+	// ExpandableListView formatting
+	final int LAYOUT = android.R.layout.simple_expandable_list_item_1;
+	final String[] FEED_FROM = { Feed.TITLE };
+	final String[] CHILD_FROM = { Item.TITLE };
+	final int[] TO = { android.R.id.text1 };
 
-    protected ProgressDialog mProgressDialog = null;
+	// DIALOG IDs
+	// TODO: Remove this, it shouldn't be needed.
+	public static final int PROGRESS_DIALOG_ID = 1;
 
-    // The media player to use for playing podcasts.
-    // protected MediaPlayer mMediaPlayer;
+	// The media player to use for playing podcasts.
+	// protected MediaPlayer mMediaPlayer;
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
 
-        mBtnAdd = (Button) findViewById(R.id.btn_add_podcast);
-        mBtnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public final void onClick(View v) {
-                addFeed();
-            }
-        });
+		mBtnAdd = (Button) findViewById(R.id.btn_add_podcast);
+		mBtnAdd.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public final void onClick(View v) {
+				addFeed();
+			}
+		});
 
-        final String[] FEED_PROJECTION = { Feed._ID, Feed.TITLE,
-            Feed.DESCRIPTION, Feed.LINK };
-        Cursor c = managedQuery(Feed.CONTENT_URI, FEED_PROJECTION, null, null,
-                null);
-        c.setNotificationUri(getContentResolver(), Feed.CONTENT_URI);
+		mPodcastTree = ((ExpandableListView) findViewById(R.id.podcastList));
 
-        final int GROUP_LAYOUT = android.R.layout.simple_expandable_list_item_1;
-        final String[] GROUP_FROM = { Feed.TITLE };
-        final int[] GROUP_TO = { android.R.id.text1 };
-        final int CHILD_LAYOUT = android.R.layout.simple_expandable_list_item_1;
-        final String[] CHILD_FROM = { Item.TITLE };
-        final int[] CHILD_TO = { android.R.id.text1 };
+		Cursor c = managedQuery(Feed.CONTENT_URI, FEED_PROJECTION, null, null,
+				null);
+		c.setNotificationUri(getContentResolver(), Feed.CONTENT_URI);
 
-        mPodcastTree = ((ExpandableListView) findViewById(R.id.podcastList));
-        // pull a local ref for better performance
-        final ExpandableListView podcastTree = mPodcastTree;
-        podcastTree.setAdapter(new SimpleCursorTreeAdapter(this, c,
-                    GROUP_LAYOUT, GROUP_FROM, GROUP_TO, CHILD_LAYOUT, CHILD_FROM,
-                    CHILD_TO) {
+		mPodcastTree.setAdapter(new SimpleCursorTreeAdapter(this, c, LAYOUT,
+				FEED_FROM, TO, LAYOUT, CHILD_FROM, TO) {
 
-            @Override
-            protected Cursor getChildrenCursor(Cursor groupCursor) {
-                final String[] PROJECTION = new String[] { Item._ID,
-                        Item.OWNER, Item.TITLE, Item.LINK, Item.DESC };
-                final String SELECT_ITEMS = Item.OWNER + " = ?";
-                int feedId = groupCursor.getInt(groupCursor
-                    .getColumnIndex(Feed._ID));
-                String[] selectionArgs = new String[] { 
-                    Integer.toString(feedId) };
-                return managedQuery(Item.CONTENT_URI, PROJECTION, SELECT_ITEMS,
-                    selectionArgs, Item.DEFAULT_SORT);
-            }
+			@Override
+			protected Cursor getChildrenCursor(Cursor groupCursor) {
 
-        });
+				final String SELECT_ITEMS = Item.OWNER + " = ?";
+				int feedId = groupCursor.getInt(groupCursor
+						.getColumnIndex(Feed._ID));
+				String[] selectionArgs = new String[] { Integer
+						.toString(feedId) };
+				return managedQuery(Item.CONTENT_URI, ITEM_PROJECTION,
+						SELECT_ITEMS, selectionArgs, Item.DEFAULT_SORT);
+			}
 
-        podcastTree.setClickable(true);
-        podcastTree.setOnCreateContextMenuListener(
-            new View.OnCreateContextMenuListener() {
+		});
 
-            @Override
-            public final void onCreateContextMenu(ContextMenu menu,
-                View paramView, ContextMenuInfo paramContextMenuInfo) {
+		mPodcastTree.setClickable(true);
+		mPodcastTree
+				.setOnCreateContextMenuListener(new PodcastTreeContextMenuListener());
 
-                    ExpandableListView.ExpandableListContextMenuInfo info;
+		// Add a click listener to download a clicked on podcast
+		// TODO: Is this the control flow we want?
+		mPodcastTree
+				.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+					@Override
+					public boolean onChildClick(
+							ExpandableListView paramExpandableListView,
+							View paramView, int paramInt1, int paramInt2,
+							long paramLong) {
+						// TODO Auto-generated method stub
+						// downloadItem(paramLong);
+						playStream(paramLong);
+						return true;
+					}
+				});
+	}
 
-                    try {
-                        info = (ExpandableListView.ExpandableListContextMenuInfo) paramContextMenuInfo;
-                    } catch (ClassCastException e) {
-                        Log.e(TAG, "bad menuInfo", e);
-                        return;
-                    }
+	protected void addFeed() {
+		Intent intent = new Intent(this, NewFeed.class);
+		startActivity(intent);
+	}
 
-                    int type = ExpandableListView.getPackedPositionType(
-                        info.packedPosition);
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
+	}
 
-                    if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                        createItemContextMenu(paramView, menu, info);
-                    } else if (type == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
-                        createChannelContextMenu(paramView, menu, info);
-                    }
-                }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 
-            /**
-             * Create the context menu for a Channel.
-             * 
-             *  Options in menu: &nbsp
-             *  update &nbsp
-             *  delete
-             * @param paramView
-             * @param menu
-             * @param info
-             */
-            private final void createChannelContextMenu(View paramView,ContextMenu menu,
-                ExpandableListView.ExpandableListContextMenuInfo info) 
-            {
-                // Setup the menu header
-                ListAdapter list = podcastTree.getAdapter();
-                int group = ExpandableListView.getPackedPositionGroup(
-                    info.packedPosition);
-                Cursor cursor = (Cursor) list.getItem(group);
-                if (cursor == null) {
-                    Log.d(TAG, "Null Group info cursor");
-                    return;
-                }
-                menu.setHeaderTitle(cursor.getString(FEED_TITLE_COLUMN));
+		switch (item.getItemId()) {
+		case R.id.addFeed:
+			addFeed();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
-                menu.add(group, MENU_FEED_UPDATE, 0, R.string.menu_update);
-                // Add a menu item to delete the note
-                menu.add(group, MENU_FEED_DELETE, 0,
-                    R.string.menu_delete);
-            }
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case MENU_FEED_DELETE:
+			ListAdapter list = mPodcastTree.getAdapter();
+			Cursor cursor = (Cursor) list.getItem(item.getGroupId());
+			if (cursor == null) {
+				return false;
+			}
+			int feedID = cursor.getInt(cursor.getColumnIndex(Feed._ID));
+			Uri queryUri = ContentUris.withAppendedId(Feed.CONTENT_URI, feedID);
+			getContentResolver().delete(queryUri, null, null);
+			return true;
+		case MENU_ITEM_DOWNLOAD:
+			ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item
+					.getMenuInfo();
+			long itemID = info.id;
+			Bundle bdl = new Bundle();
+			bdl.putString("URI", getDownloadLink(itemID));
+			showDialog(PROGRESS_DIALOG_ID, bdl);
+		}
+		return super.onContextItemSelected(item);
+	}
 
-            private final void createItemContextMenu(View paramView,ContextMenu menu,
-                ExpandableListView.ExpandableListContextMenuInfo info) 
-            {
-                menu.setHeaderTitle("Item Options");
-                menu.add(0, MENU_ITEM_DOWNLOAD, 0,R.string.menu_download);
-            }
-        });
+	/**
+	 * Retrieves the Item's Enclosure download link.
+	 * 
+	 * @param itemID
+	 *            the id of the item.
+	 * @return the enclosure link.
+	 */
+	private String getDownloadLink(long itemID) {
+		Uri queryUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemID);
+		Cursor c = getContentResolver().query(queryUri,
+				new String[] { Item._ID, Item.ENC_LINK, Item.ENC_SIZE }, null,
+				null, null);
 
-        // Add a click listener to download a clicked on podcast
-        // TODO: Is this the control flow we want?
-        podcastTree
-            .setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                @Override
-                public boolean onChildClick(
-                    ExpandableListView paramExpandableListView,
-                    View paramView, int paramInt1, int paramInt2,
-                    long paramLong) {
-                    // TODO Auto-generated method stub
-                    // downloadItem(paramLong);
-                    playStream(paramLong);
-                    return true;
-                    }
-            });
-    }
+		c.moveToFirst();
+		String dlLnk = c.getString(c.getColumnIndex(Item.ENC_LINK));
+		c.close();
+		return dlLnk;
+	}
 
-    protected void addFeed() {
-        Intent intent = new Intent(this, NewFeed.class);
-        startActivity(intent);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Dialog onCreateDialog(int id, Bundle args) {
+		Dialog dialog = null;
+		ProgressDialog pd;
+		switch (id) {
+		case PROGRESS_DIALOG_ID:
+			Uri downloadUri = Uri.parse(args.getString("URI"));
+			pd = new DownloadDialog(this, downloadUri);
+			dialog = pd;
+			break;
+		default:
+			dialog = super.onCreateDialog(id);
+		}
+		return dialog;
+	}
 
-    @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
-            super.onCreateOptionsMenu(menu);
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.menu, menu);
-            return true;
-        }
+	protected void playStream(long itemId) {
+		Intent intent = new Intent(this, MediaStreamer.class);
+		intent.putExtra(MediaStreamer.ITEM_ID, itemId);
+		startActivity(intent);
+	}
 
-    @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
+	private class PodcastTreeContextMenuListener implements
+			View.OnCreateContextMenuListener {
+		/**
+		 * Default Constructor
+		 */
+		public PodcastTreeContextMenuListener() {
+		}
 
-            switch (item.getItemId()) {
-                case R.id.addFeed:
-                    addFeed();
-                    return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
+		/**
+		 * @see android.view.View.OnCreateContextMenuListener#onCreateContextMenu(android.view.ContextMenu,
+		 *      android.view.View, android.view.ContextMenu.ContextMenuInfo)
+		 */
+		@Override
+		public void onCreateContextMenu(ContextMenu menu, View v,
+				ContextMenuInfo menuInfo) {
+			// Recover PodcastTree Menu Info.
+			ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
 
-    @Override
-        public boolean onContextItemSelected(MenuItem item) {
-            switch (item.getItemId()) {
-                case MENU_FEED_DELETE:
-                {
-                    ListAdapter list = mPodcastTree.getAdapter();
-                    Cursor cursor = (Cursor) list.getItem(item.getGroupId());
-                    if (cursor == null) {
-                        return false;
-                    }
-                    int feedID = cursor.getInt(FEED_ID_COLUMN);
-                    Uri queryUri = ContentUris.withAppendedId(Feed.CONTENT_URI, feedID);
-                    getContentResolver().delete(queryUri, null, null);
-                    return true;
-                }
-                case MENU_FEED_UPDATE:
-                {
-                    ListAdapter list = mPodcastTree.getAdapter();
-                    Cursor cursor = (Cursor) list.getItem(item.getGroupId());
-                    if (cursor == null) {
-                        return false;
-                    }
-                    int feedID = cursor.getInt(FEED_ID_COLUMN);
-                    updateChannel((int)feedID);
-                    return true;
-                }
-                case MENU_ITEM_DOWNLOAD:
-                    ExpandableListView.ExpandableListContextMenuInfo info = 
-                        (ExpandableListView.ExpandableListContextMenuInfo) item.getMenuInfo();
-                    long itemID = info.id;
-                    downloadItem(itemID);
-                    return true;
-                
-            }
-            return super.onContextItemSelected(item);
-        }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreateDialog(int)
-     */
-    @Override
-        protected Dialog onCreateDialog(int id) {
-            Dialog dialog = null;
-            ProgressDialog pd;
-            switch (id) {
-                case PROGRESS_DIALOG_ID:
-                    pd = new ProgressDialog(this);
-
-                    pd.setTitle(R.string.downloading);
-                    pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    pd.setCancelable(true);
-
-                    pd.setOnCancelListener(new Dialog.OnCancelListener() {
-                        @Override
-                        public final void onCancel(DialogInterface paramDialogInterface) {
-                            Thread dlt = mDownloadThread;
-                            if (dlt != null) {
-                                dlt.interrupt();
-                                try {
-                                    dlt.join(); // wait for the download thread to
-                                    // really die
-                                    // will cause a UI "wait for finish" if it takes too
-                                    // long.
-                                } catch (InterruptedException e) {
-                                }
-                                mDownloadThread = null;
-                            }
-                        }
-                    });
-
-                    mProgressDialog = pd;
-                    dialog = pd;
-                    break;
-                default:
-                    dialog = super.onCreateDialog(id);
-            }
-            return dialog;
-        }
-
-    /**
-     * Maintain a reference to the thread used for downloading. This field will
-     * be changed everytime a download is started.
-     */
-    private DownloadThread mDownloadThread = null;
-
-    /**
-     * Download the selected item in a seperate thread.
-     * 
-     * @param itemId
-     */
-    protected void downloadItem(long itemId) {
-        DownloadManager manager = new DownloadManager(this);
-        DownloadThread dt = new DownloadThread(manager, itemId, progressHandler);
-        mDownloadThread = dt;
-        dt.start(); // spawn the thread off. raw threading, I feel a little
-        // dirty...
-    }
-
-    protected void playStream(long itemId) {
-        Intent intent = new Intent(this, MediaStreamer.class);
-        intent.putExtra(MediaStreamer.ITEM_ID, itemId);
-        startActivity(intent);
-    }
-
-    /**
-     * Update the selected feed(s).
-     * 
-     *  Can update multiple feeds on the same call.
-     *  Use this if/when the "update all" feature is added.
-     *  
-     * @param feedId
-     */
-    protected void updateChannel(int... feedId){
-        UpdateChannel update = new UpdateChannel(this);
-        
-        for(int currentFeed : feedId){
-            try {
-                update.runUpdate(currentFeed);
-            } catch (MalformedURLException e) {
-                //TODO: Put the podcast title instead of id in the error message
-                String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
-                Toast.makeText(this, msg , Toast.LENGTH_LONG);
-            } catch (MalformedRSSException e) {
-              //TODO: Put the podcast title instead of id in the error message
-                String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
-                Toast.makeText(this, msg , Toast.LENGTH_LONG);
-            }
-        }
-        
-    }
-    
-    /**
-     * A handler for updating/showing a progress.
-     * 
-     * The msg should set it's what field to any of the WHAT_* constants in
-     * @see{com.cornerofsever.castroid.dialogs.ProgressBarHandler}.
-     */
-    final Handler progressHandler = new Handler() {
-        @Override
-            public final void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case ProgressBarHandler.WHAT_START:
-                        showDialog(PROGRESS_DIALOG_ID);
-                        int max = msg.getData().getInt(ProgressBarHandler.PROGRESS_MAX);
-                        mProgressDialog.setMax(max);
-                        mProgressDialog.setProgress(0);
-                        break;
-                    case ProgressBarHandler.WHAT_UPDATE:
-                        int total = msg.getData().getInt(
-                                ProgressBarHandler.PROGRESS_UPDATE);
-                        mProgressDialog.setProgress(total);
-                        break;
-                    case ProgressBarHandler.WHAT_DONE:
-                        mProgressDialog.dismiss();
-                        break;
-                    default:
-                        Log.e(TAG, "No case to for " + msg.what + " in handler.");
-                }
-            }
-    };
-
-    /**
-     * Create a separate thread to run the down load on.
-     * 
-     * @author Sean Mooney
-     * 
-     */
-    private class DownloadThread extends Thread {
-
-        private DownloadManager mDownloader;
-        private long mItemId;
-        private Handler mHandler;
-
-        public DownloadThread(DownloadManager downloader, long itemId,
-                Handler handler) {
-            super("DOWNLOAD-" + itemId);
-            this.mDownloader = downloader;
-            mItemId = itemId;
-            mHandler = handler;
-        }
-
-        @Override
-            public void run() {
-                mDownloader.downloadItemEnc(mItemId, mHandler);
-            }
-    }
+			switch (ExpandableListView
+					.getPackedPositionType(info.packedPosition)) {
+			case ExpandableListView.PACKED_POSITION_TYPE_CHILD:
+				menu.setHeaderTitle("Item Options");
+				menu.add(0, MENU_ITEM_DOWNLOAD, 0, R.string.menu_download);
+				break;
+			case ExpandableListView.PACKED_POSITION_TYPE_GROUP:
+				int group = ExpandableListView
+						.getPackedPositionGroup(info.packedPosition);
+				ExpandableListAdapter ela = ((ExpandableListView) v)
+						.getExpandableListAdapter();
+				Cursor groupCursor = (Cursor) ela.getGroup(group);
+				if (groupCursor != null) {
+					menu.setHeaderTitle(groupCursor.getString(groupCursor
+							.getColumnIndex(Feed.TITLE)));
+					menu.add(group, MENU_FEED_DELETE, 0, R.string.menu_delete);
+				}
+				break;
+			default:
+				Log.e(TAG, "Error in selecting packed position.");
+			}
+		}
+	}
 }

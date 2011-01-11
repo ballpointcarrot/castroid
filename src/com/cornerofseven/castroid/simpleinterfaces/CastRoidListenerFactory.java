@@ -1,9 +1,4 @@
-package com.cornerofseven.castroid;
-
-import com.cornerofseven.castroid.data.Feed;
-import com.cornerofseven.castroid.data.PodcastDataProvider;
-import com.cornerofseven.castroid.dialogs.DialogBuilder;
-import com.cornerofseven.castroid.dialogs.DialogResult;
+package com.cornerofseven.castroid.simpleinterfaces;
 
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -14,6 +9,10 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import com.cornerofseven.castroid.data.Feed;
+import com.cornerofseven.castroid.dialogs.DialogBuilder;
+import com.cornerofseven.castroid.dialogs.DialogResult;
 
 /**
  * A common place to define and provide access methods to

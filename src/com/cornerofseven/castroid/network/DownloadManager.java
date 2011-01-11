@@ -25,9 +25,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import android.content.ContentUris;
-import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -35,9 +32,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.cornerofseven.castroid.R;
-import com.cornerofseven.castroid.data.Item;
-import com.cornerofseven.castroid.dialogs.ProgressBarHandler;
+import com.cornerofseven.castroid.dialogs.DownloadDialog;
 
 /**
  * Download manager for download podcast items.
@@ -55,47 +50,24 @@ public class DownloadManager {
 
 	private static String TAG = "DownloadManager";
 	
-	//TODO: Is this a memory leak?
-	//Do we need to use a context for the backing?
-	//Overall, this feels like bad/uninformed design right now.
-	private Context mContext;
-	public DownloadManager(Context context){
-		this.mContext = context;
-	}
-	
 	/**
 	 * Download the file pointed to by the item enclosure url field.
 	 * @param c
 	 * @param itemID
 	 * @param progressDialogID
 	 */
-	public boolean downloadItemEnc(long itemID, Handler handler){
-		String downloadLink;
-		
-		Uri queryUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemID);
-		Cursor c = mContext.getContentResolver().query(
-				queryUri, 
-				new String[]{Item._ID, Item.ENC_LINK, Item.ENC_SIZE}, 
-				null, null, null);
-		
-		c.moveToFirst();
-		downloadLink = c.getString(c.getColumnIndex(Item.ENC_LINK));
-		c.close();
+	public boolean downloadItem(Uri dlUri, String dlPath, Handler hand){
 		
 		File sdCardRoot = Environment.getExternalStorageDirectory();
-		//TODO: Don't clobber existing files!
-		String fileName = "";
 		
-		Uri fileUri = Uri.parse(downloadLink);
-		fileName = fileUri.getLastPathSegment();
-		File dataDir = new File(sdCardRoot, mContext.getString(R.string.download_root_dir));
+		String fileName = dlUri.getLastPathSegment();
+		File dataDir = new File(sdCardRoot, dlPath);
 		if(!dataDir.mkdirs()){
 			Log.e(TAG, "Unable to create " + dataDir.getAbsolutePath());
 		}
 		File dest = new File(dataDir, fileName);
 		
-		return downloadFile(downloadLink, dest, handler);
-		//Toast.makeText(context, "Download " + downloadLink, Toast.LENGTH_LONG).show();
+		return downloadFile(dlUri.toString(), dest, hand);
 	}
 	
 	/**
@@ -138,9 +110,9 @@ public class DownloadManager {
 			final int K_PER_UPDATE = (1024 * 100); //update every tenth meg downloaded
 			
 			if(handler != null){
-				Message msg = handler.obtainMessage(ProgressBarHandler.WHAT_START);
+				Message msg = handler.obtainMessage(DownloadDialog.WHAT_START);
 				Bundle b = new Bundle();
-				b.putInt(ProgressBarHandler.PROGRESS_MAX, totalSize);
+				b.putInt(DownloadDialog.PROGRESS_MAX, totalSize);
 				msg.setData(b);
 				handler.sendMessage(msg);
 			}
@@ -160,9 +132,9 @@ public class DownloadManager {
 					bytesSinceLastLog = 0;
 					
 					if(handler != null){
-						Message msg = handler.obtainMessage(ProgressBarHandler.WHAT_UPDATE);
+						Message msg = handler.obtainMessage(DownloadDialog.WHAT_UPDATE);
 						Bundle b = new Bundle();
-						b.putInt(ProgressBarHandler.PROGRESS_UPDATE, downloadSize);
+						b.putInt(DownloadDialog.PROGRESS_UPDATE, downloadSize);
 						msg.setData(b);
 						handler.sendMessage(msg);
 					}
@@ -196,9 +168,9 @@ public class DownloadManager {
 		
 
 		if(handler != null){
-			Message msg = handler.obtainMessage(ProgressBarHandler.WHAT_DONE);
+			Message msg = handler.obtainMessage(DownloadDialog.WHAT_DONE);
 			Bundle b = new Bundle();
-			b.putBoolean(ProgressBarHandler.PROGRESS_DONE, success);
+			b.putBoolean(DownloadDialog.PROGRESS_DONE, success);
 			msg.setData(b);
 			handler.sendMessage(msg);
 		}
