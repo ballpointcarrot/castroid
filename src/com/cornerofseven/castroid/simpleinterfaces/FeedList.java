@@ -8,10 +8,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.SimpleCursorAdapter;
 
-import com.cornerofseven.castroid.CastRoidListenerFactory;
 import com.cornerofseven.castroid.R;
 import com.cornerofseven.castroid.data.Feed;
 
