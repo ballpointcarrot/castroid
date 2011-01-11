@@ -256,6 +256,12 @@ public class PodcastDataProvider extends ContentProvider{
 			qb.setTables(Feed.TABLE_NAME);
 			defaultSortOrder = Feed.DEFAULT_SORT;
 			break;
+		//TODO: Unit Test
+		case FEED_ID:
+		    qb.setTables(Feed.TABLE_NAME);
+		    defaultSortOrder = Feed.DEFAULT_SORT;
+		    qb.appendWhere(Feed._ID + " = " + uri.getPathSegments().get(1));
+		    break;
 		case ITEM:
 			qb.setTables(Item.TABLE_NAME);
 			defaultSortOrder = Item.DEFAULT_SORT;

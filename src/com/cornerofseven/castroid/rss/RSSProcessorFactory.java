@@ -37,4 +37,5 @@ public class RSSProcessorFactory {
 		RSSFeedBuilder builder = new SimpleRSSFeedBuilder();
 		return getRSS2_0Processor(feedLocation, builder);
 	}
+	
 }

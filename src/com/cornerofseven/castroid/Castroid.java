@@ -16,6 +16,8 @@ limitations under the License
 
 package com.cornerofseven.castroid;
 
+import java.net.MalformedURLException;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -38,11 +40,14 @@ import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorTreeAdapter;
+import android.widget.Toast;
 
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
+import com.cornerofseven.castroid.data.UpdateChannel;
 import com.cornerofseven.castroid.dialogs.ProgressBarHandler;
 import com.cornerofseven.castroid.network.DownloadManager;
+import com.cornerofseven.castroid.rss.MalformedRSSException;
 
 public class Castroid extends Activity {
 
@@ -51,7 +56,8 @@ public class Castroid extends Activity {
     // constants for the menus
     static final int MENU_FEED_DELETE = 1;
     static final int MENU_ITEM_DOWNLOAD = MENU_FEED_DELETE + 1;
-
+    static final int MENU_FEED_UPDATE = MENU_ITEM_DOWNLOAD + 1;
+    
     protected Button mBtnAdd;
     // protected ListView mFeedList;e
     protected ExpandableListView mPodcastTree;
@@ -145,6 +151,16 @@ public class Castroid extends Activity {
                     }
                 }
 
+            /**
+             * Create the context menu for a Channel.
+             * 
+             *  Options in menu: &nbsp
+             *  update &nbsp
+             *  delete
+             * @param paramView
+             * @param menu
+             * @param info
+             */
             private final void createChannelContextMenu(View paramView,ContextMenu menu,
                 ExpandableListView.ExpandableListContextMenuInfo info) 
             {
@@ -159,6 +175,7 @@ public class Castroid extends Activity {
                 }
                 menu.setHeaderTitle(cursor.getString(FEED_TITLE_COLUMN));
 
+                menu.add(group, MENU_FEED_UPDATE, 0, R.string.menu_update);
                 // Add a menu item to delete the note
                 menu.add(group, MENU_FEED_DELETE, 0,
                     R.string.menu_delete);
@@ -217,6 +234,7 @@ public class Castroid extends Activity {
         public boolean onContextItemSelected(MenuItem item) {
             switch (item.getItemId()) {
                 case MENU_FEED_DELETE:
+                {
                     ListAdapter list = mPodcastTree.getAdapter();
                     Cursor cursor = (Cursor) list.getItem(item.getGroupId());
                     if (cursor == null) {
@@ -226,11 +244,25 @@ public class Castroid extends Activity {
                     Uri queryUri = ContentUris.withAppendedId(Feed.CONTENT_URI, feedID);
                     getContentResolver().delete(queryUri, null, null);
                     return true;
+                }
+                case MENU_FEED_UPDATE:
+                {
+                    ListAdapter list = mPodcastTree.getAdapter();
+                    Cursor cursor = (Cursor) list.getItem(item.getGroupId());
+                    if (cursor == null) {
+                        return false;
+                    }
+                    int feedID = cursor.getInt(FEED_ID_COLUMN);
+                    updateChannel((int)feedID);
+                    return true;
+                }
                 case MENU_ITEM_DOWNLOAD:
                     ExpandableListView.ExpandableListContextMenuInfo info = 
                         (ExpandableListView.ExpandableListContextMenuInfo) item.getMenuInfo();
                     long itemID = info.id;
                     downloadItem(itemID);
+                    return true;
+                
             }
             return super.onContextItemSelected(item);
         }
@@ -304,6 +336,33 @@ public class Castroid extends Activity {
         startActivity(intent);
     }
 
+    /**
+     * Update the selected feed(s).
+     * 
+     *  Can update multiple feeds on the same call.
+     *  Use this if/when the "update all" feature is added.
+     *  
+     * @param feedId
+     */
+    protected void updateChannel(int... feedId){
+        UpdateChannel update = new UpdateChannel(this);
+        
+        for(int currentFeed : feedId){
+            try {
+                update.runUpdate(currentFeed);
+            } catch (MalformedURLException e) {
+                //TODO: Put the podcast title instead of id in the error message
+                String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
+                Toast.makeText(this, msg , Toast.LENGTH_LONG);
+            } catch (MalformedRSSException e) {
+              //TODO: Put the podcast title instead of id in the error message
+                String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
+                Toast.makeText(this, msg , Toast.LENGTH_LONG);
+            }
+        }
+        
+    }
+    
     /**
      * A handler for updating/showing a progress.
      * 

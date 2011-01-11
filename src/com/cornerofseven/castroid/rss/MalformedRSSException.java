@@ -20,12 +20,17 @@ package com.cornerofseven.castroid.rss;
  * 
  * @author Sean Mooney
  *
+ * TODO: is this the correct name, or should it something more general like just "RSSException"
  */
 public class MalformedRSSException extends Exception{
 	public MalformedRSSException(String msg){
 		super(msg);
 	}
 
+	public MalformedRSSException(Throwable cause){
+	    super(cause);
+	}
+	
 	/**
 	 * 
 	 */
