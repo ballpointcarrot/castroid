@@ -3,6 +3,7 @@ Ideas that came to me while using the application.
 UI
 1. Wait progress bar of some sort when downloading/parsing Podcast feed.
 2. Sort order choice for items in an RSS feed.
+3. Filter for podcast list. e.g. only show 10 of the items, or only show unplayed items.
 
 URLs
 1. Smarter DNS resolution of feed.  Currently fails if the http and www are missing.
