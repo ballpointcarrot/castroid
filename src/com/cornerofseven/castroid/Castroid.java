@@ -42,7 +42,9 @@ import android.widget.Toast;
 
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
+import com.cornerofseven.castroid.data.UpdateChannel;
 import com.cornerofseven.castroid.dialogs.DownloadDialog;
+import com.cornerofseven.castroid.rss.MalformedRSSException;
 
 public class Castroid extends Activity {
 	public static final String TAG = "Castroid";
@@ -57,7 +59,7 @@ public class Castroid extends Activity {
 	Everything increments properly. (Chris-you can drop this comment after reading)
 	*/
 	static final int MENU_ITEM_DOWNLOAD = 2;
-
+	static final int MENU_FEED_UPDATE = 3;
 
 	// Referenced Widgets
 	protected Button mBtnAdd;
@@ -168,7 +170,9 @@ public class Castroid extends Activity {
 	public boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case MENU_FEED_DELETE:
+		{
 			ListAdapter list = mPodcastTree.getAdapter();
+			//TODO: Is there a better way that doesn't use a cursor?
 			Cursor cursor = (Cursor) list.getItem(item.getGroupId());
 			if (cursor == null) {
 				return false;
@@ -177,13 +181,28 @@ public class Castroid extends Activity {
 			Uri queryUri = ContentUris.withAppendedId(Feed.CONTENT_URI, feedID);
 			getContentResolver().delete(queryUri, null, null);
 			return true;
+		}
 		case MENU_ITEM_DOWNLOAD:
+		{
 			ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item
 					.getMenuInfo();
 			long itemID = info.id;
 			Bundle bdl = new Bundle();
 			bdl.putString("URI", getDownloadLink(itemID));
 			showDialog(PROGRESS_DIALOG_ID, bdl);
+			return true;
+		}
+		case MENU_FEED_UPDATE:
+		{
+		    ListAdapter list = mPodcastTree.getAdapter();
+            Cursor cursor = (Cursor) list.getItem(item.getGroupId());
+            if (cursor == null) {
+                return false;
+            }
+            int feedID = cursor.getInt(cursor.getColumnIndex(Feed._ID));
+            updateChannel(feedID);
+            return true;
+		}
 		}
 		return super.onContextItemSelected(item);
 	}
@@ -231,6 +250,32 @@ public class Castroid extends Activity {
 		intent.putExtra(MediaStreamer.ITEM_ID, itemId);
 		startActivity(intent);
 	}
+	
+	/**
+     * Update the selected feed(s).
+     * 
+     *  Can update multiple feeds on the same call.
+     *  Use this if/when the "update all" feature is added.
+     *  
+     * @param feedId
+     */
+    protected void updateChannel(int... feedId){
+        UpdateChannel update = new UpdateChannel(this);
+        
+        for(int currentFeed : feedId){
+            try {
+                update.runUpdate(currentFeed);
+            } catch (MalformedURLException e) {
+                //TODO: Put the podcast title instead of id in the error message
+                String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
+                Toast.makeText(this, msg , Toast.LENGTH_LONG);
+            } catch (MalformedRSSException e) {
+              //TODO: Put the podcast title instead of id in the error message
+                String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
+                Toast.makeText(this, msg , Toast.LENGTH_LONG);
+            }
+        }   
+    }
 
 	private class PodcastTreeContextMenuListener implements
 			View.OnCreateContextMenuListener {
@@ -265,6 +310,7 @@ public class Castroid extends Activity {
 				if (groupCursor != null) {
 					menu.setHeaderTitle(groupCursor.getString(groupCursor
 							.getColumnIndex(Feed.TITLE)));
+					menu.add(group, MENU_FEED_UPDATE, 0, R.string.menu_update);
 					menu.add(group, MENU_FEED_DELETE, 0, R.string.menu_delete);
 				}
 				break;
