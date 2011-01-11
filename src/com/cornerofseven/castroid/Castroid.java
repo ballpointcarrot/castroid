@@ -49,9 +49,15 @@ public class Castroid extends Activity {
 
 	// constants for the menus
 	static final int MENU_FEED_DELETE = 1;
-	// TODO: This notation is weird... I'd rather see
-	// static final int MENU_ITEM_DOWNLOAD = 2;
-	static final int MENU_ITEM_DOWNLOAD = MENU_FEED_DELETE + 1;
+	
+	/*COMMENT: Sean: Had borrowed the " = MENU_FEED_DELETE + 1"
+	from an exaple or tutorial I saw. The advantage, is you can
+	change a constant in the list (e.g. supoose for some reason
+	 MENU_FEED_DELETE = 2), and not worry about duplicates.
+	Everything increments properly. (Chris-you can drop this comment after reading)
+	*/
+	static final int MENU_ITEM_DOWNLOAD = 2;
+
 
 	// Referenced Widgets
 	protected Button mBtnAdd;
