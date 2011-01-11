@@ -87,6 +87,8 @@ public class SimpleFeedProcessor implements RSSProcessor{
 	 * @throws IOException -> if the file the URI points to does not exist, amount other causes.
 	 * @throws SAXException
 	 * @throws MalformedRSSException 
+	 * 
+	 * TODO: Check that document contains specified RSS markers.
 	 */
 	@Override
 	public void process() throws ParserConfigurationException, IOException, SAXException, MalformedRSSException {
@@ -204,6 +206,7 @@ public class SimpleFeedProcessor implements RSSProcessor{
 		builder.setChannelTitle(feedName);
 		builder.setChannelLink(feedLink);
 		builder.setChannelDesc(feedDesc);
+		builder.setChannelSource(mFeedLocation.toString());
 	}
 	
 	/**

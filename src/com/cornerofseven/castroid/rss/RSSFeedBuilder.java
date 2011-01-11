@@ -24,6 +24,13 @@ public interface RSSFeedBuilder {
 	public void setChannelTitle(String title);
 	
 	/**
+	 * Set the source url for the rss feed.
+	 * Should only be called after {@link #newFeed}.
+	 * @param rssUrl
+	 */
+	public void setChannelSource(String rssUrl);
+	
+	/**
 	 * Should only be called after {@link #newFeed}.
 	 * @param link
 	 */

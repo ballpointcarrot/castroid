@@ -71,6 +71,11 @@ public final class Feed implements BaseColumns{
 	public static final String MODIFIED_DATE = "modified";
 
 	/**
+	 * URL for the actual rss feed xml file.
+	 */
+	public static final String RSS_URL = "rssurl";
+	
+	/**
 	 * How Feeds are sorted by default
 	 */
 	public static final String DEFAULT_SORT = TITLE;

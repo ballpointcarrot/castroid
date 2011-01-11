@@ -71,6 +71,7 @@ public class PodcastDAO {
 		values.put(Feed.TITLE, channel.getmTitle());
 		values.put(Feed.LINK, channel.getmLink());
 		values.put(Feed.DESCRIPTION, channel.getmDesc());
+		values.put(Feed.RSS_URL, channel.getRssUrl());
 		Uri feedUri = contentResolver.insert(Feed.CONTENT_URI, values);
 		
 		

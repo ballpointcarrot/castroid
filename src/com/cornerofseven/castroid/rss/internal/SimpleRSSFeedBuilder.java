@@ -8,6 +8,7 @@ public class SimpleRSSFeedBuilder implements RSSFeedBuilder {
 
 	private RSSChannel mChannel = null;
 	
+	
 	@Override
 	public void newFeed() {
 		mChannel = new RSSChannel();
@@ -18,6 +19,11 @@ public class SimpleRSSFeedBuilder implements RSSFeedBuilder {
 		mChannel.setmTitle(title);
 	}
 
+	@Override
+	public void setChannelSource(String rssSource){
+	    mChannel.setRssUrl(rssSource);
+	}
+	
 	@Override
 	public void setChannelLink(String link) {
 		mChannel.setmLink(link);

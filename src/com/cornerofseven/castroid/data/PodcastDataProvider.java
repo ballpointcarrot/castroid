@@ -55,6 +55,7 @@ public class PodcastDataProvider extends ContentProvider{
 					Feed._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 					Feed.LINK + " TEXT NOT NULL, " +
 					Feed.TITLE + " TEXT NOT NULL, " +
+					Feed.RSS_URL + " TEXT NOT NULL, " + 
 					Feed.DESCRIPTION + " TEXT NOT NULL, " +
 					Feed.IMAGE + " TEXT);");
 
@@ -67,6 +68,7 @@ public class PodcastDataProvider extends ContentProvider{
 					Item.ENC_LINK + " TEXT,		" + //TODO: Defaults/not null for these fields?
 					Item.ENC_SIZE + " INTEGER,	" +
 					Item.ENC_TYPE + " TEXT, " +
+					Item.PUB_DATE + " DATE DEFAULT NULL, " +
 					Item.STREAM_POS + " INTEGER DEFAULT -1);");
 		}
 
@@ -105,6 +107,7 @@ public class PodcastDataProvider extends ContentProvider{
 			ensureValue(values, Feed.LINK, "NO LINK");
 			ensureValue(values, Feed.TITLE, "NO TITLE");
 			ensureValue(values, Feed.DESCRIPTION, "NO DESCRIPTION");
+			ensureValue(values, Feed.RSS_URL, "NO SOURCE");
 			ensureValue(values, Feed.IMAGE, null);
 			
 			newId = db.insert(Feed.TABLE_NAME, "", values);

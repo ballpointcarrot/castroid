@@ -24,8 +24,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import com.cornerofseven.castroid.rss.MalformedRSSException;
@@ -44,7 +46,7 @@ import com.cornerofseven.castroid.rss.feed.RSSItem;
 public class UpdateChannel {
 
     private static final String DELETE_CLAUSE = Item.OWNER + " = ?";
-    private static final String[] FEED_PROJ = new String[]{Feed._ID, Feed.LINK};
+    private static final String[] FEED_PROJ = new String[]{Feed._ID, Feed.RSS_URL};
     public static final String TAG = "UpdateChannel";
     
     private Context mContext;
@@ -106,10 +108,11 @@ public class UpdateChannel {
     private String getURL(ContentResolver contentResolver, int channelId){
         String channelUrl = "";
         
-        Cursor c = contentResolver.query(Feed.CONTENT_URI, FEED_PROJ, null, null, null);
+        Uri feedIdUri = ContentUris.withAppendedId(Feed.CONTENT_URI, channelId);
+        Cursor c = contentResolver.query(feedIdUri, FEED_PROJ, null, null, null);
         if(c.getCount() >= 0){
             c.moveToFirst();
-            channelUrl = c.getString(c.getColumnIndex(Feed.LINK));
+            channelUrl = c.getString(c.getColumnIndex(Feed.RSS_URL));
         }
         
         c.close();

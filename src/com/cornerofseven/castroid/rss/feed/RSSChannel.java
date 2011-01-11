@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Model the RSS xml Channel element.
+ * Model the RSS xml Channel element. POJO.
  * @author sean
  *
  */
@@ -13,13 +13,15 @@ public class RSSChannel {
 	private String mTitle;
 	private String mLink;
 	private String mDesc;
+	private String mRssUrl;
 	private List<RSSItem> items;
+	
 	
 	/**
 	 * Delegate to the full constructor, with empty strings for paramters.
 	 */
 	public RSSChannel(){
-		this("", "", "");
+		this("", "", "", "");
 	}
 	
 	/**
@@ -28,10 +30,11 @@ public class RSSChannel {
 	 * @param link
 	 * @param desc
 	 */
-	public RSSChannel(String title, String link, String desc){
+	public RSSChannel(String title, String link, String desc, String rssUrl){
 		this.mTitle = title;
 		this.mLink = link;
 		this.mDesc = desc;
+		this.mRssUrl = rssUrl;
 		items = new ArrayList<RSSItem>();
 	}
 	
@@ -74,5 +77,14 @@ public class RSSChannel {
 
 	public void setmDesc(String mDesc) {
 		this.mDesc = mDesc;
+	}
+	
+	//TODO: UDATE UNIT TESTS
+	public void setRssUrl(String rssUrl){
+	    this.mRssUrl = rssUrl;
+	}
+	
+	public String getRssUrl(){
+	    return this.mRssUrl;
 	}
 }
