@@ -120,12 +120,16 @@ public class RSSParsingTestRemote extends AndroidTestCase{
 		
 		RSSChannel channel = proc.getBuilder().getFeed();
 		
+		
+		
 		final String SUB_TAG = TAG + "_WaitWait";
 		
 		Log.i(SUB_TAG, channel.getmTitle());
 		Log.i(SUB_TAG, channel.getmDesc());
 		Log.i(SUB_TAG, channel.getmLink());
 	
+		assertEquals(addr, channel.getRssUrl());
+		
 		Log.i(SUB_TAG, "Items:");
 		
 		Iterator<RSSItem> items = channel.itemsIterator();

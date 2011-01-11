@@ -72,7 +72,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String CHNL_TITLE = "Test1";
 		final String CHNL_LINK = "http://www.twit.tv";
 		final String CHNL_DESC = "Test Desc";
-		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC);
+		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC, "");
 		
 		final String ITEM1_TITLE = "Item1";
 		final String ITEM1_LINK = "http://www.twit1.tv";
@@ -136,7 +136,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String CHNL_TITLE = "Test1";
 		final String CHNL_LINK = "http://www.twit.tv";
 		final String CHNL_DESC = "Test Desc";
-		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC);
+		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC, "");
 		
 		final String ITEM1_TITLE = "Item1";
 		final String ITEM1_LINK = "http://www.twit1.tv";
@@ -187,7 +187,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String CHNL_TITLE = "Test1";
 		final String CHNL_LINK = "http://www.twit.tv";
 		final String CHNL_DESC = "Test Desc";
-		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC);
+		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC, "");
 		
 		final String ITEM1_TITLE = "Item1";
 		final String ITEM1_LINK = "http://www.twit1.tv";
@@ -219,7 +219,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String CHNL_TITLE2 = "Test2";
 		final String CHNL_LINK2 = "http://www.twit2.tv";
 		final String CHNL_DESC2 = "Test Desc2";
-		RSSChannel channel2 = new RSSChannel(CHNL_TITLE2, CHNL_LINK2, CHNL_DESC2);
+		RSSChannel channel2 = new RSSChannel(CHNL_TITLE2, CHNL_LINK2, CHNL_DESC2, "");
 		channel2.addItem(item1);
 		channel2.addItem(item2);
 		assertTrue(PodcastDAO.addRSS(contentResolver, channel2));
@@ -277,7 +277,8 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String CHNL_TITLE = "Test1";
 		final String CHNL_LINK = "http://www.twit.tv";
 		final String CHNL_DESC = "Test Desc";
-		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC);
+		final String CHNL_SRC = "http://www.nowhere.com";
+		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC, CHNL_SRC);
 		
 		final String ITEM1_TITLE = "Item1";
 		final String ITEM1_LINK = "http://www.twit1.tv";
@@ -310,7 +311,8 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		
 		Cursor feedCursor = dataProvider.query(Feed.CONTENT_URI, 
 				new String[]{
-				Feed._ID, Feed.TITLE, Feed.LINK, Feed.DESCRIPTION
+				Feed._ID, Feed.TITLE, Feed.LINK, Feed.DESCRIPTION,
+				Feed.RSS_URL
 		}, Feed.TITLE + " = ? ", 
 		new String[]{CHNL_TITLE}, 
 		Feed.DEFAULT_SORT);
@@ -323,6 +325,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		assertEquals(CHNL_TITLE, feedCursor.getString(1));
 		assertEquals(CHNL_LINK, feedCursor.getString(2));
 		assertEquals(CHNL_DESC, feedCursor.getString(3));
+		assertEquals(CHNL_SRC, feedCursor.getString(4));
 		
 		int fID = feedCursor.getInt(0);
 		
@@ -336,7 +339,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		}, 
 				Item.OWNER + " = ? " , 
 				new String[]{Integer.toString(fID)}, 
-				Item.DEFAULT_SORT);
+				Item.TITLE);
 		
 		final int EX_ITEM_NUM = 2;
 		itemCursor.moveToFirst();
@@ -369,7 +372,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String CHNL_TITLE = "Test1";
 		final String CHNL_LINK = "http://www.twit.tv";
 		final String CHNL_DESC = "Test Desc";
-		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC);
+		RSSChannel channel = new RSSChannel(CHNL_TITLE, CHNL_LINK, CHNL_DESC, "");
 		
 		final String ITEM1_TITLE = "Item1";
 		final String ITEM1_LINK = "http://www.twit1.tv";
