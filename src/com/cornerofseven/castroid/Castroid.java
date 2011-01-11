@@ -50,7 +50,7 @@ public class Castroid extends Activity {
 
     // constants for the menus
     static final int MENU_FEED_DELETE = 1;
-    // This notation is weird... I'd rather see
+    // TODO: This notation is weird... I'd rather see
     //static final int MENU_ITEM_DOWNLOAD = 2;
     static final int MENU_ITEM_DOWNLOAD = MENU_FEED_DELETE + 1;
     
