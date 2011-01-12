@@ -24,9 +24,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 
+import com.cornerofseven.castroid.data.Item;
 import com.cornerofseven.castroid.data.PodcastDAO;
 import com.cornerofseven.castroid.data.test.AbstractPodcastDataProvider;
 import com.cornerofseven.castroid.network.DownloadManager;
@@ -73,7 +76,22 @@ public class DownloadTests extends AbstractPodcastDataProvider{
 		
 		Context mockContext = getMockContext();
 		assertNotNull(mockContext);
-		DownloadManager dm = new DownloadManager(mockContext);
-		assertTrue(dm.downloadItemEnc(itemId, null));
+		
+		DownloadManager dm = new DownloadManager();
+		assertTrue(dm.downloadItem(Uri.parse(getDownloadLink(mockContext, itemId)), 
+		        "Podcasts", null));
+		
 	}
+	
+	private String getDownloadLink(Context context, long itemID) {
+        Uri queryUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemID);
+        Cursor c = context.getContentResolver().query(queryUri,
+                new String[] { Item._ID, Item.ENC_LINK, Item.ENC_SIZE }, null,
+                null, null);
+
+        c.moveToFirst();
+        String dlLnk = c.getString(c.getColumnIndex(Item.ENC_LINK));
+        c.close();
+        return dlLnk;
+    }
 }
