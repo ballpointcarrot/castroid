@@ -165,6 +165,26 @@ public class Castroid extends Activity {
 				});
 	}
 
+	@Override
+	public void onPause(){
+	    super.onPause();
+	    Log.i(TAG, "Pausing");
+	}
+	
+	@Override
+	public void onResume(){
+	    super.onResume();
+	    Log.i(TAG, "Resuming");
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState){
+	    super.onSaveInstanceState(outState);
+	    Log.i(TAG, "Saving Stating");
+	    if(mDownloadManager != null && mDownloadManager.getStatus() != AsyncTask.Status.FINISHED)
+	        Log.w(TAG, "A download is in progress");
+	}
+	
 	protected void addFeed() {
 		Intent intent = new Intent(this, NewFeed.class);
 		startActivity(intent);

@@ -196,7 +196,7 @@ public class AsyncDownloadManager extends AsyncTask<Uri, Integer, Long>{
                 
                 if(bytesSinceLastLog > K_PER_UPDATE){
                     float per = (float)downloadSize / (float)totalSize;
-                    Log.i(TAG, "Downloaded " + downloadSize + " bytes " + per + "%");
+                    //Log.i(TAG, "Downloaded " + downloadSize + " bytes " + per + "%");
                     bytesSinceLastLog = 0;
                     //int msgArg = (int)(per * 100);
                     publishProgress(downloadSize);
