@@ -36,9 +36,13 @@ import com.cornerofseven.castroid.rss.feed.RSSChannel;
 import com.cornerofseven.castroid.rss.feed.RSSItem;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -64,6 +68,8 @@ public class NewFeed extends Activity{
 
     private static final String TAG = "NewFeed"; 
 
+    private static final int DIALOG_PROGRESS_ID = 1;
+    
     //The controls we will need from the activity's view//
     private Button mCreate = null;
     private EditText mInputText;
@@ -76,6 +82,13 @@ public class NewFeed extends Activity{
 
     private RSSChannel mFeed = null;
 
+    private AsyncFeedCheck mFeedCheck = null;
+    
+    private ProgressDialog mProgressDialog = null;
+    //An object we can lock on when accessing the dialog.
+    private final Object pdLock = new Object();
+    
+    
     @Override
     public void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
@@ -117,42 +130,78 @@ public class NewFeed extends Activity{
     }
 
     /**
+     * Create a dialog object for the activity.
+     * 
+     * {@link DIALOG_PROGRESS_ID} create the progress dialog.
+     * 
+     * @param dlgId
+     * @return the dialog matching the id.
+     */
+    @Override
+    public Dialog onCreateDialog(int dlgId){
+        Dialog dlg = null;
+        
+        switch(dlgId){
+            case DIALOG_PROGRESS_ID:
+                ProgressDialog pd = new ProgressDialog(this);
+                dlg = pd;
+                setProgressDialog(pd);
+                pd.setMessage("Checking Feed...");
+                pd.setCancelable(true);
+                pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface paramDialogInterface) {
+                        if(mFeedCheck != null && !(mFeedCheck.getStatus() == AsyncTask.Status.FINISHED)){
+                            mFeedCheck.cancel(true);
+                            mFeedCheck = null; //get rid of the reference when we cancel it.
+                        }
+                    }
+                });
+                break;
+            default: dlg = super.onCreateDialog(dlgId);
+        }
+        
+        return dlg;
+    }
+    
+    public void setProgressDialog(ProgressDialog pd){
+        synchronized (pdLock) {
+            this.mProgressDialog = pd;
+        }
+    }
+    
+    public ProgressDialog getProgressDialog(){
+        synchronized (pdLock) {
+           return this.mProgressDialog;
+        }
+    }
+    
+    /**
+     * Reset the dialog each time its shown.
+     * @param dlgId
+     * @param dlg
+     */
+    @Override
+    public void onPrepareDialog(int dlgId, Dialog dlg){
+        switch(dlgId){
+            case DIALOG_PROGRESS_ID:
+                ProgressDialog pd = (ProgressDialog)dlg;
+                pd.setProgress(0);
+                break;
+            default: super.onPrepareDialog(dlgId, dlg);
+        }
+    }
+    
+    /**
      * Check the url given to see if it contains a valid
      * rss feed.  
      * @param uriString string representation of the Uri where the feed is located.
      */
     protected void loadFeedOrError(String urlString){
-        /*General idea
-         * -> Convert the String to a URI object.
-         * -> Pass the URI as an argument to the RSS feed creator
-         * -> Let the Feed creator run. It will signal any problems with the url
-         * -> If no problems, keep track of the feed, so we don't have to reprossess and display its information
-         */
-
-        try{
-            //TODO: Delete me!
-            Log.d(TAG, "Checking " + urlString);
-
-            URL feedLocation = new URL(urlString);
-            Log.i(TAG, feedLocation.toString());
-            RSSProcessor processor = RSSProcessorFactory.getRSS2_0Processor(feedLocation);
-            Log.d(TAG, "Using processor " + processor.getClass().toString());
-
-            processor.process();
-            RSSFeedBuilder builder = processor.getBuilder();
-
-            mFeed = builder.getFeed();
-            Log.d(TAG, mFeed.toString());
-            bindFeedInfo();
-        }catch(UnknownHostException uhe){
-            Toast.makeText(this, "Unknown host " + urlString, Toast.LENGTH_SHORT).show();
-        }
-        catch(Exception ex){
-            Log.e(TAG, ex.getClass().toString());
-            Log.e(TAG, ex.getMessage());
-            Toast.makeText(this, "Unable to parse the feed\n " 
-                    + ex.getMessage()
-                    , Toast.LENGTH_LONG).show();
+        if(mFeedCheck == null || mFeedCheck.getStatus() == AsyncTask.Status.FINISHED){
+            mFeedCheck = (AsyncFeedCheck)new AsyncFeedCheck().execute(urlString);
+        }else{
+            Toast.makeText(this, "Already checking a feed.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -190,6 +239,11 @@ public class NewFeed extends Activity{
             loadFeedOrError(mInputText.getText().toString());
         }
 
+        //TODO: Need to wait until the async worker finishes if we are loading the 
+        //podcast.  Need to do so in such a way that isn't a busy wait, or hangs the GUI thread
+        //call back, somewhere?
+        
+        
         //only save and finish the activity if something was loaded.
         //preserve the activity if a feed couldn't be processed.
         if(mFeed != null){
@@ -201,6 +255,79 @@ public class NewFeed extends Activity{
             }
         }else{
             Toast.makeText(this, "No feed to save", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    /**
+     * An asynchronous method to connect to/download/parse a feed.
+     * @author sean
+     *
+     */
+    private class AsyncFeedCheck extends AsyncTask<String, String, RSSChannel> {
+
+        @Override
+        protected void onPreExecute(){
+            showDialog(DIALOG_PROGRESS_ID);
+        }
+        
+        /* (non-Javadoc)
+         * @see android.os.AsyncTask#doInBackground(Params[])
+         */
+        @Override
+        protected RSSChannel doInBackground(String... args) {
+            /*General idea
+             * -> Convert the String to a URI object.
+             * -> Pass the URI as an argument to the RSS feed creator
+             * -> Let the Feed creator run. It will signal any problems with the url
+             * -> If no problems, keep track of the feed, so we don't have to reprossess and display its information
+             */
+
+            String urlString = args[0];
+            
+            try{
+                //TODO: Delete me!
+                Log.d(TAG, "Checking " + urlString);
+
+                URL feedLocation = new URL(urlString);
+                Log.i(TAG, feedLocation.toString());
+                //TODO: Make strings into resources
+                publishProgress("Connecting to RSS feed");
+                RSSProcessor processor = RSSProcessorFactory.getRSS2_0Processor(feedLocation);
+                Log.d(TAG, "Using processor " + processor.getClass().toString());
+                
+                publishProgress("Reading RSS feed");
+                processor.process();
+                RSSFeedBuilder builder = processor.getBuilder();
+
+                publishProgress("Done!");
+               return builder.getFeed();
+                
+            }catch(UnknownHostException uhe){
+                Toast.makeText(getApplicationContext(), "Unknown host " + urlString, Toast.LENGTH_SHORT).show();
+            }
+            catch(Exception ex){
+                Log.e(TAG, ex.getClass().toString());
+                Log.e(TAG, ex.getMessage());
+                Toast.makeText(getApplicationContext(), "Unable to parse the feed\n " 
+                        + ex.getMessage()
+                        , Toast.LENGTH_LONG).show();
+            }
+            
+            return null;
+        }
+        
+        @Override
+        protected void onProgressUpdate(String... msgs){
+            ProgressDialog pd = getProgressDialog();
+            if(pd != null){
+                pd.setMessage(msgs[0]);
+            }
+        }
+        
+        protected void onPostExecute(RSSChannel channel){
+            mFeed = channel;
+            bindFeedInfo();
+            dismissDialog(DIALOG_PROGRESS_ID);
         }
     }
 }
