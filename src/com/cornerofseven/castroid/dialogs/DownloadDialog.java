@@ -15,23 +15,21 @@
  */
 package com.cornerofseven.castroid.dialogs;
 
-import android.app.Dialog;
+
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import android.widget.Toast;
 
 import com.cornerofseven.castroid.R;
-import com.cornerofseven.castroid.network.DownloadManager;
 
 /**
  * Download Dialog - Presents a dialog which shows the progress of a file
  * download.
  * 
- * @author Christopher Kruse
+ * @author Christopher Kruse, Sean Mooney
  * 
  */
 public class DownloadDialog extends ProgressDialog {
@@ -40,6 +38,7 @@ public class DownloadDialog extends ProgressDialog {
 	public static final int WHAT_START = 1;
 	public static final int WHAT_UPDATE = 2;
 	public static final int WHAT_DONE = 3;
+	public static final int WHAT_CANCELED = 4;
 
 	public static final String PROGRESS_MAX = "max";
 	public static final String PROGRESS_UPDATE = "total";
@@ -51,17 +50,17 @@ public class DownloadDialog extends ProgressDialog {
 	 * download thread only runs once; tilting the device will start the
 	 * download again, and that causes problems.
 	 */
-	static Handler hand;
-	DownloadThread thread;
-	DownloadManager dlMgr;
-	static String dlDir;
-
+	
+	final Handler hand;
+	
 	/**
+	 * 
 	 * {@inheritDoc}
 	 */
-	public DownloadDialog(Context context, Uri downloadUri) {
+	public DownloadDialog(final Context context, final Uri downloadUri) {
 		super(context);
-		hand = new Handler() {
+
+        hand = new Handler() {
 			/*
 			 * (non-Javadoc)
 			 * 
@@ -81,55 +80,27 @@ public class DownloadDialog extends ProgressDialog {
 					setProgress(total);
 					break;
 				case WHAT_DONE:
-					hand.removeCallbacks(thread);
+					boolean success = msg.getData().getBoolean(PROGRESS_DONE);
+					if(!success){
+					    Toast.makeText(context, "Download Failed", Toast.LENGTH_SHORT).show();
+					}
 					dismiss();
+				case WHAT_CANCELED:
+				    dismiss();
 				}
 			}
 		};
-		dlMgr = new DownloadManager();
-		thread = new DownloadThread(dlMgr, downloadUri);
-		dlDir = context.getString(R.string.download_root_dir);
+				
 		setTitle(R.string.downloading);
 		setProgressStyle(STYLE_HORIZONTAL);
 		setCancelable(true);
-		thread.start();
-		setOnCancelListener(new Dialog.OnCancelListener() {
-			@Override
-			public final void onCancel(DialogInterface dIface) {
-				hand.removeCallbacks(thread);
-				thread.interrupt();
-				while (thread.isAlive()) {
-					try {
-						thread.join();
-					} catch (InterruptedException e) {
-						Log.e(TAG, "Error interrupting thread.");
-						e.printStackTrace();
-					}
-				}
-				dismiss();
-			}
-		});
 	}
-
+	
 	/**
-	 * Create a separate thread to run the down load on.
 	 * 
-	 * @author Sean Mooney
-	 * 
+	 * @return reference to the handler used to update this DownloadDialog
 	 */
-	private static class DownloadThread extends Thread {
-
-		private DownloadManager mDownloader;
-		private Uri dlUri;
-		public DownloadThread(DownloadManager downloader, Uri downloadUri) {
-			// super("DOWNLOAD-" + downloadUri);
-			this.mDownloader = downloader;
-			dlUri = downloadUri;
-		}
-
-		@Override
-		public void run() {
-			mDownloader.downloadItem(dlUri, dlDir, hand);
-		}
+	public Handler getUpdateHandler(){
+	    return hand;
 	}
 }

@@ -16,16 +16,28 @@ limitations under the License
 
 package com.cornerofseven.castroid;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Message;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -44,6 +56,7 @@ import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
 import com.cornerofseven.castroid.data.UpdateChannel;
 import com.cornerofseven.castroid.dialogs.DownloadDialog;
+import com.cornerofseven.castroid.network.AsyncDownloadManager;
 import com.cornerofseven.castroid.rss.MalformedRSSException;
 
 public class Castroid extends Activity {
@@ -81,6 +94,16 @@ public class Castroid extends Activity {
 	// TODO: Remove this, it shouldn't be needed.
 	public static final int PROGRESS_DIALOG_ID = 1;
 
+	/**
+	 * Reference to the dialog create on showDialog(PROGRESS_DIALOG_ID).
+	 * Set when the dialog is created, and lets us get a hold of
+	 * the dialog to give as a reference to other objects that need
+	 * to update progress on the main screen.
+	 */
+	protected DownloadDialog mDownloadDialog;
+	
+	protected AsyncDownloadManager mDownloadManager;
+	
 	// The media player to use for playing podcasts.
 	// protected MediaPlayer mMediaPlayer;
 
@@ -187,9 +210,9 @@ public class Castroid extends Activity {
 			ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item
 					.getMenuInfo();
 			long itemID = info.id;
-			Bundle bdl = new Bundle();
-			bdl.putString("URI", getDownloadLink(itemID));
-			showDialog(PROGRESS_DIALOG_ID, bdl);
+			File dlFolder = new File(Environment.getExternalStorageDirectory(), "Podcasts");
+			mDownloadManager = new AsyncDownloadManager(this, dlFolder);
+			mDownloadManager.execute(Uri.parse(getDownloadLink(itemID)));
 			return true;
 		}
 		case MENU_FEED_UPDATE:
@@ -216,13 +239,12 @@ public class Castroid extends Activity {
 	 */
 	private String getDownloadLink(long itemID) {
 		Uri queryUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemID);
-		Cursor c = getContentResolver().query(queryUri,
+		Cursor c = managedQuery(queryUri,
 				new String[] { Item._ID, Item.ENC_LINK, Item.ENC_SIZE }, null,
 				null, null);
 
 		c.moveToFirst();
 		String dlLnk = c.getString(c.getColumnIndex(Item.ENC_LINK));
-		c.close();
 		return dlLnk;
 	}
 
@@ -232,19 +254,44 @@ public class Castroid extends Activity {
 	@Override
 	protected Dialog onCreateDialog(int id, Bundle args) {
 		Dialog dialog = null;
-		ProgressDialog pd;
+		
 		switch (id) {
 		case PROGRESS_DIALOG_ID:
-			Uri downloadUri = Uri.parse(args.getString("URI"));
-			pd = new DownloadDialog(this, downloadUri);
+		{
+		    DownloadDialog pd;
+			//Uri downloadUri = Uri.parse(args.getString("URI"));
+			pd = new DownloadDialog(this, null);
+			pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface paramDialogInterface) {
+                    if(mDownloadManager != null){
+                        mDownloadManager.cancel(true);
+                        mDownloadManager = null;
+                    }
+                }
+            });
+			
 			dialog = pd;
+            pd.setTitle(R.string.downloading);
+			mDownloadDialog = pd; //log so the application can find it later.
 			break;
+		}
 		default:
 			dialog = super.onCreateDialog(id);
 		}
 		return dialog;
 	}
 
+	@Override
+	protected void onPrepareDialog(int id, Dialog dlg){
+	    switch(id){
+	        case PROGRESS_DIALOG_ID:
+	            ((ProgressDialog)dlg).setProgress(0);
+	            break;
+	        default: super.onPrepareDialog(id, dlg);
+	    }
+	}
+	
 	protected void playStream(long itemId) {
 		Intent intent = new Intent(this, MediaStreamer.class);
 		intent.putExtra(MediaStreamer.ITEM_ID, itemId);
@@ -277,6 +324,15 @@ public class Castroid extends Activity {
         }   
     }
 
+    /**
+     * Assuming the download dialog has been created, return its reference.
+     * @return reference to the download dialog object.
+     */
+    public DownloadDialog getDownloadDialog(){
+        return mDownloadDialog;
+    }
+    
+    
 	private class PodcastTreeContextMenuListener implements
 			View.OnCreateContextMenuListener {
 		/**

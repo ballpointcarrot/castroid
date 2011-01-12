@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,6 +52,11 @@ public class DownloadManager {
 	private static String TAG = "DownloadManager";
 	
 	/**
+	 * This field will be accessed by multiple threads. 
+	 */
+	private AtomicBoolean isCanceled = new AtomicBoolean(false);
+	
+	/**
 	 * Download the file pointed to by the item enclosure url field.
 	 * @param c
 	 * @param itemID
@@ -62,8 +68,24 @@ public class DownloadManager {
 		
 		String fileName = dlUri.getLastPathSegment();
 		File dataDir = new File(sdCardRoot, dlPath);
-		if(!dataDir.mkdirs()){
-			Log.e(TAG, "Unable to create " + dataDir.getAbsolutePath());
+		
+		if(!dataDir.canWrite()){
+		    Log.e(TAG, "Cannot write to " + dataDir.getAbsolutePath());
+            Bundle b = new Bundle();
+            b.putBoolean(DownloadDialog.PROGRESS_DONE, false);
+            signalHandler(hand, DownloadDialog.WHAT_DONE, b);
+            return false;
+		}
+		
+		//we only need to create the directory if it doesn't exist...how silly of me...
+		if(!dataDir.exists()) {
+		    if(!dataDir.mkdirs()) {
+		        Log.e(TAG, "Unable to create " + dataDir.getAbsolutePath());
+		        Bundle b = new Bundle();
+		        b.putBoolean(DownloadDialog.PROGRESS_DONE, false);
+		        signalHandler(hand, DownloadDialog.WHAT_DONE, b);
+		        return false;
+		    }
 		}
 		File dest = new File(dataDir, fileName);
 		
@@ -118,9 +140,7 @@ public class DownloadManager {
 			}
 
 			//we'll do this the old fashioned way...copy buffered bytes from inputstream to output stream
-			while( ( bytesRead = bInputStream.read(buffer)) > 0){
-				
-				
+			while( !isCanceled.get() && ( bytesRead = bInputStream.read(buffer)) > 0){
 				bOutputStream.write(buffer, 0, bytesRead);
 				downloadSize += bytesRead;
 				bytesSinceLastLog += bytesRead;
@@ -168,8 +188,26 @@ public class DownloadManager {
 		
 
 		if(handler != null){
-			Message msg = handler.obtainMessage(DownloadDialog.WHAT_DONE);
+			Message msg;
 			Bundle b = new Bundle();
+			boolean isCanceled = this.isCanceled.get();
+			
+			/*TODO: This could return false if
+			* canceled at the last moment even thouh the download finished. 
+			* That is, \exists a thread
+			* interleaving such that isCanceled is set after the last time
+			* the cancel flag is checked but before the while loop terminates.
+			* 
+			* I'm not sure if this is a problem or not...
+			*/
+			success = success && !isCanceled;
+			
+			if(isCanceled){
+			    msg = handler.obtainMessage(DownloadDialog.WHAT_CANCELED);
+			}else {
+			    msg = handler.obtainMessage(DownloadDialog.WHAT_DONE);
+			}
+			    
 			b.putBoolean(DownloadDialog.PROGRESS_DONE, success);
 			msg.setData(b);
 			handler.sendMessage(msg);
@@ -177,4 +215,57 @@ public class DownloadManager {
 		
 		return success;
 	}
+	
+	/**
+	 * Tell the download it should cancel itself.
+	 */
+	public void cancelDownload(){
+	    isCanceled.set(true);
+	}
+	
+	public void signalHandler(Handler handler, int msgType, Bundle data){
+	    if(handler != null) {
+	        Message msg = handler.obtainMessage(msgType);
+	        msg.setData(data);
+	        handler.sendMessage(msg);
+	    }
+	}
+	
+	/**
+     * Create a separate thread to run the down load on.
+     * 
+     * @author Sean Mooney
+     * 
+     */
+    private static class DownloadThread extends Thread {
+
+        /**
+         * Track how many total instances of the object are constructed.
+         * Convenient way to make a unique conter/threadname
+         */
+        private static int DLThreadCount = 1;
+        
+        private DownloadManager mDownloader;
+        private Uri dlUri;
+        private Handler hand = null;
+        private String dlDir = "";
+        public DownloadThread(DownloadManager downloader, Uri downloadUri) {
+            super("DOWNLOAD-" + DLThreadCount++);
+            this.mDownloader = downloader;
+            dlUri = downloadUri;
+        }
+
+        public void setHandler(Handler hand){
+            this.hand = hand;
+        }
+        
+        public void setDownloadDir(String dlDir){
+            this.dlDir = dlDir;
+        }
+        
+        @Override
+        public void run() {
+            mDownloader.downloadItem(dlUri, dlDir, hand);
+        }
+    }
 }
