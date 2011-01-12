@@ -185,17 +185,16 @@ public class NewFeed extends Activity{
      * Save the feed into the dataprovider
      */
     protected void saveRSSFeed(){
-        final RSSChannel feed = mFeed;
-        if(feed == null){ //check the feed if the user didn't
+        if(mFeed == null){ //check the feed if the user didn't
             //try to load the feed on save.
             loadFeedOrError(mInputText.getText().toString());
         }
 
         //only save and finish the activity if something was loaded.
         //preserve the activity if a feed couldn't be processed.
-        if(feed != null){
+        if(mFeed != null){
             ContentResolver content = getContentResolver();
-            if(!PodcastDAO.addRSS(content, feed)){
+            if(!PodcastDAO.addRSS(content, mFeed)){
                 Toast.makeText(this, "Unable to add the feed", Toast.LENGTH_SHORT).show();
             }else{
                 finish(); //only finish if an error didn't happen
