@@ -192,40 +192,40 @@ public class Castroid extends Activity {
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case MENU_FEED_DELETE:
-		{
-			ListAdapter list = mPodcastTree.getAdapter();
-			//TODO: Is there a better way that doesn't use a cursor?
-			Cursor cursor = (Cursor) list.getItem(item.getGroupId());
-			if (cursor == null) {
-				return false;
-			}
-			int feedID = cursor.getInt(cursor.getColumnIndex(Feed._ID));
-			Uri queryUri = ContentUris.withAppendedId(Feed.CONTENT_URI, feedID);
-			getContentResolver().delete(queryUri, null, null);
-			return true;
-		}
-		case MENU_ITEM_DOWNLOAD:
-		{
-			ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item
-					.getMenuInfo();
-			long itemID = info.id;
-			File dlFolder = new File(Environment.getExternalStorageDirectory(), "Podcasts");
-			mDownloadManager = new AsyncDownloadManager(this, dlFolder);
-			mDownloadManager.execute(Uri.parse(getDownloadLink(itemID)));
-			return true;
-		}
-		case MENU_FEED_UPDATE:
-		{
-		    ListAdapter list = mPodcastTree.getAdapter();
-            Cursor cursor = (Cursor) list.getItem(item.getGroupId());
-            if (cursor == null) {
-                return false;
-            }
-            int feedID = cursor.getInt(cursor.getColumnIndex(Feed._ID));
-            updateChannel(feedID);
-            return true;
-		}
+		    case MENU_FEED_DELETE:
+		    {
+		        ListAdapter list = mPodcastTree.getAdapter();
+		        //TODO: Is there a better way that doesn't use a cursor?
+		        Cursor cursor = (Cursor) list.getItem(item.getGroupId());
+		        if (cursor == null) {
+		            return false;
+		        }
+		        int feedID = cursor.getInt(cursor.getColumnIndex(Feed._ID));
+		        Uri queryUri = ContentUris.withAppendedId(Feed.CONTENT_URI, feedID);
+		        getContentResolver().delete(queryUri, null, null);
+		        return true;
+		    }
+		    case MENU_ITEM_DOWNLOAD:
+		    {
+		        ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item
+		        .getMenuInfo();
+		        long itemID = info.id;
+		        File dlFolder = new File(Environment.getExternalStorageDirectory(), "Podcasts");
+		        mDownloadManager = new AsyncDownloadManager(this, dlFolder);
+		        mDownloadManager.execute(Uri.parse(getDownloadLink(itemID)));
+		        return true;
+		    }
+		    case MENU_FEED_UPDATE:
+		    {
+		        ListAdapter list = mPodcastTree.getAdapter();
+		        Cursor cursor = (Cursor) list.getItem(item.getGroupId());
+		        if (cursor == null) {
+		            return false;
+		        }
+		        int feedID = cursor.getInt(cursor.getColumnIndex(Feed._ID));
+		        updateChannel(feedID);
+		        return true;
+		    }
 		}
 		return super.onContextItemSelected(item);
 	}
