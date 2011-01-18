@@ -313,9 +313,24 @@ public class Castroid extends Activity {
 	}
 	
 	protected void playStream(long itemId) {
-		Intent intent = new Intent(this, MediaStreamer.class);
-		intent.putExtra(MediaStreamer.ITEM_ID, itemId);
-		startActivity(intent);
+		Uri itemUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
+		Cursor c = managedQuery(itemUri, 
+				new String[]{Item.ENC_LINK, Item.ENC_TYPE},
+				null, null, null);
+		
+		if(c.getCount() > 0){
+			String type, dataUri;
+
+			c.moveToFirst();
+			dataUri = c.getString(c.getColumnIndex(Item.ENC_LINK));
+			type = c.getString(c.getColumnIndex(Item.ENC_TYPE));
+			
+			Intent systemDefault = new Intent(Intent.ACTION_VIEW);
+			systemDefault.setDataAndType(Uri.parse(dataUri), type);
+			startActivity(systemDefault);
+		}else{
+			Toast.makeText(this, "No media found to play", Toast.LENGTH_LONG).show();
+		}
 	}
 	
 	/**
