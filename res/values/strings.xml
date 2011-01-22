@@ -2,6 +2,7 @@
 <resources>
 	<string name="addFeedLabel">Add Feed</string>
 	<string name="settingsLabel">Settings</string>
+    <string name="aboutLabel">About</string>
 	<string name="app_name">CastDroid</string>
 	<string name="afs_check_label">Check</string>
 
