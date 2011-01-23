@@ -72,7 +72,8 @@ public class Castroid extends Activity {
 	Everything increments properly. (Chris-you can drop this comment after reading)
 	*/
 	static final int MENU_ITEM_DOWNLOAD = 2;
-	static final int MENU_FEED_UPDATE = 3;
+	static final int MENU_FEED_UPDATE 	= 3;
+	static final int MENU_FEED_VIEW 	= 4;
 
 	// Referenced Widgets
 	protected Button mBtnAdd;
@@ -219,7 +220,7 @@ public class Castroid extends Activity {
 		switch (item.getItemId()) {
 		    case MENU_FEED_DELETE:
 		    {
-		        ListAdapter list = mPodcastTree.getAdapter();
+		    	ListAdapter list = mPodcastTree.getAdapter();
 		        //TODO: Is there a better way that doesn't use a cursor?
 		        Cursor cursor = (Cursor) list.getItem(item.getGroupId());
 		        if (cursor == null) {
@@ -250,6 +251,21 @@ public class Castroid extends Activity {
 		        int feedID = cursor.getInt(cursor.getColumnIndex(Feed._ID));
 		        updateChannel(feedID);
 		        return true;
+		    }
+		    case MENU_FEED_VIEW:
+		    {
+		    	ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item
+		        .getMenuInfo();
+		    	long feedId = info.id;
+		    	Uri contentURI = ContentUris.withAppendedId(Feed.CONTENT_URI, feedId);
+		    	/*TODO: Dispatch as without binding directly to the FeedInformationView
+		    	* Crashes. Android reports cannot find an activity for the intent.
+		    	 * Intent viewFeedIntent = new Intent(Intent.ACTION_VIEW, contentURI);
+		    	 */
+		    	
+		    	Intent viewFeedIntent = new Intent(this, FeedInformationView.class);
+		    	viewFeedIntent.setData(contentURI);
+		    	startActivity(viewFeedIntent);
 		    }
 		}
 		return super.onContextItemSelected(item);
@@ -305,6 +321,7 @@ public class Castroid extends Activity {
 			dialog = new Dialog(this);
 			dialog.setContentView(R.layout.about_dialog);
 			dialog.setTitle(R.string.aboutLabel);
+			//TODO: Add close button
 			break;
 		default:
 			dialog = super.onCreateDialog(id);
@@ -378,7 +395,7 @@ public class Castroid extends Activity {
     }
     
     
-	private class PodcastTreeContextMenuListener implements
+    private class PodcastTreeContextMenuListener implements
 			View.OnCreateContextMenuListener {
 		/**
 		 * Default Constructor
@@ -411,8 +428,10 @@ public class Castroid extends Activity {
 				if (groupCursor != null) {
 					menu.setHeaderTitle(groupCursor.getString(groupCursor
 							.getColumnIndex(Feed.TITLE)));
+					menu.add(group, MENU_FEED_VIEW, 0, R.string.menu_view_feed);
 					menu.add(group, MENU_FEED_UPDATE, 0, R.string.menu_update);
 					menu.add(group, MENU_FEED_DELETE, 0, R.string.menu_delete);
+					
 				}
 				break;
 			default:
