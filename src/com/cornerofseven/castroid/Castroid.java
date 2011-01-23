@@ -258,8 +258,9 @@ public class Castroid extends Activity {
 		        .getMenuInfo();
 		    	long feedId = info.id;
 		    	Uri contentURI = ContentUris.withAppendedId(Feed.CONTENT_URI, feedId);
-		    	/*TODO: Dispatch as without binding directly to the FeedInformationView
-		    	* Crashes. Android reports cannot find an activity for the intent.
+		    	/*
+		    	 * TODO: Dispatch as without binding directly to the FeedInformationView
+		    	 * Crashes. Android reports cannot find an activity for the intent.
 		    	 * Intent viewFeedIntent = new Intent(Intent.ACTION_VIEW, contentURI);
 		    	 */
 		    	
