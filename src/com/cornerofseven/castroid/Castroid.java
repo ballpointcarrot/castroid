@@ -93,6 +93,8 @@ public class Castroid extends Activity {
 	// DIALOG IDs
 	// TODO: Remove this, it shouldn't be needed.
 	public static final int PROGRESS_DIALOG_ID = 1;
+	
+	public static final int ABOUT_DIALGO_ID = 2;
 
 	/**
 	 * Reference to the dialog create on showDialog(PROGRESS_DIALOG_ID).
@@ -205,6 +207,9 @@ public class Castroid extends Activity {
 		case R.id.addFeed:
 			addFeed();
 			return true;
+		case R.id.about:
+			showDialog(ABOUT_DIALGO_ID);
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -296,6 +301,11 @@ public class Castroid extends Activity {
 			mDownloadDialog = pd; //log so the application can find it later.
 			break;
 		}
+		case ABOUT_DIALGO_ID:
+			dialog = new Dialog(this);
+			dialog.setContentView(R.layout.about_dialog);
+			dialog.setTitle(R.string.aboutLabel);
+			break;
 		default:
 			dialog = super.onCreateDialog(id);
 		}

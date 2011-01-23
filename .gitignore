@@ -3,3 +3,4 @@ gen/
 .gitignore
 tests/src/com/cornerofseven/castroid/test/NetworkTests.java
 
+/gen

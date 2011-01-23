@@ -2,6 +2,7 @@
 <resources>
 	<string name="addFeedLabel">Add Feed</string>
 	<string name="settingsLabel">Settings</string>
+    <string name="aboutLabel">About</string>
 	<string name="app_name">CastDroid</string>
 	<string name="afs_check_label">Check</string>
 
@@ -18,4 +19,17 @@
 	<string name="playing">Playing Stream</string>
 
 	<string name="download_root_dir">Podcasts</string>
+    
+    <!--TODO: Update as license and other things change-->
+    <string name="about_castroid">Castroid is a podcatcher and 
+    rss reader, created by Sean Mooney and Christopher Kruse. It is 
+    licensed under the Apache 2.0 license. 
+    
+    For more information visit ...somewhere...
+    
+    Portions of this page are modifications based on work created 
+    and shared by Google and used according to terms described in 
+    the Creative Commons 3.0 Attribution License.
+    </string>
+    
 </resources>
