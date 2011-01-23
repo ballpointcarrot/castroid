@@ -15,6 +15,9 @@
  */
 package com.cornerofseven.castroid.test;
 
+import android.app.Instrumentation;
+import android.test.InstrumentationTestSuite;
+
 import com.cornerofseven.castroid.data.test.PodcastDataProviderTests;
 import com.cornerofseven.castroid.network.test.DownloadTests;
 import com.cornerofseven.castroid.rss.test.RSSParsingTestRemote;
@@ -27,7 +30,15 @@ import junit.framework.TestSuite;
  * @author sean
  *
  */
-public class AllTests {
+public class AllTests extends InstrumentationTestSuite {
+
+	/**
+	 * @param instr
+	 */
+	public AllTests(Instrumentation instr) {
+		super(instr);
+		// TODO Auto-generated constructor stub
+	}
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());

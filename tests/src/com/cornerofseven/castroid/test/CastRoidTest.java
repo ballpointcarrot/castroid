@@ -18,8 +18,11 @@ package com.cornerofseven.castroid.test;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.test.UiThreadTest;
+import android.widget.ExpandableListView;
 
 import com.cornerofseven.castroid.Castroid;
+import com.cornerofseven.castroid.R;
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
 import com.cornerofseven.castroid.data.PodcastDAO;
@@ -35,6 +38,28 @@ import com.cornerofseven.castroid.rss.feed.RSSItem;
 public class CastRoidTest extends AbstractCastRoidTest {
 	
 	
+	/**
+	 * A test for bug #1.
+	 * 
+	 * The first time a podcast is added to the system
+	 * when the title is clicked on, the program crashes
+	 * with an NPE instead of expanding the child tree view.
+	 */
+	@UiThreadTest
+	public void testFirstPodcastAdded(){
+		add1Podcast();
+		
+		ExpandableListView podcastList = mPodcastList;
+		assertEquals(1, podcastList.getChildCount());
+		podcastList.performClick();
+		//if this doesn't crash, it passes.
+	}
 	
+	private void add1Podcast(){
+		RSSChannel c = new RSSChannel("ASDF", "ASDF", "ASDF", "ASDF");
+		c.addItem(new RSSItem("ASDF", "ASDF", "ASDF"));
+		
+		PodcastDAO.addRSS(mActivity.getContentResolver(), c);
+	}
 	
 }
