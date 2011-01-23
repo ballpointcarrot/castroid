@@ -18,6 +18,7 @@ package com.cornerofseven.castroid;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -39,6 +40,7 @@ public class FeedInformationView extends Activity{
 	private ImageView mChannelImage = null;
 	private ListView mChannelItems = null;
 	private TextView mChannelName = null;
+	private TextView mChannelDesc = null;
 	 
 	
 	//////////////////life cycle/////////////////////
@@ -71,6 +73,7 @@ public class FeedInformationView extends Activity{
 		mChannelImage = (ImageView)findViewById(R.id.cv_rssicon);
 		mChannelItems = (ListView)findViewById(R.id.cv_channel_items);
 		mChannelName = (TextView)findViewById(R.id.cv_channel_title);
+		mChannelDesc = (TextView)findViewById(R.id.cv_channel_desc);
 	}
 	
 	/**
@@ -80,6 +83,7 @@ public class FeedInformationView extends Activity{
 	//TODO: Finish populating view.
 	protected void populateView(Uri channelURI){
 		final String[] projection = {
+				Feed._ID,
 				Feed.IMAGE,
 				Feed.TITLE,
 				Feed.DESCRIPTION,
@@ -89,10 +93,18 @@ public class FeedInformationView extends Activity{
 		
 		if(c.moveToFirst()){
 
+			int feedId;
+			
 			//TODO: install the image in the image view, if exists.
 			String channelTitle, channelDesc;
 			channelTitle = c.getString(c.getColumnIndex(Feed.TITLE));
+			channelDesc =  c.getString(c.getColumnIndex(Feed.DESCRIPTION));
+			feedId = c.getInt(c.getColumnIndex(Feed._ID));
+			
+			loadImage(feedId);
+			
 			mChannelName.setText(channelTitle);
+			mChannelDesc.setText(channelDesc);
 			
 			//get the feed's items
 			
@@ -100,5 +112,35 @@ public class FeedInformationView extends Activity{
 		}
 		
 	}
+	
+	/**
+	 * Inflate, download, or supply default image for the channel.
+	 * 
+	 * Decision structure:
+	 * either the channel listed an image link or it didn't
+	 * 
+	 * if no image link, return the default.
+	 * 
+	 * if \exists link,
+	 * either image is cached or needs to be downloaded.
+	 * 
+	 * If cached, simply inflate/instanciate/load from storage.
+	 * If needs download, fetch on seperate thread, stick in the cache
+	 * and notify a callback to change the image once it exists.
+	 * 
+	 *
+	 * 
+	 * @param feedId
+	 * @return
+	 */
+	protected void loadImage(long channelId){
+		final ImageView imageView = mChannelImage;
+		//TODO: Logic for download/cache
+		
+		//default image.
+		mChannelImage.setImageResource(R.drawable.podcast_image);
+		
+	}
+	
 	/////////////////end life cycle///////////////////
 }
