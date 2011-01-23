@@ -9,26 +9,36 @@
 <!--Layout for viewing specific information of an rss/podcast channel -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+
+        >
         <ImageView
             android:id="@+id/cv_rssicon"
             android:src="@drawable/podcast_image"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_weight="2" />
+            android:layout_weight="1" />
         <TextView
             android:id="@+id/cv_channel_title"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_weight="1" />
+            android:layout_weight="2" />
     </LinearLayout>
+    <TextView android:id="@+id/cv_channel_desc"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:text="DESCRIPTION"
+
+    />
     <ListView
         android:id="@+id/cv_channel_items"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="wrap_content" 
+    />
 </LinearLayout>
