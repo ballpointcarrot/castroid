@@ -16,16 +16,22 @@
 package com.cornerofseven.castroid;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.cornerofseven.castroid.data.Feed;
+import com.cornerofseven.castroid.data.Item;
+import com.cornerofseven.castroid.handlers.ChannelItemClickHandler;
 
 /**
  * An activity for displaying information specifc to an rss channel.
@@ -41,7 +47,15 @@ public class FeedInformationView extends Activity{
 	private ListView mChannelItems = null;
 	private TextView mChannelName = null;
 	private TextView mChannelDesc = null;
-	 
+	///////////////END Widgets//////////////////////
+	
+	static final int PLAY_ITEM = 1;
+	
+	private final int MAX_IMAGE_WIDTH = 75;
+	private final int MAX_IMAGE_HEIGHT = 75;
+	
+	protected final ChannelItemClickHandler itemClickListener 
+		= new ChannelItemClickHandler(this, PLAY_ITEM); 
 	
 	//////////////////life cycle/////////////////////
 	
@@ -89,6 +103,9 @@ public class FeedInformationView extends Activity{
 				Feed.DESCRIPTION,
 				Feed.LINK
 		};
+		final String[] ITEM_PROJECTION = new String[] { Item._ID,
+				Item.OWNER, Item.TITLE, Item.LINK, Item.DESC };
+		
 		Cursor c = managedQuery(channelURI, projection, null, null, null);
 		
 		if(c.moveToFirst()){
@@ -96,9 +113,8 @@ public class FeedInformationView extends Activity{
 			int feedId;
 			
 			//TODO: install the image in the image view, if exists.
-			String channelTitle, channelDesc;
-			channelTitle = c.getString(c.getColumnIndex(Feed.TITLE));
-			channelDesc =  c.getString(c.getColumnIndex(Feed.DESCRIPTION));
+			final String channelTitle = c.getString(c.getColumnIndex(Feed.TITLE));
+			final String channelDesc =  c.getString(c.getColumnIndex(Feed.DESCRIPTION));
 			feedId = c.getInt(c.getColumnIndex(Feed._ID));
 			
 			loadImage(feedId);
@@ -107,10 +123,28 @@ public class FeedInformationView extends Activity{
 			mChannelDesc.setText(channelDesc);
 			
 			//get the feed's items
+			final String SELECT_ITEMS = Item.OWNER + " = ?";
+			final String[] selectionArgs = new String[] { Integer
+					.toString(feedId) };
+			final Cursor itemCursor = managedQuery(Item.CONTENT_URI, ITEM_PROJECTION,
+					SELECT_ITEMS, selectionArgs, Item.DEFAULT_SORT);
+			final SimpleCursorAdapter itemAdapter = new SimpleCursorAdapter(this,
+					R.layout.item_view, 
+					itemCursor,
+					new String[]{Item.TITLE},
+					new int[]{R.id.item_textview}
+			);
+			mChannelItems.setAdapter(itemAdapter);
 			
 			//install the item listener. (Same listener from CastRoid)
+			mChannelItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+				@Override
+				public final void onItemClick(final AdapterView<?> arg0, final View arg1,
+						final int arg2, final long itemId) {
+					itemClickListener.onItemClick(PLAY_ITEM, itemId);
+				}
+			});
 		}
-		
 	}
 	
 	/**
@@ -137,10 +171,42 @@ public class FeedInformationView extends Activity{
 		final ImageView imageView = mChannelImage;
 		//TODO: Logic for download/cache
 		
-		//default image.
-		mChannelImage.setImageResource(R.drawable.podcast_image);
 		
+		imageView.setAdjustViewBounds(true);
+		
+		//default image.
+		imageView.setImageResource(R.drawable.podcast_image);
+		imageView.setMaxWidth(MAX_IMAGE_WIDTH);
+		imageView.setMaxHeight(MAX_IMAGE_HEIGHT);
+		
+		/*TODO: Collect the Uri.
+		 * Currently not really working.
+		 */
+		Uri imageUri = null;//channelImageUri(channelId);
+		//TODO: Download image on background and cache.
+		if(imageUri != null){
+			imageView.setImageURI(imageUri);
+		}
 	}
-	
+		
 	/////////////////end life cycle///////////////////
+	
+	/**
+	 * Lookup the image uri for 
+	 */
+	protected Uri channelImageUri(long channelid){
+		Uri imageUri = null;
+		
+		Uri contentUri = ContentUris.withAppendedId(Feed.CONTENT_URI, channelid);
+		Cursor c = managedQuery(contentUri, new String[]{Feed.IMAGE}, null, null, null);
+		
+		if(c.moveToFirst()){
+			String sUri = c.getString(c.getColumnIndex(Feed.IMAGE));
+			if(sUri != null){
+				imageUri = Uri.parse(sUri);
+			}
+		}
+		
+		return imageUri;
+	}
 }

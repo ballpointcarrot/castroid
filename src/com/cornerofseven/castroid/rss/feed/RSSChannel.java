@@ -14,6 +14,7 @@ public class RSSChannel {
 	private String mLink;
 	private String mDesc;
 	private String mRssUrl;
+	private String mImageLink;
 	private List<RSSItem> items;
 	
 	
@@ -86,5 +87,13 @@ public class RSSChannel {
 	
 	public String getRssUrl(){
 	    return this.mRssUrl;
+	}
+	
+	public void setImageLink(String imageLink){
+		this.mImageLink = imageLink;
+	}
+	
+	public String getImageLink(){
+		return this.mImageLink;
 	}
 }

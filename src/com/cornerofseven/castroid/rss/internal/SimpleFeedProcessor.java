@@ -200,6 +200,10 @@ public class SimpleFeedProcessor implements RSSProcessor{
 			}else if(RSSTags.CHNL_DESC.equals(childName)){
 				feedDesc = child.getFirstChild().getNodeValue();
 			}
+			//TODO: Write some unit tests.
+			else if(RSSTags.CHNL_IMAGE.equals(childName)){
+				processImage(child);
+			}
 		}
 		
 		
@@ -233,6 +237,25 @@ public class SimpleFeedProcessor implements RSSProcessor{
 			}else if(RSSTags.ITEM_LINK.equals(childName)){
 				tmp = child.getFirstChild().getNodeValue();
 				newItem.setLink(tmp);
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param imageNode
+	 */
+	private void processImage(Node imageNode){
+		RSSFeedBuilder builder = mFeedBuilder;
+		
+		NodeList itemElements = imageNode.getChildNodes();
+		for(int i = 0; i < itemElements.getLength(); i++){
+			String tmp;
+			Node child = itemElements.item(i);
+			String childName = child.getNodeName();
+			if(RSSTags.IMG_URL.equals(childName)){
+				tmp = child.getFirstChild().getNodeValue();
+				builder.setChannelImageLink(tmp); 
 			}
 		}
 	}

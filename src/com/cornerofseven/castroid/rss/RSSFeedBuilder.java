@@ -43,6 +43,12 @@ public interface RSSFeedBuilder {
 	public void setChannelDesc(String desc);
 	
 	/**
+	 * Set the image url for the channel.
+	 * @param link
+	 */
+	public void setChannelImageLink(String link);
+	
+	/**
 	 * Add an Item to the feed being built. It is incorrect to call addItem
 	 * without first creating a new Feed.
 	 * @param name

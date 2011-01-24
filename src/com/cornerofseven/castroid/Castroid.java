@@ -16,15 +16,8 @@ limitations under the License
 
 package com.cornerofseven.castroid;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -37,7 +30,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Message;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -56,6 +48,7 @@ import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
 import com.cornerofseven.castroid.data.UpdateChannel;
 import com.cornerofseven.castroid.dialogs.DownloadDialog;
+import com.cornerofseven.castroid.handlers.ChannelItemClickHandler;
 import com.cornerofseven.castroid.network.AsyncDownloadManager;
 import com.cornerofseven.castroid.rss.MalformedRSSException;
 
@@ -74,7 +67,8 @@ public class Castroid extends Activity {
 	static final int MENU_ITEM_DOWNLOAD = 2;
 	static final int MENU_FEED_UPDATE 	= 3;
 	static final int MENU_FEED_VIEW 	= 4;
-
+	static final int MENU_ITEM_PLAY		= 5;
+	
 	// Referenced Widgets
 	protected Button mBtnAdd;
 	protected ExpandableListView mPodcastTree;
@@ -105,7 +99,15 @@ public class Castroid extends Activity {
 	 */
 	protected DownloadDialog mDownloadDialog;
 	
+	/**
+	 * Used to download files on a seperate thread.
+	 */
 	protected AsyncDownloadManager mDownloadManager;
+	
+	/**
+	 * Click handler for Channel items
+	 */
+	protected final ChannelItemClickHandler itemOnClickHandler = new ChannelItemClickHandler(this, MENU_ITEM_PLAY);
 	
 	// The media player to use for playing podcasts.
 	// protected MediaPlayer mMediaPlayer;
@@ -159,11 +161,8 @@ public class Castroid extends Activity {
 					public boolean onChildClick(
 							ExpandableListView paramExpandableListView,
 							View paramView, int paramInt1, int paramInt2,
-							long paramLong) {
-						// TODO Auto-generated method stub
-						// downloadItem(paramLong);
-						playStream(paramLong);
-						return true;
+							long itemId) {
+						return itemOnClickHandler.onItemClick(MENU_ITEM_PLAY, itemId);
 					}
 				});
 	}
