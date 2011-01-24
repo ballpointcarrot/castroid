@@ -146,13 +146,13 @@ public class PodcastDataProvider extends ContentProvider{
 		 * @param defaultValue
 		 */
 		private void ensureValue(ContentValues values, String field, String defaultValue){
-			if(values.containsKey(field) == false){
+			if(!(values.containsKey(field))){
 				values.put(field, defaultValue);
 			}
 		}
 		
 		private void ensureValue(ContentValues values, String field, int defaultValue){
-			if(values.containsKey(field) == false){
+			if(!(values.containsKey(field))){
 				values.put(field, defaultValue);
 			}
 		}
