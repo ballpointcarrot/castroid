@@ -49,6 +49,9 @@ public class FeedInformationView extends Activity{
 	
 	static final int PLAY_ITEM = 1;
 	
+	private final int MAX_IMAGE_WIDTH = 75;
+	private final int MAX_IMAGE_HEIGHT = 75;
+	
 	protected final ChannelItemClickHandler itemClickListener 
 		= new ChannelItemClickHandler(this, PLAY_ITEM); 
 	
@@ -166,10 +169,14 @@ public class FeedInformationView extends Activity{
 		final ImageView imageView = mChannelImage;
 		//TODO: Logic for download/cache
 		
+		mChannelImage.setAdjustViewBounds(true);
+		
 		//default image.
 		mChannelImage.setImageResource(R.drawable.podcast_image);
+		mChannelImage.setMaxWidth(MAX_IMAGE_WIDTH);
+		mChannelImage.setMaxHeight(MAX_IMAGE_HEIGHT);
 		
 	}
-	
+		
 	/////////////////end life cycle///////////////////
 }

@@ -21,13 +21,14 @@
         <ImageView
             android:id="@+id/cv_rssicon"
             android:src="@drawable/podcast_image"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="centerInside"
             android:layout_weight="1" />
         <TextView
             android:id="@+id/cv_channel_title"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="2" />
     </LinearLayout>
     <TextView android:id="@+id/cv_channel_desc"
