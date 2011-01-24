@@ -16,8 +16,10 @@
 package com.cornerofseven.castroid;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -169,14 +171,42 @@ public class FeedInformationView extends Activity{
 		final ImageView imageView = mChannelImage;
 		//TODO: Logic for download/cache
 		
-		mChannelImage.setAdjustViewBounds(true);
+		
+		imageView.setAdjustViewBounds(true);
 		
 		//default image.
-		mChannelImage.setImageResource(R.drawable.podcast_image);
-		mChannelImage.setMaxWidth(MAX_IMAGE_WIDTH);
-		mChannelImage.setMaxHeight(MAX_IMAGE_HEIGHT);
+		imageView.setImageResource(R.drawable.podcast_image);
+		imageView.setMaxWidth(MAX_IMAGE_WIDTH);
+		imageView.setMaxHeight(MAX_IMAGE_HEIGHT);
 		
+		/*TODO: Collect the Uri.
+		 * Currently not really working.
+		 */
+		Uri imageUri = null;//channelImageUri(channelId);
+		//TODO: Download image on background and cache.
+		if(imageUri != null){
+			imageView.setImageURI(imageUri);
+		}
 	}
 		
 	/////////////////end life cycle///////////////////
+	
+	/**
+	 * Lookup the image uri for 
+	 */
+	protected Uri channelImageUri(long channelid){
+		Uri imageUri = null;
+		
+		Uri contentUri = ContentUris.withAppendedId(Feed.CONTENT_URI, channelid);
+		Cursor c = managedQuery(contentUri, new String[]{Feed.IMAGE}, null, null, null);
+		
+		if(c.moveToFirst()){
+			String sUri = c.getString(c.getColumnIndex(Feed.IMAGE));
+			if(sUri != null){
+				imageUri = Uri.parse(sUri);
+			}
+		}
+		
+		return imageUri;
+	}
 }

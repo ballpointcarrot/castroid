@@ -19,6 +19,7 @@ public final class RSSTags {
 	public static final String CHNL_TITLE = "title";
 	public static final String CHNL_LINK = "link";
 	public static final String CHNL_DESC = "description";
+	public static final String CHNL_IMAGE = "image";
 	
 	public static final String ITEM = "item";
 	public static final String ITEM_TITLE = "title";
@@ -30,4 +31,7 @@ public final class RSSTags {
 	public static final String ENC_URL = "url";
 	public static final String ENC_TYPE = "type";
 	public static final String ENC_LEN = "length";
+	
+	//////////////////IMAGE SUB ITEMS /////////////////////////
+	public static final String IMG_URL = "url";
 }

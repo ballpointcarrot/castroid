@@ -51,4 +51,12 @@ public class SimpleRSSFeedBuilder implements RSSFeedBuilder {
 	public RSSChannel getFeed(){
 		return mChannel;
 	}
+
+	/* (non-Javadoc)
+	 * @see com.cornerofseven.castroid.rss.RSSFeedBuilder#setChannelImageLink(java.lang.String)
+	 */
+	@Override
+	public void setChannelImageLink(String link) {
+		mChannel.setImageLink(link);
+	}
 }
