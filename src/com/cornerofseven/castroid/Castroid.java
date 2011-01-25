@@ -71,7 +71,6 @@ public class Castroid extends Activity {
 	static final int MENU_ITEM_VIEW		= 6;
 	
 	// Referenced Widgets
-	protected Button mBtnAdd;
 	protected ExpandableListView mPodcastTree;
 
 	// References to cursor columns
@@ -118,14 +117,6 @@ public class Castroid extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-
-		mBtnAdd = (Button) findViewById(R.id.btn_add_podcast);
-		mBtnAdd.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public final void onClick(View v) {
-				addFeed();
-			}
-		});
 
 		mPodcastTree = ((ExpandableListView) findViewById(R.id.podcastList));
 
