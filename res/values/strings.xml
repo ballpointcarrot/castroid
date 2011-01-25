@@ -14,7 +14,8 @@
 	
 	<string name="menu_delete">Delete</string>
 	<string name="menu_download">Download</string>
-	<string name="menu_update">Update</string>
+	<string name="menu_play">Play Stream</string>
+    <string name="menu_update">Update</string>
     <string name="menu_view_feed">View</string>
     
 	<string name="downloading">Downloading...</string>
@@ -33,5 +34,6 @@
     and shared by Google and used according to terms described in 
     the Creative Commons 3.0 Attribution License.
     </string>
+    
     
 </resources>

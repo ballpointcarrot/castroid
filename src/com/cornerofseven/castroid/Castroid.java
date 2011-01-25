@@ -68,6 +68,7 @@ public class Castroid extends Activity {
 	static final int MENU_FEED_UPDATE 	= 3;
 	static final int MENU_FEED_VIEW 	= 4;
 	static final int MENU_ITEM_PLAY		= 5;
+	static final int MENU_ITEM_VIEW		= 6;
 	
 	// Referenced Widgets
 	protected Button mBtnAdd;
@@ -107,7 +108,7 @@ public class Castroid extends Activity {
 	/**
 	 * Click handler for Channel items
 	 */
-	protected final ChannelItemClickHandler itemOnClickHandler = new ChannelItemClickHandler(this, MENU_ITEM_PLAY);
+	protected final ChannelItemClickHandler itemOnClickHandler = new ChannelItemClickHandler(this, MENU_ITEM_PLAY, MENU_ITEM_VIEW);
 	
 	// The media player to use for playing podcasts.
 	// protected MediaPlayer mMediaPlayer;
@@ -162,7 +163,7 @@ public class Castroid extends Activity {
 							ExpandableListView paramExpandableListView,
 							View paramView, int paramInt1, int paramInt2,
 							long itemId) {
-						return itemOnClickHandler.onItemClick(MENU_ITEM_PLAY, itemId);
+						return itemOnClickHandler.onItemClick(MENU_ITEM_VIEW, itemId);
 					}
 				});
 	}
@@ -230,6 +231,14 @@ public class Castroid extends Activity {
 		        getContentResolver().delete(queryUri, null, null);
 		        return true;
 		    }
+		    case MENU_ITEM_PLAY:
+		    {
+		    	ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item
+		        .getMenuInfo();
+		        long itemId = info.id;
+		        //re-dispatch to the item click handler.
+		        return itemOnClickHandler.onItemClick(MENU_ITEM_PLAY, itemId);
+		    }
 		    case MENU_ITEM_DOWNLOAD:
 		    {
 		        ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item
@@ -266,7 +275,9 @@ public class Castroid extends Activity {
 		    	Intent viewFeedIntent = new Intent(this, FeedInformationView.class);
 		    	viewFeedIntent.setData(contentURI);
 		    	startActivity(viewFeedIntent);
+		    	return true;
 		    }
+		    
 		}
 		return super.onContextItemSelected(item);
 	}
@@ -338,28 +349,28 @@ public class Castroid extends Activity {
 	        default: super.onPrepareDialog(id, dlg);
 	    }
 	}
-	
-	protected void playStream(long itemId) {
-		Uri itemUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
-		Cursor c = managedQuery(itemUri, 
-				new String[]{Item.ENC_LINK, Item.ENC_TYPE},
-				null, null, null);
-		
-		if(c.getCount() > 0){
-			String type, dataUri;
-
-			c.moveToFirst();
-			dataUri = c.getString(c.getColumnIndex(Item.ENC_LINK));
-			type = c.getString(c.getColumnIndex(Item.ENC_TYPE));
-			
-			Intent systemDefault = new Intent(Intent.ACTION_VIEW);
-			systemDefault.setDataAndType(Uri.parse(dataUri), type);
-			startActivity(systemDefault);
-		}else{
-			Toast.makeText(this, "No media found to play", Toast.LENGTH_LONG).show();
-		}
-	}
-	
+//	
+//	protected void playStream(long itemId) {
+//		Uri itemUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
+//		Cursor c = managedQuery(itemUri, 
+//				new String[]{Item.ENC_LINK, Item.ENC_TYPE},
+//				null, null, null);
+//		
+//		if(c.getCount() > 0){
+//			String type, dataUri;
+//
+//			c.moveToFirst();
+//			dataUri = c.getString(c.getColumnIndex(Item.ENC_LINK));
+//			type = c.getString(c.getColumnIndex(Item.ENC_TYPE));
+//			
+//			Intent systemDefault = new Intent(Intent.ACTION_VIEW);
+//			systemDefault.setDataAndType(Uri.parse(dataUri), type);
+//			startActivity(systemDefault);
+//		}else{
+//			Toast.makeText(this, "No media found to play", Toast.LENGTH_LONG).show();
+//		}
+//	}
+//	
 	/**
      * Update the selected feed(s).
      * 
@@ -418,6 +429,7 @@ public class Castroid extends Activity {
 			case ExpandableListView.PACKED_POSITION_TYPE_CHILD:
 				menu.setHeaderTitle("Item Options");
 				menu.add(0, MENU_ITEM_DOWNLOAD, 0, R.string.menu_download);
+				menu.add(0, MENU_ITEM_PLAY, 0, R.string.menu_play);
 				break;
 			case ExpandableListView.PACKED_POSITION_TYPE_GROUP:
 				int group = ExpandableListView

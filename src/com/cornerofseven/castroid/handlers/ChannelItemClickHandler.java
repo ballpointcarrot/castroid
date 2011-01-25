@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.widget.Toast;
 
+import com.cornerofseven.castroid.ItemInformationView;
 import com.cornerofseven.castroid.data.Item;
 
 /**
@@ -41,14 +42,16 @@ public class ChannelItemClickHandler {
 
 	
 	private final int PLAY_ITEM_ID; 
+	private final int VIEW_ITEM_ID;
 	private final Context mContext;
 	
 	/**
 	 * 
 	 * @param itemClickId id to use to mark a channel item click.
 	 */
-	public ChannelItemClickHandler(Context context, int playItemId){
+	public ChannelItemClickHandler(Context context, int playItemId, int viewItemID){
 		this.PLAY_ITEM_ID = playItemId;
+		this.VIEW_ITEM_ID = viewItemID;
 		this.mContext = context;
 	}
 	
@@ -58,7 +61,7 @@ public class ChannelItemClickHandler {
 	 * @return
 	 */
 	public boolean canHandle(final int clickType){
-		if(clickType == PLAY_ITEM_ID /*|| any other item id's*/){
+		if(clickType == PLAY_ITEM_ID || clickType == VIEW_ITEM_ID /*|| any other item id's*/){
 			return true;
 		}else return false;
 	}
@@ -73,10 +76,17 @@ public class ChannelItemClickHandler {
 		if(clickType == PLAY_ITEM_ID){
 			playStream(itemId);
 			return true;
+		}else if(clickType == VIEW_ITEM_ID){
+			viewItem(itemId);
+			return true;
 		}
 		return false;
 	}
 	
+	/**
+	 * Play the stream included in the inclosure.
+	 * @param itemId
+	 */
 	protected void playStream(long itemId) {
 		Uri itemUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
 		Context context = mContext;
@@ -104,5 +114,17 @@ public class ChannelItemClickHandler {
 		}else{
 			Toast.makeText(context, "No media found to play", Toast.LENGTH_LONG).show();
 		}
+	}
+	
+	/**
+	 * Fire an intent to view the item.
+	 * @param itemId
+	 */
+	protected void viewItem(long itemId){
+		Intent intent = new Intent(mContext, ItemInformationView.class);
+		
+		Uri contentUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
+		intent.setData(contentUri);
+		mContext.startActivity(intent);
 	}
 }

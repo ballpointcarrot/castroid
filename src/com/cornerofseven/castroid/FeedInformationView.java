@@ -50,12 +50,13 @@ public class FeedInformationView extends Activity{
 	///////////////END Widgets//////////////////////
 	
 	static final int PLAY_ITEM = 1;
+	static final int VIEW_ITEM = 2;
 	
 	private final int MAX_IMAGE_WIDTH = 75;
 	private final int MAX_IMAGE_HEIGHT = 75;
 	
 	protected final ChannelItemClickHandler itemClickListener 
-		= new ChannelItemClickHandler(this, PLAY_ITEM); 
+		= new ChannelItemClickHandler(this, PLAY_ITEM, VIEW_ITEM); 
 	
 	//////////////////life cycle/////////////////////
 	
