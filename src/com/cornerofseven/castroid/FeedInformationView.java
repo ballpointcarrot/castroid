@@ -36,6 +36,13 @@ import com.cornerofseven.castroid.handlers.ChannelItemClickHandler;
 /**
  * An activity for displaying information specifc to an rss channel.
  * 
+ * Things we should be able to do here:
+ * 
+ * 1. TODO: Update rss feed.
+ * 2. TODO: Click on item to view information
+ * 3. TODO: Download item
+ * 4. Stream item (works, but probably on wrong action.  Default action of item tap)
+ * 
  * @author Sean Mooney
  * @since Jan 23, 2011
  */
