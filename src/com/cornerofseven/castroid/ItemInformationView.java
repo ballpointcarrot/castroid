@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,7 +36,8 @@ import com.cornerofseven.castroid.handlers.ChannelItemClickHandler;
  */
 public class ItemInformationView extends Activity{
 
-	protected TextView mItemName, mItemDesc;
+	protected TextView mItemName;
+	protected WebView mItemDesc;
 	protected Button mPlay, mDownload;
 	
 	
@@ -73,7 +75,7 @@ public class ItemInformationView extends Activity{
 	 */
 	protected void collectWidgets(){
 		mItemName = (TextView)findViewById(R.id.iiv_item_name);
-		mItemDesc = (TextView)findViewById(R.id.iiv_item_desc);
+		mItemDesc = (WebView)findViewById(R.id.iiv_item_desc);
 		
 		mPlay = (Button)findViewById(R.id.iiv_play);
 		mDownload = (Button)findViewById(R.id.iiv_download);
@@ -130,7 +132,9 @@ public class ItemInformationView extends Activity{
 			String pubDate = c.getString(c.getColumnIndex(Item.PUB_DATE));
 			
 			mItemName.setText(title);
-			mItemDesc.setText(desc);
+			
+			mItemDesc.loadData(desc, "text/html", "utf-8");
+			
 		}/*
 		  * else, didn't return anything, which implies the data location
 		  * was invalid. TODO: Do we warn/inform or just not display anything?
