@@ -15,6 +15,7 @@ public class RSSChannel {
 	private String mDesc;
 	private String mRssUrl;
 	private String mImageLink;
+	private String mPubDate;
 	private List<RSSItem> items;
 	
 	
@@ -78,6 +79,14 @@ public class RSSChannel {
 
 	public void setmDesc(String mDesc) {
 		this.mDesc = mDesc;
+	}
+	
+	public void setPubDate(String date){
+		this.mPubDate = date;
+	}
+	
+	public String getPubDate(){
+		return this.mPubDate;
 	}
 	
 	//TODO: UDATE UNIT TESTS

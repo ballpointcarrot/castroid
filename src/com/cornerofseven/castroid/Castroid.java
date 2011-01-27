@@ -152,23 +152,39 @@ public class Castroid extends Activity {
 					@Override
 					public boolean onChildClick(
 							ExpandableListView paramExpandableListView,
-							View paramView, int paramInt1, int paramInt2,
+							View paramView, int groupPos, int childPos,
 							long itemId) {
 						return itemOnClickHandler.onItemClick(MENU_ITEM_VIEW, itemId);
 					}
 				});
 	}
 
+	//persistance for on pause/resume
+	//TODO: Is onPause/onResume persistence model correct. Feels like a hack.
+	//private int groupPos = 0, itemPos = 0;
 	@Override
 	public void onPause(){
 	    super.onPause();
-	    Log.i(TAG, "Pausing");
+//	    groupPos = mPodcastTree.get
+//	    
+//	    Log.i(TAG, "Pausing");
+//	    Log.i(TAG, "Selected item " + listPos);
 	}
 	
 	@Override
 	public void onResume(){
 	    super.onResume();
-	    Log.i(TAG, "Resuming");
+//	    
+//	    mPodcastTree.setSelectedChild(groupPos, childPosition, shouldExpandGroup)
+//	    
+//	    Log.i(TAG, "Resuming");
+//	    Log.i(TAG, "Restoring selection to " + listPos);
+	}
+	
+	@Override
+	public void onStop(){
+		super.onStop();
+		Log.i(TAG, "Stoping castroid");
 	}
 	
 	@Override

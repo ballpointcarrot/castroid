@@ -248,4 +248,12 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 		final String errorMsg = "Expected " + EXPECTED_ITEMS + " found " + items.length;
 		assertEquals(errorMsg, EXPECTED_ITEMS, items.length);
 	}
+	
+	/**
+	 * Test converting/trimming strings representing dates
+	 * into a more compact, usable, sortable form.
+	 */
+	public void testDateParsing(){
+		
+	}
 }

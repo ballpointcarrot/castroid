@@ -7,6 +7,7 @@ package com.cornerofseven.castroid.rss.feed;
  */
 public class RSSItem {
 	private String mTitle, mLink, mDesc, mEnclosure, mEnclosureType;
+	private String mPubDate;
 	private long mEncSize;
 	
 	/**
@@ -131,6 +132,22 @@ public class RSSItem {
 		this.mEncSize = mEncSize;
 	}
 
+	/**
+	 * Sets the date the item was published.
+	 * @param date
+	 */
+	public void setPubDate(String date){
+		this.mPubDate = date;
+	}
+	
+	/**
+	 * 
+	 * @return the date the item was published.
+	 */
+	public String getPubDate(){
+		return this.mPubDate;
+	}
+	
 	@Override
 	public String toString(){
 		return this.mTitle;
