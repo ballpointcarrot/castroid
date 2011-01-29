@@ -84,6 +84,26 @@ public abstract class AbstractPodcastDataProvider extends ProviderTestCase2<Podc
 	}
 	
 	/**
+	 * Find a the value of a column in the cursor.
+	 * @param c
+	 * @param columnName
+	 * @return
+	 */
+	public static String getColumnAsString(Cursor c, String columnName){
+		return c.getString(c.getColumnIndexOrThrow(columnName));
+	}
+	
+	/**
+	 * Find a column value by name. Returns as int type.
+	 * @param c
+	 * @param columnName
+	 * @return
+	 */
+	public static int getColumnAsInt(Cursor c, String columnName){
+		return c.getInt(c.getColumnIndexOrThrow(columnName));
+	}
+	
+	/**
 	 * A general way to fail consistently for anything not yet implemented.
 	 */
 	public void notImplemented(){

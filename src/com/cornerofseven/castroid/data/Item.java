@@ -87,8 +87,13 @@ public final class Item implements BaseColumns{
 	public static final String PUB_DATE = "DATE";
 	
 	/**
+	 * Where or not the item has been viewed by the user.
+	 */
+	public static final String NEW = "NEW";
+	
+	/**
 	 * Projection map for all the elements of the Item
 	 */
-	public static final String[] PROJECTION = {_ID, OWNER, TITLE, LINK, DESC, ENC_LINK, ENC_TYPE, ENC_SIZE, PUB_DATE, STREAM_POS};
+	public static final String[] PROJECTION = {_ID, OWNER, TITLE, LINK, DESC, NEW, PUB_DATE, ENC_LINK, ENC_TYPE, ENC_SIZE, STREAM_POS};
     
 }

@@ -254,6 +254,6 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 	 * into a more compact, usable, sortable form.
 	 */
 	public void testDateParsing(){
-		
+		fail("Not Implemented");
 	}
 }

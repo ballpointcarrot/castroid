@@ -65,6 +65,7 @@ public class PodcastDataProvider extends ContentProvider{
 					Item.TITLE + " TEXT NOT NULL, " +
 					Item.LINK  + " TEXT NOT NULL, " +
 					Item.DESC  + " TEXT NOT NULL," +
+					Item.NEW   + " INTEGER DEFAULT 1, " +
 					Item.ENC_LINK + " TEXT,		" + //TODO: Defaults/not null for these fields?
 					Item.ENC_SIZE + " INTEGER,	" +
 					Item.ENC_TYPE + " TEXT, " +
