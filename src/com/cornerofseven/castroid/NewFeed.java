@@ -36,6 +36,7 @@ import com.cornerofseven.castroid.rss.feed.RSSChannel;
 import com.cornerofseven.castroid.rss.feed.RSSItem;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -158,6 +159,10 @@ public class NewFeed extends Activity{
                     }
                 });
                 break;
+//            case ERROR_DIALOG:
+//            {
+//            	AlertDialog
+//            }
             default: dlg = super.onCreateDialog(dlgId);
         }
         
@@ -211,8 +216,6 @@ public class NewFeed extends Activity{
     protected void bindFeedInfo(){
         final RSSChannel feed = mFeed;
 
-        //TODO: Delete me
-        Log.d(TAG, "Binding feed information");
         if(feed != null){
             mFeedTitle.setText(feed.getmTitle());
             mFeedDesc.setText(feed.getmDesc());
@@ -222,11 +225,8 @@ public class NewFeed extends Activity{
             final ListAdapter adapter 
             = new ArrayAdapter<RSSItem>(this, R.layout.item_view, feed.itemsAsArray());
             itemView.setAdapter(adapter);
-
-            Log.d(Castroid.TAG, "Items in " + feed.getmTitle());
-            Iterator<RSSItem> itemsIter = feed.itemsIterator();
-            while(itemsIter.hasNext())
-                Log.d(Castroid.TAG, itemsIter.next().toString());
+            
+            
         }
     }
 
@@ -259,12 +259,29 @@ public class NewFeed extends Activity{
     }
     
     /**
+     * Utility method to show a toast message.
+     * 
+     * Having an extra method serves two purpsoses. 
+     * The first is so that showing the messaging is automatic.
+     * The second, and more important one, is to let the worker
+     * thread send messages back the main context and not crash
+     * the program. 
+     * TODO: Except, it doesn't currently do that. Still crashing...
+     * @param msg
+     * @param length
+     */
+    protected void showToast(String msg, int length){
+    	Toast.makeText(this, msg, length).show();
+    }
+    
+    
+    /**
      * An asynchronous method to connect to/download/parse a feed.
      * @author sean
      *
      */
     private class AsyncFeedCheck extends AsyncTask<String, String, RSSChannel> {
-
+    	
         @Override
         protected void onPreExecute(){
             showDialog(DIALOG_PROGRESS_ID);
@@ -303,14 +320,16 @@ public class NewFeed extends Activity{
                return builder.getFeed();
                 
             }catch(UnknownHostException uhe){
-                Toast.makeText(getApplicationContext(), "Unknown host " + urlString, Toast.LENGTH_SHORT).show();
+            	//TODO: Crashes on call.
+                showToast("Unknown host " + urlString, Toast.LENGTH_SHORT);
             }
             catch(Exception ex){
                 Log.e(TAG, ex.getClass().toString());
                 Log.e(TAG, ex.getMessage());
-                Toast.makeText(getApplicationContext(), "Unable to parse the feed\n " 
+                //TODO: Crashes on call. Issues with second thread.
+                showToast("Unable to parse the feed\n " 
                         + ex.getMessage()
-                        , Toast.LENGTH_LONG).show();
+                        , Toast.LENGTH_LONG);
             }
             
             return null;
