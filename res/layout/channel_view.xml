@@ -30,15 +30,13 @@
             android:id="@+id/cv_channel_title"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2" 
-            android:textSize="15pt"
+            android:layout_weight="2"
             />
     </LinearLayout>
     <TextView android:id="@+id/cv_channel_desc"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:text="DESCRIPTION"
-    android:textSize="13pt"
     />
     <ListView
         android:id="@+id/cv_channel_items"
