@@ -112,7 +112,7 @@ public class FeedInformationView extends Activity{
 				Feed.LINK
 		};
 		final String[] ITEM_PROJECTION = new String[] { Item._ID,
-				Item.OWNER, Item.TITLE, Item.LINK, Item.DESC };
+				/*Item.OWNER,*/ Item.TITLE, /*Item.LINK, Item.DESC,*/ Item.PUB_DATE };
 		
 		Cursor c = managedQuery(channelURI, projection, null, null, null);
 		
@@ -139,8 +139,8 @@ public class FeedInformationView extends Activity{
 			final SimpleCursorAdapter itemAdapter = new SimpleCursorAdapter(this,
 					R.layout.item_view, 
 					itemCursor,
-					new String[]{Item.TITLE},
-					new int[]{R.id.item_textview}
+					new String[]{Item.TITLE, Item.PUB_DATE},
+					new int[]{R.id.item_textview, R.id.item_date}
 			);
 			mChannelItems.setAdapter(itemAdapter);
 			
