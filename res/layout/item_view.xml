@@ -7,25 +7,25 @@
     OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
     the specific language governing permissions and limitations under the License. -->
 
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
+    android:layout_height="fill_parent">
     <TableRow>
-    <TextView
-        android:id="@+id/item_textview"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_gravity="left"
-        
-        />
-    <TextView
-        android:id="@+id/item_date"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="2"
-        android:text=""
-        android:layout_gravity="right" />
-        </TableRow>
+        <TextView
+            android:id="@+id/item_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:layout_gravity="left" />
+
+        <TextView
+            android:id="@+id/item_textview"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:paddingLeft="5dip"
+             />
+
+    </TableRow>
 </TableLayout>
