@@ -223,7 +223,7 @@ public class NewFeed extends Activity{
 
             final ListView itemView = mFeedItems;
             final ListAdapter adapter 
-            = new ArrayAdapter<RSSItem>(this, R.layout.item_view, feed.itemsAsArray());
+           = new ArrayAdapter<RSSItem>(this, android.R.layout.simple_list_item_1, feed.itemsAsArray());
             itemView.setAdapter(adapter);
             
             
