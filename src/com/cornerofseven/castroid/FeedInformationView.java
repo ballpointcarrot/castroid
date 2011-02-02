@@ -149,7 +149,7 @@ public class FeedInformationView extends Activity{
 				@Override
 				public final void onItemClick(final AdapterView<?> arg0, final View arg1,
 						final int arg2, final long itemId) {
-					itemClickListener.onItemClick(PLAY_ITEM, itemId);
+					itemClickListener.onItemClick(VIEW_ITEM, itemId);
 				}
 			});
 		}
