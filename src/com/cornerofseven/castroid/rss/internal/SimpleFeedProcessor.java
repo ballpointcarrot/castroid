@@ -19,6 +19,7 @@ package com.cornerofseven.castroid.rss.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.ParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -276,7 +277,13 @@ public class SimpleFeedProcessor implements RSSProcessor{
 	 */
 	private String parseDate(String rawDate){
 		//TODO: if this the only thing that happens, in-line it.
-		return RSSDateParser.parse(rawDate);
+		try {
+			return RSSDateParser.parse(rawDate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "";
+		}
 	}
 	
 	/**

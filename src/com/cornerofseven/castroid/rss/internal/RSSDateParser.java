@@ -15,7 +15,14 @@
  */
 package com.cornerofseven.castroid.rss.internal;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Pattern;
+
+
 
 /**
  * Converts an RSS date into a simpler form.
@@ -26,10 +33,12 @@ import java.util.regex.Pattern;
  */
 public class RSSDateParser {
 
-	private final static String dateRegex = "^[0-9][0-9]";
-	private final static Pattern datePattern = Pattern.compile(dateRegex);
+	private final static DateFormat rssFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
+	private final static DateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 	
-	public static String parse(String rssDate){
-		return "";
+	public static String parse(String rssDate) throws ParseException{
+		
+		Date pubDate = rssFormat.parse(rssDate);
+		return dbFormat.format(pubDate);
 	}
 }
