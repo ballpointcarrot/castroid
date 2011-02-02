@@ -26,11 +26,7 @@ public final class Item implements BaseColumns{
      */
     public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.dir/vnd.cornerofseven.item";
 
-    /**
-     * How items are sorted by default
-     */
-    public static final String DEFAULT_SORT = "TITLE DESC";
-
+    
     
     /******************************
      * Database Columns           *
@@ -92,6 +88,12 @@ public final class Item implements BaseColumns{
 	public static final String NEW = "NEW";
 	
 	public static final int NEW_ITEM_FLAG = 1;
+	
+	/**
+     * How items are sorted by default
+     */
+    public static final String DEFAULT_SORT = PUB_DATE + " DESC";
+
 	
 	/**
 	 * Projection map for all the elements of the Item
