@@ -91,6 +91,8 @@ public final class Item implements BaseColumns{
 	 */
 	public static final String NEW = "NEW";
 	
+	public static final int NEW_ITEM_FLAG = 1;
+	
 	/**
 	 * Projection map for all the elements of the Item
 	 */
