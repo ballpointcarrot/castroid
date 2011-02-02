@@ -237,6 +237,10 @@ public class SimpleFeedProcessor implements RSSProcessor{
 			}else if(RSSTags.ITEM_LINK.equals(childName)){
 				tmp = child.getFirstChild().getNodeValue();
 				newItem.setLink(tmp);
+			}else if(RSSTags.ITEM_PUB_DATE.equals(childName)){
+				tmp = child.getFirstChild().getNodeValue();
+				String pubDate = parseDate(tmp);
+				newItem.setPubDate(pubDate);
 			}
 		}
 	}
@@ -258,6 +262,21 @@ public class SimpleFeedProcessor implements RSSProcessor{
 				builder.setChannelImageLink(tmp); 
 			}
 		}
+	}
+	
+	/**
+	 * Convert a date formatted with the RSS spec
+	 * into a more simple YYYY-mm-dd formatted.
+	 * 
+	 * Formatting the date in this manor will make
+	 * sorting new items by date easier. The alphabetic
+	 * sort is the same as the date sort.
+	 * @param rawDate
+	 * @return
+	 */
+	private String parseDate(String rawDate){
+		//TODO: if this the only thing that happens, in-line it.
+		return RSSDateParser.parse(rawDate);
 	}
 	
 	/**

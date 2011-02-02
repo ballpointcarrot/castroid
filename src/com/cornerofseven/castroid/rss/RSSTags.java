@@ -26,6 +26,7 @@ public final class RSSTags {
 	public static final String ITEM_LINK = "link";
 	public static final String ITEM_DESC = "description";
 	public static final String ITEM_ENC = "enclosure";
+	public static final String ITEM_PUB_DATE = "pubDate";
 	
 	//////////////////ENCLOSURE ATTRIBUTES/////////////////////
 	public static final String ENC_URL = "url";
