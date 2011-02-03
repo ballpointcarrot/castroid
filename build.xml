@@ -32,6 +32,12 @@
          application and should be checked into Version Control Systems. -->
     <property file="default.properties" />
 
+	<property name="assets.dir" value="assets"/>
+	<property name="res.dir" value="res"/>
+	<property name="hdpi.dir" value="hdpi"/>
+    <property name="mdpi.dir" value="mdpi"/>
+    <property name="ldpi.dir" value="ldpi"/>
+	
     <!-- Custom Android task to deal with the project target, and import the
          proper rules.
          This requires ant 1.6.0 or above. -->
@@ -47,10 +53,20 @@
 
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
-<!--
+
     <target name="-pre-build">
+    	<!--Copy all the images from assets into res-->
+    	<copy todir="${res.dir}/drawable-${hdpi.dir}">
+    		   <fileset dir="${assets.dir}/${hdpi.dir}" includes="*.png"/>
+    	</copy>
+    	<copy todir="${res.dir}/drawable-${mdpi.dir}">
+    		   <fileset dir="${assets.dir}/${mdpi.dir}" includes="*.png"/>
+    	</copy>
+    	<copy todir="${res.dir}/drawable-${ldpi.dir}">
+            <fileset dir="${assets.dir}/${ldpi.dir}" includes="*.png"/>
+        </copy>
     </target>
-    <target name="-pre-compile">
+<!--<target name="-pre-compile">
     </target>
 
     [This is typically used for code obfuscation.
