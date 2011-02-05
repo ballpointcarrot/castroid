@@ -18,7 +18,9 @@ package com.cornerofseven.castroid.data;
 import java.util.Iterator;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 
 import com.cornerofseven.castroid.rss.feed.RSSChannel;
@@ -115,6 +117,25 @@ public class PodcastDAO {
 					null,
 					null, 
 					null, Feed.CONTENT_URI);
-		
+	}
+	
+    /**
+	 * Get the TITLE field for a channel.
+	 * @param contentResolver
+	 * @param channelID
+	 * @return the channel's title, or an empty string if the ID did not exist.
+	 */
+	public static String getChannelTitle(ContentResolver contentResolver, long channelID){
+	    Uri contentUri = ContentUris.withAppendedId(Feed.CONTENT_URI, channelID);
+	    Cursor name = contentResolver.query(contentUri, new String[]{Feed.TITLE}, null, null, null);
+	
+	    String channelTitle = "";
+	    
+	    if(name.moveToFirst()){
+	        channelTitle = name.getString(name.getColumnIndex(Feed.TITLE));
+	    }
+	    
+	    name.close();
+	    return channelTitle;
 	}
 }

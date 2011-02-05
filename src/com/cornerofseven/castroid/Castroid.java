@@ -92,8 +92,8 @@ public class Castroid extends Activity {
 	// TODO: Remove this, it shouldn't be needed.
 	public static final int PROGRESS_DIALOG_ID = 1;
 	public static final int UPDATE_PROGRESS_DIALOG_ID = 2;
-	
-	public static final int ABOUT_DIALGO_ID = 3;
+	public static final int ABOUT_DIALOG_ID = 3;
+
 
 	/**
 	 * Reference to the dialog create on showDialog(PROGRESS_DIALOG_ID).
@@ -237,7 +237,7 @@ public class Castroid extends Activity {
 			addFeed();
 			return true;
 		case R.id.about:
-			showDialog(ABOUT_DIALGO_ID);
+			showDialog(ABOUT_DIALOG_ID);
 			return true;
 		case R.id.updateAll:
 		    updateAllChannels();
@@ -370,7 +370,7 @@ public class Castroid extends Activity {
 		    mUpdateProgress = upProg; //field reference to access this dialog from other places in the activity.
 		    return upProg;
 		}
-		case ABOUT_DIALGO_ID:
+		case ABOUT_DIALOG_ID:
 		{
 			Dialog aboutDialog = new Dialog(this);
 			aboutDialog.setContentView(R.layout.about_dialog);
