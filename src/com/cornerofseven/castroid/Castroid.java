@@ -112,6 +112,10 @@ public class Castroid extends Activity {
 	 * Used to download files on a seperate thread.
 	 */
 	protected AsyncDownloadManager mDownloadManager;
+	/**
+	 * Used to update the feeds on a separate thread.
+	 */
+	protected AsyncFeedUpdater mFeedUpdater;
 	
 	/**
 	 * Click handler for Channel items
@@ -364,6 +368,12 @@ public class Castroid extends Activity {
 		    ProgressDialog upProg = new ProgressDialog(this);
 		    upProg.setCancelable(true);
 		    upProg.setTitle("Updating Feeds");
+		    upProg.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface paramDialogInterface) {
+                    mFeedUpdater.cancel(true);
+                }
+            });
 		   
 		    //assign the reference to other places 
 		    //that need aliases to the new dialog.
@@ -448,7 +458,9 @@ public class Castroid extends Activity {
      * @param feedId
      */
     protected void updateChannel(Integer... feedId){
-        new AsyncFeedUpdater().execute(feedId);
+        //TODO: Do we need to worry about mFeedUpdater still running?
+        mFeedUpdater = new AsyncFeedUpdater();
+        mFeedUpdater.execute(feedId);
     }
 
     /**
@@ -557,6 +569,9 @@ public class Castroid extends Activity {
      * issues with an external class.
      * @author Sean Mooney
      *
+     * TODO: KnownIssues
+     * 1. Update dialog doesn't work right if this is triggerred multiple times.
+     * 2. Move to its own class.
      */
     private class AsyncFeedUpdater extends AsyncTask<Integer, Integer, Integer>{
 
