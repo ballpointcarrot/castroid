@@ -14,7 +14,7 @@ public class RSSItem {
 	 * 
 	 */
 	public RSSItem(){
-		this("", "", "", "", -1, "");
+		this("", "", "", "", "", -1, "");
 	}
 	
 	/**
@@ -23,7 +23,7 @@ public class RSSItem {
 	 * @param desc
 	 */
 	public RSSItem(String title, String link, String desc) {
-		this(title, link, desc, "", -1, "");
+		this(title, link, desc, "", "", -1, "");
 	}
 
 	/**
@@ -31,15 +31,17 @@ public class RSSItem {
 	 * @param title
 	 * @param link
 	 * @param desc
+	 * @param pubDate
 	 * @param enclosure link for the enclosure data file
 	 * @param encSize
 	 * @param encType
 	 */
-	public RSSItem(String title, String link, String desc, String enclosure, long encSize, String encType )
+	public RSSItem(String title, String link, String desc, String pubDate, String enclosure, long encSize, String encType )
 	{
 		this.mTitle = title;
 		this.mLink = link;
 		this.mDesc = desc;
+		this.mPubDate = pubDate;
 		this.mEnclosure = enclosure;
 		this.mEncSize = encSize;
 		this.mEnclosureType = encType;

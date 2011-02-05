@@ -77,11 +77,12 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String ITEM1_TITLE = "Item1";
 		final String ITEM1_LINK = "http://www.twit1.tv";
 		final String ITEM1_DESC = "Item1 desc";
+		final String ITEM1_DATE = "2011-01-01";
 		final String ITEM1_ENC = "http://www.twit1.tv/item1.mp3";
 		final int 	 ITEM1_ENC_SIZE = 100;
 		final String ITEM1_ENC_TYPE = "type/audio";
 
-		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_ENC, ITEM1_ENC_SIZE, ITEM1_ENC_TYPE);
+		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_DATE, ITEM1_ENC, ITEM1_ENC_SIZE, ITEM1_ENC_TYPE);
 		channel.addItem(item1);
 		
 		ContentResolver contentResolver = getMockContentResolver();
@@ -283,6 +284,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String ITEM1_TITLE = "Item1";
 		final String ITEM1_LINK = "http://www.twit1.tv";
 		final String ITEM1_DESC = "Item1 desc";
+		final String ITEM1_DATE = "2011-01-02";
 		final String ITEM1_ENC = "http://www.twit1.tv/item1.mp3";
 		final int 	 ITEM1_ENC_SIZE = 100;
 		final String ITEM1_ENC_TYPE = "type/audio";
@@ -292,7 +294,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String ITEM2_DESC = "Item2 desc";
 		//final String ITEM2_ENC = "http://www.twit2.tv/item2.mp3";
 		
-		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_ENC, ITEM1_ENC_SIZE, ITEM1_ENC_TYPE);
+		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_DATE, ITEM1_ENC, ITEM1_ENC_SIZE, ITEM1_ENC_TYPE);
 		final RSSItem item2 = new RSSItem(ITEM2_TITLE, ITEM2_LINK, ITEM2_DESC);
 		
 		channel.addItem(item1);
@@ -333,10 +335,7 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		feedCursor = null;
 		
 		Cursor itemCursor = dataProvider.query(Item.CONTENT_URI, 
-				new String[]{
-				Item._ID, Item.OWNER, Item.TITLE, Item.LINK, Item.DESC,
-				Item.ENC_LINK, Item.ENC_SIZE, Item.ENC_TYPE
-		}, 
+				Item.PROJECTION, 
 				Item.OWNER + " = ? " , 
 				new String[]{Integer.toString(fID)}, 
 				Item.TITLE);
@@ -345,13 +344,16 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		itemCursor.moveToFirst();
 		assertEquals(EX_ITEM_NUM, itemCursor.getCount());
 	
-		assertEquals(fID, itemCursor.getInt(1));
-		assertEquals(ITEM1_TITLE, itemCursor.getString(2));
-		assertEquals(ITEM1_LINK, itemCursor.getString(3));
-		assertEquals(ITEM1_DESC, itemCursor.getString(4));
-		assertEquals(ITEM1_ENC, itemCursor.getString(5));
-		assertEquals(ITEM1_ENC_SIZE, itemCursor.getInt(6));
-		assertEquals(ITEM1_ENC_TYPE, itemCursor.getString(7));
+		
+		
+		assertEquals(fID, getColumnAsInt(itemCursor, Item.OWNER));
+		assertEquals(ITEM1_TITLE, getColumnAsString(itemCursor, Item.TITLE));
+		assertEquals(ITEM1_LINK, getColumnAsString(itemCursor, Item.LINK));
+		assertEquals(ITEM1_DESC, getColumnAsString(itemCursor, Item.DESC));
+		assertEquals(ITEM1_DATE, getColumnAsString(itemCursor, Item.PUB_DATE));
+		assertEquals(ITEM1_ENC, getColumnAsString(itemCursor, Item.ENC_LINK));
+		assertEquals(ITEM1_ENC_SIZE, getColumnAsInt(itemCursor, Item.ENC_SIZE));
+		assertEquals(ITEM1_ENC_TYPE, getColumnAsString(itemCursor, Item.ENC_TYPE));
 		
 		
 		itemCursor.moveToNext();
@@ -377,11 +379,12 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 		final String ITEM1_TITLE = "Item1";
 		final String ITEM1_LINK = "http://www.twit1.tv";
 		final String ITEM1_DESC = "Item1 desc";
+		final String ITEM1_DATE = "2011-01-03";
 		final String ITEM1_ENC = "http://www.twit1.tv/item1.mp3";
 		final int 	 ITEM1_ENC_SIZE = 100;
 		final String ITEM1_ENC_TYPE = "type/audio";
 
-		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_ENC, ITEM1_ENC_SIZE, ITEM1_ENC_TYPE);
+		final RSSItem item1 = new RSSItem(ITEM1_TITLE, ITEM1_LINK, ITEM1_DESC, ITEM1_DATE, ITEM1_ENC, ITEM1_ENC_SIZE, ITEM1_ENC_TYPE);
 		channel.addItem(item1);
 		
 		ContentResolver contentResolver = getMockContentResolver();
