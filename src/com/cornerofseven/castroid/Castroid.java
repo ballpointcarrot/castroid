@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,7 +44,6 @@ import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorTreeAdapter;
-import android.widget.Toast;
 
 import com.cornerofseven.castroid.data.DatabaseQuery;
 import com.cornerofseven.castroid.data.Feed;
@@ -568,8 +568,8 @@ public class Castroid extends Activity {
         protected Integer doInBackground(Integer... feedIds) {
             int numUpdated = 0;
             
-            
-            UpdateChannel update = new UpdateChannel(getContentResolver());
+            ContentResolver contentResolver = getContentResolver();
+            UpdateChannel update = new UpdateChannel(contentResolver);
             Bundle startData = new Bundle();
             startData.putInt(PROGRESS_MAX, feedIds.length);
             signalHandler(WHAT_START, new Bundle());
@@ -579,7 +579,8 @@ public class Castroid extends Activity {
                 try {
                     
                     Bundle data = new Bundle();
-                    data.putString(PROGRESS_ITEMNAME, "Feed " + currentFeed);
+                    String feedName = PodcastDAO.getChannelTitle(contentResolver, currentFeed);
+                    data.putString(PROGRESS_ITEMNAME, feedName);
                     signalHandler(WHAT_PREITEM, data);
                     
                     update.runUpdate(currentFeed);
