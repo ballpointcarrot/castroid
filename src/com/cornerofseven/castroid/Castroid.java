@@ -30,6 +30,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -37,15 +39,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorTreeAdapter;
 import android.widget.Toast;
 
+import com.cornerofseven.castroid.data.DatabaseQuery;
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
+import com.cornerofseven.castroid.data.PodcastDAO;
 import com.cornerofseven.castroid.data.UpdateChannel;
 import com.cornerofseven.castroid.dialogs.DownloadDialog;
 import com.cornerofseven.castroid.handlers.ChannelItemClickHandler;
@@ -88,8 +91,9 @@ public class Castroid extends Activity {
 	// DIALOG IDs
 	// TODO: Remove this, it shouldn't be needed.
 	public static final int PROGRESS_DIALOG_ID = 1;
+	public static final int UPDATE_PROGRESS_DIALOG_ID = 2;
 	
-	public static final int ABOUT_DIALGO_ID = 2;
+	public static final int ABOUT_DIALGO_ID = 3;
 
 	/**
 	 * Reference to the dialog create on showDialog(PROGRESS_DIALOG_ID).
@@ -100,6 +104,11 @@ public class Castroid extends Activity {
 	protected DownloadDialog mDownloadDialog;
 	
 	/**
+	 * Dialog to use to display progress during feed updates.
+	 */
+	protected ProgressDialog mUpdateProgress;
+	
+	/**
 	 * Used to download files on a seperate thread.
 	 */
 	protected AsyncDownloadManager mDownloadManager;
@@ -108,6 +117,18 @@ public class Castroid extends Activity {
 	 * Click handler for Channel items
 	 */
 	protected final ChannelItemClickHandler itemOnClickHandler = new ChannelItemClickHandler(this, MENU_ITEM_PLAY, MENU_ITEM_VIEW);
+	
+	//constants for any progress dialogs managed by handlers.
+	public static final int WHAT_START = 1;
+	public static final int WHAT_PREITEM = 2;
+    public static final int WHAT_UPDATE = 3;
+    public static final int WHAT_DONE = 4;
+    public static final int WHAT_CANCELED = 5;
+    
+    //keys for the UpdateHandler data bundles
+    public static final String PROGRESS_MAX = "MAX";
+	public static final String PROGRESS_UPDATE = "UPDATE";
+	public static final String PROGRESS_ITEMNAME = "NAME";
 	
 	// The media player to use for playing podcasts.
 	// protected MediaPlayer mMediaPlayer;
@@ -218,6 +239,9 @@ public class Castroid extends Activity {
 		case R.id.about:
 			showDialog(ABOUT_DIALGO_ID);
 			return true;
+		case R.id.updateAll:
+		    updateAllChannels();
+		    return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -307,12 +331,12 @@ public class Castroid extends Activity {
 		return dlLnk;
 	}
 
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id, Bundle args) {
-		Dialog dialog = null;
 		
 		switch (id) {
 		case PROGRESS_DIALOG_ID:
@@ -330,21 +354,32 @@ public class Castroid extends Activity {
                 }
             });
 			
-			dialog = pd;
             pd.setTitle(R.string.downloading);
 			mDownloadDialog = pd; //log so the application can find it later.
-			break;
+			return pd;
+		}
+		case UPDATE_PROGRESS_DIALOG_ID:
+		{
+		    //stack ref to the type information.
+		    ProgressDialog upProg = new ProgressDialog(this);
+		    upProg.setCancelable(true);
+		    upProg.setTitle("Updating Feeds");
+		   
+		    //assign the reference to other places 
+		    //that need aliases to the new dialog.
+		    mUpdateProgress = upProg; //field reference to access this dialog from other places in the activity.
+		    return upProg;
 		}
 		case ABOUT_DIALGO_ID:
-			dialog = new Dialog(this);
-			dialog.setContentView(R.layout.about_dialog);
-			dialog.setTitle(R.string.aboutLabel);
-			//TODO: Add close button
-			break;
-		default:
-			dialog = super.onCreateDialog(id);
+		{
+			Dialog aboutDialog = new Dialog(this);
+			aboutDialog.setContentView(R.layout.about_dialog);
+			aboutDialog.setTitle(R.string.aboutLabel);
+			return aboutDialog;
 		}
-		return dialog;
+		default:
+			return super.onCreateDialog(id);
+		}		
 	}
 
 	@Override
@@ -379,6 +414,32 @@ public class Castroid extends Activity {
 //	}
 //	
 	/**
+	 * Update all the channels in the database.
+	 * Runs asynchronously.
+	 */
+	protected void updateAllChannels(){
+	    final Activity activity = this; //bind the context for the thread.
+
+	    DatabaseQuery feedIdsQ = PodcastDAO.getFeedIdsQuery();
+	    Cursor c = activity.managedQuery(
+	            feedIdsQ.getContentUri(), 
+	            feedIdsQ.getProjection(), 
+	            feedIdsQ.getSelection(), 
+	            feedIdsQ.getSelectionArgs(), 
+	            feedIdsQ.getSortOrder());
+
+	    //marshal the data for the updateChannel method.
+	    Integer[] feedIds = new Integer[c.getCount()];
+	    int curIndex = 0;
+	    int feedCol = c.getColumnIndex(Feed._ID);
+	    while(c.moveToNext()){
+	        feedIds[curIndex++] = c.getInt(feedCol);
+	    }
+
+	    updateChannel(feedIds);
+	}
+	
+	/**
      * Update the selected feed(s).
      * 
      *  Can update multiple feeds on the same call.
@@ -386,22 +447,8 @@ public class Castroid extends Activity {
      *  
      * @param feedId
      */
-    protected void updateChannel(int... feedId){
-        UpdateChannel update = new UpdateChannel(this);
-        
-        for(int currentFeed : feedId){
-            try {
-                update.runUpdate(currentFeed);
-            } catch (MalformedURLException e) {
-                //TODO: Put the podcast title instead of id in the error message
-                String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
-                Toast.makeText(this, msg , Toast.LENGTH_LONG);
-            } catch (MalformedRSSException e) {
-              //TODO: Put the podcast title instead of id in the error message
-                String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
-                Toast.makeText(this, msg , Toast.LENGTH_LONG);
-            }
-        }   
+    protected void updateChannel(Integer... feedId){
+        new AsyncFeedUpdater().execute(feedId);
     }
 
     /**
@@ -458,4 +505,125 @@ public class Castroid extends Activity {
 			}
 		}
 	}
+    
+    private Handler mUpdateHandler = new Handler(){
+        /*
+         * (non-Javadoc)
+         * 
+         * @see android.os.Handler#handleMessage(android.os.Message)
+         */
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            
+            
+            switch (msg.what) {
+                case WHAT_START:
+                {
+                    showDialog(UPDATE_PROGRESS_DIALOG_ID);
+                    
+                    int max = msg.getData().getInt(PROGRESS_MAX);
+                    mUpdateProgress.setMax(max);
+                    mUpdateProgress.setProgress(0);
+                    break;
+                }
+                case WHAT_PREITEM:
+                {
+                    Bundle data = msg.getData();
+                    String currentItem = (data != null) ? data.getString(PROGRESS_ITEMNAME) : "";
+                    mUpdateProgress.setMessage(currentItem);
+                    break;
+                }
+                case WHAT_UPDATE:
+                {   
+                    int total = msg.getData().getInt(PROGRESS_UPDATE);
+                    mUpdateProgress.setProgress(total);
+                    break;
+                }
+                case WHAT_DONE:
+                {  
+                    dismissDialog(UPDATE_PROGRESS_DIALOG_ID);
+                    break;
+                }
+            }
+        }    
+    };
+    
+    /**
+     * An asynchronous task for updating a feed.
+     * 
+     * Currently in the castroid activity instead of its 
+     * own class (ala DownloadManager) to simplify some of the scoping
+     * issues with an external class.
+     * @author Sean Mooney
+     *
+     */
+    private class AsyncFeedUpdater extends AsyncTask<Integer, Integer, Integer>{
+
+        
+        /* (non-Javadoc)
+         * @see android.os.AsyncTask#doInBackground(Params[])
+         */
+        @Override
+        protected Integer doInBackground(Integer... feedId) {
+            int numUpdated = 0;
+            
+            
+            UpdateChannel update = new UpdateChannel(getContentResolver());
+            Bundle startData = new Bundle();
+            startData.putInt(PROGRESS_MAX, feedId.length);
+            signalHandler(WHAT_START, new Bundle());
+            for(int currentFeed : feedId){
+                if(isCancelled())break;
+                    
+                try {
+                    update.runUpdate(currentFeed);
+                } catch (MalformedURLException e) {
+                    //TODO: Put the podcast title instead of id in the error message
+                    String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
+                    Log.w(TAG, msg);
+                    //TODO: Warn someone
+                    //Toast.makeText(this, msg , Toast.LENGTH_LONG);
+                } catch (MalformedRSSException e) {
+                  //TODO: Put the podcast title instead of id in the error message
+                    String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
+                    Log.w(TAG, msg);
+                    //TODO: Warn someone
+                    //Toast.makeText(this, msg , Toast.LENGTH_LONG);
+                } finally{
+                    publishProgress(++numUpdated);
+                }
+            }
+            
+            return numUpdated;
+        }
+        
+        @Override
+        public void onCancelled(){
+            Bundle b = new Bundle();
+            b.putBoolean(DownloadDialog.PROGRESS_DONE, false);
+            signalHandler(DownloadDialog.WHAT_CANCELED, b);
+        }
+        
+        @Override
+        public void onProgressUpdate(Integer... progresses){
+            Bundle b = new Bundle();
+            b.putInt(DownloadDialog.PROGRESS_UPDATE, progresses[0]);
+            signalHandler(DownloadDialog.WHAT_UPDATE, b);
+        }
+        
+        @Override
+        public void onPostExecute(Integer result){
+            signalHandler(WHAT_DONE, null);
+        }
+        
+        private void signalHandler(int msgType, Bundle data){
+            Handler handler = mUpdateHandler;
+            if(handler != null) {
+                Message msg = handler.obtainMessage(msgType);
+                msg.setData(data);
+                handler.sendMessage(msg);
+            }
+        }
+    }
 }
