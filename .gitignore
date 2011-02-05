@@ -3,5 +3,6 @@ gen/
 .gitignore
 tests/src/com/cornerofseven/castroid/test/NetworkTests.java
 tools/
+res/drawable-*/*.png
 
 /gen
