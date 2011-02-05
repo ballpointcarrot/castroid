@@ -16,8 +16,12 @@
 package com.cornerofseven.castroid.data.test;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 
+import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
 import com.cornerofseven.castroid.data.PodcastDAO;
 import com.cornerofseven.castroid.rss.feed.RSSChannel;
@@ -63,5 +67,31 @@ public class TestPodcastDAO extends AbstractPodcastDataProvider{
 		assertEquals(itemDesc, getColumnAsString(cursor, Item.DESC) );
 		assertEquals(pubDate, getColumnAsString(cursor, Item.PUB_DATE));
 		assertEquals(1, getColumnAsInt(cursor, Item.NEW));
+	}
+	
+	/**
+	 * Test that the channel title function works correctly.
+	 */
+	public void testGetChannelTitle(){
+	    ContentValues values = new ContentValues();
+	    String title = "Example Podcast";
+        values.put(Feed.LINK, "http://www.something.com");
+        values.put(Feed.DESCRIPTION, "This is a feed");
+        values.put(Feed.TITLE, title);
+        values.put(Feed.IMAGE, "nothing");
+        
+        Uri uri = getMockContentResolver().insert(Feed.CONTENT_URI, values);
+        assertNotNull(uri);
+        
+        long channelID = Long.parseLong(uri.getPathSegments().get(1));
+        
+        //check looking up an existing item 
+        String lookedUpTitle = PodcastDAO.getChannelTitle(getMockContentResolver(), channelID);
+        
+        assertEquals(title, lookedUpTitle);
+        
+        //check looking up a non-existing item
+        String noTitle = PodcastDAO.getChannelTitle(getMockContentResolver(), 100);
+        assertEquals("", noTitle);
 	}
 }
