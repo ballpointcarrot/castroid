@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="addFeedLabel">Add Feed</string>
+    <string name="updateFeedsLabel">Update All</string>
 	<string name="settingsLabel">Settings</string>
     <string name="aboutLabel">About</string>
 	<string name="app_name">CastDroid</string>

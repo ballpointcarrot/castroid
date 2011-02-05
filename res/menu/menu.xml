@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/addFeed" android:title="@string/addFeedLabel" />
+    <item android:id="@+id/updateAll" android:title="@string/updateFeedsLabel"/>
     <item android:id="@+id/settings" android:title="@string/settingsLabel" />
 <item android:id="@+id/about" android:title="@string/aboutLabel"></item>
 </menu>
