@@ -49,11 +49,10 @@ public class UpdateChannel {
     private static final String[] FEED_PROJ = new String[]{Feed._ID, Feed.RSS_URL};
     public static final String TAG = "UpdateChannel";
     
-    private Context mContext;
     
-    
-    public UpdateChannel(Context context){
-        mContext = context;
+    ContentResolver mContentResolver;
+    public UpdateChannel(ContentResolver content){
+        this.mContentResolver = content;
     }
     
     /**
@@ -63,7 +62,7 @@ public class UpdateChannel {
      * @throws MalformedRSSException 
      */
     public void runUpdate(int channelId) throws MalformedURLException, MalformedRSSException{
-        ContentResolver contentResolver = mContext.getContentResolver();
+        ContentResolver contentResolver = mContentResolver;
         
         //clear the current items.
         Log.i(TAG, "Clearing out old items");
