@@ -565,18 +565,23 @@ public class Castroid extends Activity {
          * @see android.os.AsyncTask#doInBackground(Params[])
          */
         @Override
-        protected Integer doInBackground(Integer... feedId) {
+        protected Integer doInBackground(Integer... feedIds) {
             int numUpdated = 0;
             
             
             UpdateChannel update = new UpdateChannel(getContentResolver());
             Bundle startData = new Bundle();
-            startData.putInt(PROGRESS_MAX, feedId.length);
+            startData.putInt(PROGRESS_MAX, feedIds.length);
             signalHandler(WHAT_START, new Bundle());
-            for(int currentFeed : feedId){
+            for(int currentFeed : feedIds){
                 if(isCancelled())break;
                     
                 try {
+                    
+                    Bundle data = new Bundle();
+                    data.putString(PROGRESS_ITEMNAME, "Feed " + currentFeed);
+                    signalHandler(WHAT_PREITEM, data);
+                    
                     update.runUpdate(currentFeed);
                 } catch (MalformedURLException e) {
                     //TODO: Put the podcast title instead of id in the error message
