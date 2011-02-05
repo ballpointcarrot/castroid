@@ -103,4 +103,18 @@ public class PodcastDAO {
 		
 		return Integer.parseInt(itemUri.getLastPathSegment());
 	}
+	
+	/**
+	 * Returns a Database query that will get all the 
+	 * RSS feed id's from the database.
+	 * @return
+	 */
+	public static DatabaseQuery getFeedIdsQuery(){
+		return new DatabaseQuery(
+					new String[]{Feed._ID},
+					null,
+					null, 
+					null, Feed.CONTENT_URI);
+		
+	}
 }
