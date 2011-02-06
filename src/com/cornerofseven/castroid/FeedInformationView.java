@@ -19,7 +19,7 @@ import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -32,6 +32,7 @@ import android.widget.TextView;
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
 import com.cornerofseven.castroid.handlers.ChannelItemClickHandler;
+import com.cornerofseven.castroid.network.AsyncImageDownloader;
 
 /**
  * An activity for displaying information specifc to an rss channel.
@@ -179,7 +180,6 @@ public class FeedInformationView extends Activity{
 		final ImageView imageView = mChannelImage;
 		//TODO: Logic for download/cache
 		
-		
 		imageView.setAdjustViewBounds(true);
 		
 		//default image.
@@ -187,34 +187,28 @@ public class FeedInformationView extends Activity{
 		imageView.setMaxWidth(MAX_IMAGE_WIDTH);
 		imageView.setMaxHeight(MAX_IMAGE_HEIGHT);
 		
-		/*TODO: Collect the Uri.
-		 * Currently not really working.
-		 */
-		Uri imageUri = null;//channelImageUri(channelId);
-		//TODO: Download image on background and cache.
-		if(imageUri != null){
-			imageView.setImageURI(imageUri);
+		String imageUrl = channelImageUrl(channelId);
+		if(imageUrl != null){
+			new AsyncImageDownloader(imageView).execute(imageUrl);
 		}
 	}
 		
 	/////////////////end life cycle///////////////////
 	
 	/**
-	 * Lookup the image uri for 
+	 * Lookup the image uri for
+	 * @return the Url stored in the content provider for the id, or null. 
 	 */
-	protected Uri channelImageUri(long channelid){
-		Uri imageUri = null;
+	protected String channelImageUrl(long channelid){
+		String imageUrl = null;
 		
 		Uri contentUri = ContentUris.withAppendedId(Feed.CONTENT_URI, channelid);
 		Cursor c = managedQuery(contentUri, new String[]{Feed.IMAGE}, null, null, null);
 		
 		if(c.moveToFirst()){
-			String sUri = c.getString(c.getColumnIndex(Feed.IMAGE));
-			if(sUri != null){
-				imageUri = Uri.parse(sUri);
-			}
+			imageUrl  = c.getString(c.getColumnIndex(Feed.IMAGE));
 		}
 		
-		return imageUri;
+		return imageUrl;
 	}
 }
