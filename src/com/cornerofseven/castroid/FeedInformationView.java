@@ -23,6 +23,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -167,8 +168,8 @@ public class FeedInformationView extends Activity{
 	 * if \exists link,
 	 * either image is cached or needs to be downloaded.
 	 * 
-	 * If cached, simply inflate/instanciate/load from storage.
-	 * If needs download, fetch on seperate thread, stick in the cache
+	 * If cached, simply inflate/instaniate/load from storage.
+	 * If needs download, fetch on separate thread, stick in the cache
 	 * and notify a callback to change the image once it exists.
 	 * 
 	 *
@@ -183,9 +184,10 @@ public class FeedInformationView extends Activity{
 		imageView.setAdjustViewBounds(true);
 		
 		//default image.
-		imageView.setImageResource(R.drawable.podcast_image);
+		//imageView.setImageResource(R.drawable.podcast_image);
 		imageView.setMaxWidth(MAX_IMAGE_WIDTH);
 		imageView.setMaxHeight(MAX_IMAGE_HEIGHT);
+		imageView.setAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_in));
 		
 		String imageUrl = channelImageUrl(channelId);
 		if(imageUrl != null){
