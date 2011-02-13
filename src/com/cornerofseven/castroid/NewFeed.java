@@ -270,8 +270,8 @@ public class NewFeed extends Activity{
      * @param msg
      * @param length
      */
-    protected void showToast(String msg, int length){
-    	Toast.makeText(this, msg, length).show();
+    protected void showMessage(String msg){
+    	
     }
     
     
@@ -321,15 +321,14 @@ public class NewFeed extends Activity{
                 
             }catch(UnknownHostException uhe){
             	//TODO: Crashes on call.
-                showToast("Unknown host " + urlString, Toast.LENGTH_SHORT);
+                showMessage("Unknown host ");
             }
             catch(Exception ex){
                 Log.e(TAG, ex.getClass().toString());
                 Log.e(TAG, ex.getMessage());
                 //TODO: Crashes on call. Issues with second thread.
-                showToast("Unable to parse the feed\n " 
-                        + ex.getMessage()
-                        , Toast.LENGTH_LONG);
+                showMessage("Unable to parse the feed\n " 
+                        + ex.getMessage());
             }
             
             return null;
