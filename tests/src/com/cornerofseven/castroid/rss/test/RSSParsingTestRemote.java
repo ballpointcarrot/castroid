@@ -158,43 +158,49 @@ public class RSSParsingTestRemote extends AndroidTestCase{
 	 * @throws IOException 
 	 * @throws ParserConfigurationException 
 	 */
-	public void testParseFaithWebsite() throws ParserConfigurationException, IOException, SAXException, MalformedRSSException{
-	    final String addr = "http://www.faithwebsites.com/audio_rss.cfm?detailid=119486";
-        final URL wwURL = new URL(addr);
-        
-        RSSProcessor proc = RSSProcessorFactory.getRSS2_0Processor(wwURL);
-        proc.process();
-        
-        RSSChannel channel = proc.getBuilder().getFeed();
-        
-        
-        final String SUB_TAG = TAG + "_FaitWebsite";
-        
-        Log.i(SUB_TAG, channel.getmTitle());
-        Log.i(SUB_TAG, channel.getmDesc());
-        Log.i(SUB_TAG, channel.getmLink());
-    
-        
-        assertEquals(addr, channel.getRssUrl());
-        
-        Log.i(SUB_TAG, "Items:");
-        
-        //num item processed
-        int numProcItems = 0;
-        Iterator<RSSItem> items = channel.itemsIterator();
-        while(items.hasNext()){
-            RSSItem item = items.next();
-            StringBuilder sb = new StringBuilder();
-            sb.append(item.getTitle()); sb.append(":");
-            sb.append(item.getDesc()); sb.append(":");
-            sb.append(item.getLink()); sb.append(":");
-            sb.append(item.getEnclosure()); sb.append(":");
-            
-            numProcItems++;
-        }
-        
-        int exNumItems = 2;
-        assertEquals(exNumItems, numProcItems);
-        
+	public void testParseFaithWebsite(){
+	    try{
+	        final String addr = "http://www.faithwebsites.com/audio_rss.cfm?detailid=119486";
+	        final URL wwURL = new URL(addr);
+
+	        RSSProcessor proc = RSSProcessorFactory.getRSS2_0Processor(wwURL);
+	        proc.process();
+
+	        RSSChannel channel = proc.getBuilder().getFeed();
+
+
+	        final String SUB_TAG = TAG + "_FaitWebsite";
+
+	        Log.i(SUB_TAG, channel.getmTitle());
+	        Log.i(SUB_TAG, channel.getmDesc());
+	        Log.i(SUB_TAG, channel.getmLink());
+
+
+	        assertEquals(addr, channel.getRssUrl());
+
+	        Log.i(SUB_TAG, "Items:");
+
+	        //num item processed
+	        int numProcItems = 0;
+	        Iterator<RSSItem> items = channel.itemsIterator();
+	        while(items.hasNext()){
+	            RSSItem item = items.next();
+	            StringBuilder sb = new StringBuilder();
+	            sb.append(item.getTitle()); sb.append(":");
+	            sb.append(item.getDesc()); sb.append(":");
+	            sb.append(item.getLink()); sb.append(":");
+	            sb.append(item.getEnclosure()); sb.append(":");
+
+	            numProcItems++;
+	        }
+
+	        int exNumItems = 2;
+	        assertEquals(exNumItems, numProcItems);
+	    }catch(SAXException saxex){
+	        fail(saxex.getMessage());
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        fail("Exception " + e.getClass() + "\n" + e.getMessage());
+	    } 
 	}
 }
