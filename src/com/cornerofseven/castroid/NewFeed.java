@@ -16,35 +16,20 @@
 
 package com.cornerofseven.castroid;
 
-import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.Iterator;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
-import com.cornerofseven.castroid.data.Feed;
-import com.cornerofseven.castroid.data.Item;
-import com.cornerofseven.castroid.data.PodcastDAO;
-import com.cornerofseven.castroid.rss.RSSFeedBuilder;
-import com.cornerofseven.castroid.rss.RSSProcessor;
-import com.cornerofseven.castroid.rss.RSSProcessorFactory;
-import com.cornerofseven.castroid.rss.feed.RSSChannel;
-import com.cornerofseven.castroid.rss.feed.RSSItem;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
-import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -54,6 +39,13 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.cornerofseven.castroid.data.PodcastDAO;
+import com.cornerofseven.castroid.rss.RSSFeedBuilder;
+import com.cornerofseven.castroid.rss.RSSProcessor;
+import com.cornerofseven.castroid.rss.RSSProcessorFactory;
+import com.cornerofseven.castroid.rss.feed.RSSChannel;
+import com.cornerofseven.castroid.rss.feed.RSSItem;
 
 /**
  *
@@ -259,7 +251,7 @@ public class NewFeed extends Activity{
     }
     
     /**
-     * Utility method to show a toast message.
+     * Utility method to show an alert message.
      * 
      * Having an extra method serves two purpsoses. 
      * The first is so that showing the messaging is automatic.
@@ -268,12 +260,87 @@ public class NewFeed extends Activity{
      * the program. 
      * TODO: Except, it doesn't currently do that. Still crashing...
      * @param msg
-     * @param length
+     *
      */
-    protected void showMessage(String msg){
-    	
+//    protected void showMessage(String msg){
+//    	
+//    }
+//    
+    protected void showHostError(String msg){
+    	mDialogHandler.dispatchNoHostErrorMessage(msg);
     }
     
+    protected void showParseError(String msg){
+    	mDialogHandler.dispatchParseErrorMessage(msg);
+    }
+
+    private class DialogHandler extends Handler {     	
+    	//key for a string message in the Message's data Bundle
+    	public static final String BDL_MSG = "message";
+    	public static final int WHAT_NO_HOST 	= 0x00000001;
+    	public static final int WHAT_PARSE_ERR 	= 0x00000002;
+    	private Context context;
+    	
+    	public DialogHandler(Context context){
+    		this.context = context;
+    	}
+    	
+    	/* (non-Javadoc)
+    	 * @see android.os.Handler#handleMessage(android.os.Message)
+    	 */
+    	@Override
+    	public final void handleMessage(Message msg) {
+    		//drop the progress dialog, if its running.
+    		dismissDialog(DIALOG_PROGRESS_ID);
+    		
+    		Looper l = getLooper();
+    		Looper.prepare();
+			Looper.loop();
+    		try{
+    			
+    			switch(msg.what){
+    			case WHAT_NO_HOST:
+    			{
+    				String text = "Unable to find host";
+    				Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+    				Log.i(TAG, "host lookup error");
+    				break;
+    			}
+    			case WHAT_PARSE_ERR:
+    			{
+    				String text = "Unable to read RSS feed.";
+    				String extraText = msg.getData().getString(BDL_MSG);
+    				text = ( extraText != null ) ? text + " " + extraText : text;
+    				Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+    				Log.i(TAG, "text");
+    				break;
+    			}
+    			default:
+    				super.handleMessage(msg);
+    			}
+    		}finally{
+    			l.quit();
+    		}
+    	}
+    	
+    	//wrap up all the dispatch inside the class
+    	public final void dispatchParseErrorMessage(final String msg){
+    		Message m = obtainMessage(DialogHandler.WHAT_PARSE_ERR);
+        	Bundle bundle = new Bundle();
+        	bundle.putString(BDL_MSG, msg);
+        	dispatchMessage(m);
+    	}
+    	
+    	//wrap up all the dispatch inside the class
+    	public final void dispatchNoHostErrorMessage(final String msg){
+    		Message m = obtainMessage(DialogHandler.WHAT_NO_HOST);
+        	Bundle bundle = new Bundle();
+        	bundle.putString(BDL_MSG, msg);
+        	dispatchMessage(m);
+    	}
+    }
+    
+    private final DialogHandler mDialogHandler = new DialogHandler(this);
     
     /**
      * An asynchronous method to connect to/download/parse a feed.
@@ -302,33 +369,34 @@ public class NewFeed extends Activity{
             String urlString = args[0];
             
             try{
-                //TODO: Delete me!
-                Log.d(TAG, "Checking " + urlString);
+            	//TODO: Delete me!
+            	Log.d(TAG, "Checking " + urlString);
 
-                URL feedLocation = new URL(urlString);
-                Log.i(TAG, feedLocation.toString());
-                //TODO: Make strings into resources
-                publishProgress("Connecting to RSS feed");
-                RSSProcessor processor = RSSProcessorFactory.getRSS2_0Processor(feedLocation);
-                Log.d(TAG, "Using processor " + processor.getClass().toString());
-                
-                publishProgress("Reading RSS feed");
-                processor.process();
-                RSSFeedBuilder builder = processor.getBuilder();
+            	URL feedLocation = new URL(urlString);
+            	Log.i(TAG, feedLocation.toString());
+            	//TODO: Make strings into resources
+            	publishProgress("Connecting to RSS feed");
+            	RSSProcessor processor = RSSProcessorFactory.getRSS2_0Processor(feedLocation);
+            	Log.d(TAG, "Using processor " + processor.getClass().toString());
 
-                publishProgress("Done!");
-               return builder.getFeed();
-                
+            	publishProgress("Reading RSS feed");
+            	processor.process();
+            	RSSFeedBuilder builder = processor.getBuilder();
+
+            	publishProgress("Done!");
+            	return builder.getFeed();
             }catch(UnknownHostException uhe){
             	//TODO: Crashes on call.
-                showMessage("Unknown host ");
+                showHostError(urlString);
             }
             catch(Exception ex){
                 Log.e(TAG, ex.getClass().toString());
                 Log.e(TAG, ex.getMessage());
                 //TODO: Crashes on call. Issues with second thread.
-                showMessage("Unable to parse the feed\n " 
-                        + ex.getMessage());
+                showParseError(ex.getMessage());
+            }finally{
+                dismissDialog(DIALOG_PROGRESS_ID);
+                mFeedCheck = null;
             }
             
             return null;
@@ -345,7 +413,6 @@ public class NewFeed extends Activity{
         protected void onPostExecute(RSSChannel channel){
             mFeed = channel;
             bindFeedInfo();
-            dismissDialog(DIALOG_PROGRESS_ID);
         }
     }
 }
