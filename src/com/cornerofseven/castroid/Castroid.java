@@ -272,8 +272,7 @@ public class Castroid extends Activity {
 		        .getMenuInfo();
 		    	long feedId = info.id;
 		    	Uri contentURI = ContentUris.withAppendedId(Feed.CONTENT_URI, feedId);
-		    	Intent viewFeedIntent = new Intent("android.intent.action.VIEW",
-		    			contentURI);
+		    	Intent viewFeedIntent = new Intent("android.intent.action.VIEW");
 		    	viewFeedIntent.setData(contentURI);
 		    	startActivity(viewFeedIntent);
 		    	return true;
