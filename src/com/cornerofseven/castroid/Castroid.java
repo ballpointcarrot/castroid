@@ -272,13 +272,8 @@ public class Castroid extends Activity {
 		        .getMenuInfo();
 		    	long feedId = info.id;
 		    	Uri contentURI = ContentUris.withAppendedId(Feed.CONTENT_URI, feedId);
-		    	/*
-		    	 * TODO: Dispatch as without binding directly to the FeedInformationView
-		    	 * Crashes. Android reports cannot find an activity for the intent.
-		    	 * Intent viewFeedIntent = new Intent(Intent.ACTION_VIEW, contentURI);
-		    	 */
-		    	
-		    	Intent viewFeedIntent = new Intent(this, FeedInformationView.class);
+		    	Intent viewFeedIntent = new Intent("android.intent.action.VIEW",
+		    			contentURI);
 		    	viewFeedIntent.setData(contentURI);
 		    	startActivity(viewFeedIntent);
 		    	return true;
@@ -492,13 +487,11 @@ public class Castroid extends Activity {
     private Handler mUpdateHandler = new Handler(){
         /*
          * (non-Javadoc)
-         * 
          * @see android.os.Handler#handleMessage(android.os.Message)
          */
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            
             
             switch (msg.what) {
                 case WHAT_START:
@@ -536,12 +529,12 @@ public class Castroid extends Activity {
      * An asynchronous task for updating a feed.
      * 
      * Currently in the castroid activity instead of its 
-     * own class (ala DownloadManager) to simplify some of the scoping
+     * own class (a la DownloadManager) to simplify some of the scoping
      * issues with an external class.
      * @author Sean Mooney
      *
      * TODO: KnownIssues
-     * 1. Update dialog doesn't work right if this is triggerred multiple times.
+     * 1. Update dialog doesn't work right if this is triggered multiple times.
      * 2. Move to its own class.
      */
     private class AsyncFeedUpdater extends AsyncTask<Integer, Integer, Integer>{
@@ -560,28 +553,21 @@ public class Castroid extends Activity {
             startData.putInt(PROGRESS_MAX, feedIds.length);
             signalHandler(WHAT_START, new Bundle());
             for(int currentFeed : feedIds){
-                if(isCancelled())break;
-                    
+                if(isCancelled()){
+                	break;
+                }
+                String feedName = PodcastDAO.getChannelTitle(contentResolver, currentFeed);
+                Bundle data = new Bundle();
+                data.putString(PROGRESS_ITEMNAME, feedName);
+                signalHandler(WHAT_PREITEM, data);
                 try {
-                    
-                    Bundle data = new Bundle();
-                    String feedName = PodcastDAO.getChannelTitle(contentResolver, currentFeed);
-                    data.putString(PROGRESS_ITEMNAME, feedName);
-                    signalHandler(WHAT_PREITEM, data);
-                    
                     update.runUpdate(currentFeed);
                 } catch (MalformedURLException e) {
-                    //TODO: Put the podcast title instead of id in the error message
-                    String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
+                    String msg = "Unable to update " + feedName + "\n" + e.getMessage();
                     Log.w(TAG, msg);
-                    //TODO: Warn someone
-                    //Toast.makeText(this, msg , Toast.LENGTH_LONG);
                 } catch (MalformedRSSException e) {
-                  //TODO: Put the podcast title instead of id in the error message
-                    String msg = "Unable to update " + currentFeed + "\n" + e.getMessage();
+                    String msg = "Unable to update " + feedName + "\n" + e.getMessage();
                     Log.w(TAG, msg);
-                    //TODO: Warn someone
-                    //Toast.makeText(this, msg , Toast.LENGTH_LONG);
                 } finally{
                     publishProgress(++numUpdated);
                 }
