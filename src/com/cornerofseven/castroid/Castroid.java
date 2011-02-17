@@ -59,14 +59,7 @@ public class Castroid extends Activity {
 	public static final String TAG = "Castroid";
 
 	// constants for the menus
-	static final int MENU_FEED_DELETE = 1;
-	
-	/*COMMENT: Sean: Had borrowed the " = MENU_FEED_DELETE + 1"
-	from an exaple or tutorial I saw. The advantage, is you can
-	change a constant in the list (e.g. supoose for some reason
-	 MENU_FEED_DELETE = 2), and not worry about duplicates.
-	Everything increments properly. (Chris-you can drop this comment after reading)
-	*/
+	static final int MENU_FEED_DELETE   = 1;
 	static final int MENU_ITEM_DOWNLOAD = 2;
 	static final int MENU_FEED_UPDATE 	= 3;
 	static final int MENU_FEED_VIEW 	= 4;
@@ -184,28 +177,6 @@ public class Castroid extends Activity {
 				});
 	}
 
-	//persistance for on pause/resume
-	//TODO: Is onPause/onResume persistence model correct. Feels like a hack.
-	//private int groupPos = 0, itemPos = 0;
-	@Override
-	public void onPause(){
-	    super.onPause();
-//	    groupPos = mPodcastTree.get
-//	    
-//	    Log.i(TAG, "Pausing");
-//	    Log.i(TAG, "Selected item " + listPos);
-	}
-	
-	@Override
-	public void onResume(){
-	    super.onResume();
-//	    
-//	    mPodcastTree.setSelectedChild(groupPos, childPosition, shouldExpandGroup)
-//	    
-//	    Log.i(TAG, "Resuming");
-//	    Log.i(TAG, "Restoring selection to " + listPos);
-	}
-	
 	@Override
 	public void onStop(){
 		super.onStop();
