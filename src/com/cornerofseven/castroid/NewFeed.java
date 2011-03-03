@@ -85,6 +85,7 @@ public class NewFeed extends Activity{
 
     private AsyncFeedCheck mFeedCheck = null;
     
+    //Should follow a lock protocol of sync(pdLock){...much with the dialog...}
     private ProgressDialog mProgressDialog = null;
     //An object we can lock on when accessing the dialog.
     private final Object pdLock = new Object();
@@ -203,13 +204,24 @@ public class NewFeed extends Activity{
      * @param uriString string representation of the Uri where the feed is located.
      */
     protected void loadFeedOrError(String urlString){
+        loadFeedOrError(urlString, null);
+    }
+    
+    /**
+     * Check the url given to see if it contains a valid
+     * rss feed.  
+     * @param uriString string representation of the Uri where the feed is located.
+     * @param callback. function to execute when async thread is finished.
+     */
+    protected void loadFeedOrError(String urlString, Lambda callback){
         if(mFeedCheck == null || mFeedCheck.getStatus() == AsyncTask.Status.FINISHED){
-            mFeedCheck = (AsyncFeedCheck)new AsyncFeedCheck().execute(urlString);
+            //TODO: needs to show an error dialog if processing fails.
+            mFeedCheck = (AsyncFeedCheck)new AsyncFeedCheck(callback).execute(urlString);
         }else{
             Toast.makeText(this, "Already checking a feed.", Toast.LENGTH_SHORT).show();
         }
     }
-
+    
     /**
      * Bind the rss feed information into the correct view elements
      */
@@ -223,10 +235,10 @@ public class NewFeed extends Activity{
 
             final ListView itemView = mFeedItems;
             final ListAdapter adapter 
-           = new ArrayAdapter<RSSItem>(this, android.R.layout.simple_list_item_1, feed.itemsAsArray());
+            = new ArrayAdapter<RSSItem>(this, android.R.layout.simple_list_item_1, feed.itemsAsArray());
             itemView.setAdapter(adapter);
-            
-            
+
+
         }
     }
 
@@ -236,25 +248,23 @@ public class NewFeed extends Activity{
     protected void saveRSSFeed(){
         if(mFeed == null){ //check the feed if the user didn't
             //try to load the feed on save.
-            loadFeedOrError(mInputText.getText().toString());
-        }
-
-        //TODO: Need to wait until the async worker finishes if we are loading the 
-        //podcast.  Need to do so in such a way that isn't a busy wait, or hangs the GUI thread
-        //call back, somewhere?
-        
-        
-        //only save and finish the activity if something was loaded.
-        //preserve the activity if a feed couldn't be processed.
-        if(mFeed != null){
-            ContentResolver content = getContentResolver();
-            if(!PodcastDAO.addRSS(content, mFeed)){
-                Toast.makeText(this, "Unable to add the feed", Toast.LENGTH_SHORT).show();
-            }else{
-                finish(); //only finish if an error didn't happen
-            }
-        }else{
-            Toast.makeText(this, "No feed to save", Toast.LENGTH_SHORT).show();
+            loadFeedOrError(mInputText.getText().toString(),
+                    new Lambda(){
+                public void apply(){
+                    //only save and finish the activity if something was loaded.
+                    //preserve the activity if a feed couldn't be processed.
+                    if(mFeed != null){
+                        ContentResolver content = getContentResolver();
+                        if(!PodcastDAO.addRSS(content, mFeed)){
+                            //Toast.makeText(this, "Unable to add the feed", Toast.LENGTH_SHORT).show();
+                        }else{
+                            finish(); //only finish if an error didn't happen
+                        }
+                    }else{
+                        //Toast.makeText(this, "No feed to save", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     }
     
@@ -282,6 +292,18 @@ public class NewFeed extends Activity{
      */
     private class AsyncFeedCheck extends AsyncTask<String, String, RSSChannel> {
     	
+        Lambda mCallback;
+        
+        public AsyncFeedCheck(){
+            super();
+            mCallback = null;
+        }
+        
+        public AsyncFeedCheck(Lambda callback){
+            super();
+            this.mCallback = callback;
+        }
+        
         @Override
         protected void onPreExecute(){
             showDialog(DIALOG_PROGRESS_ID);
@@ -346,6 +368,22 @@ public class NewFeed extends Activity{
             mFeed = channel;
             bindFeedInfo();
             dismissDialog(DIALOG_PROGRESS_ID);
+            
+            if(mCallback != null){
+                mCallback.apply();
+            }
         }
+    }
+    
+    /**
+     * Yes, why yes I am defining a lambda function interface 
+     * to let the AsyncWorker be able to execute a callback.
+     * 
+     * todo: is this defined in the android API?
+     * @author Sean Mooney
+     *
+     */
+    private static interface Lambda{
+        public void apply();
     }
 }
