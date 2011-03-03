@@ -255,13 +255,13 @@ public class NewFeed extends Activity{
                     //preserve the activity if a feed couldn't be processed.
                     if(mFeed != null){
                         ContentResolver content = getContentResolver();
-                        if(!PodcastDAO.addRSS(content, mFeed)){
-                            //Toast.makeText(this, "Unable to add the feed", Toast.LENGTH_SHORT).show();
+                        if(PodcastDAO.addRSS(content, mFeed)){ 
+                            finish();
                         }else{
-                            finish(); //only finish if an error didn't happen
+                            //TODO: Error message, unable to save podcast to db.
                         }
                     }else{
-                        //Toast.makeText(this, "No feed to save", Toast.LENGTH_SHORT).show();
+                        //TODO: Error message, no podcast to save.
                     }
                 }
             });
