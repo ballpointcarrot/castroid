@@ -1,0 +1,14 @@
+The ViewFeed activity displays the information for
+a feed from the database.
+
+Information displayed:
+    Feed Title
+    Feed Description
+    Feed Image (if available)
+    Item List
+
+The intent that starts the activity must provide
+a feed id.
+
+Tapping on an Item starts and ItemView activity.
+
