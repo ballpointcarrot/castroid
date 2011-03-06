@@ -39,12 +39,22 @@
          application and should be checked into Version Control Systems. -->
     <loadproperties srcFile="project.properties" />
 
-    <!-- quick check on sdk.dir -->
-    <fail
-            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through an env var"
-            unless="sdk.dir"
-    />
-
+	<property name="assets.dir" value="assets"/>
+	<property name="res.dir" value="res"/>
+	<property name="hdpi.dir" value="hdpi"/>
+    <property name="mdpi.dir" value="mdpi"/>
+    <property name="ldpi.dir" value="ldpi"/>
+	
+	<property name="api.dir" value="docs/api"/>
+	
+    <!-- Custom Android task to deal with the project target, and import the
+         proper rules.
+         This requires ant 1.6.0 or above. -->
+    <path id="android.antlibs">
+        <pathelement path="${sdk.dir}/tools/lib/anttasks.jar" />
+        <pathelement path="${sdk.dir}/tools/lib/sdklib.jar" />
+        <pathelement path="${sdk.dir}/tools/lib/androidprefs.jar" />
+    </path>
 
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
@@ -91,6 +101,22 @@
     -->
     <!-- version-tag: 1 -->
     <property name="version-tag" value="custom"/>
-    <import file="${sdk.dir}/tools/ant/build.xml" />
 
+	<!--===================================================
+	    target: docs-api
+	    description: generate the java docs for the project.
+	    =================================================-->
+	<target name="docs-api" description="Generate the documentation files.">
+		<property name="javadoc-access-level" value="protected"/>
+		<mkdir dir="${api.dir}"/>
+		<javadoc destdir="${api.dir}"
+			access="${javadoc-access-level}"
+			>
+			   <packageset dir="${source.dir}" defaultexcludes="yes">
+			     <include name="**" /> 
+			   </packageset>
+		</javadoc>
+	</target>
+	
+    <import file="${sdk.dir}/tools/ant/build.xml" />
 </project>
