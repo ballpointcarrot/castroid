@@ -65,7 +65,7 @@ public class FeedInformationView extends Activity{
 	private final int MAX_IMAGE_HEIGHT = 75;
 	
 	protected final ChannelItemClickHandler itemClickListener 
-		= new ChannelItemClickHandler(this, PLAY_ITEM, VIEW_ITEM); 
+		= new ChannelItemClickHandler(this, PLAY_ITEM, VIEW_ITEM, -1); 
 	
 	//////////////////life cycle/////////////////////
 	

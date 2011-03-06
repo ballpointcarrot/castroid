@@ -15,15 +15,20 @@
  */
 package com.cornerofseven.castroid.handlers;
 
+import java.io.File;
+
+import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.widget.Toast;
 
 import com.cornerofseven.castroid.ItemInformationView;
 import com.cornerofseven.castroid.data.Item;
+import com.cornerofseven.castroid.network.DownloadService;
 
 /**
  * A class to handle the click for any RSS item in a list.
@@ -43,16 +48,18 @@ public class ChannelItemClickHandler {
 	
 	private final int PLAY_ITEM_ID; 
 	private final int VIEW_ITEM_ID;
-	private final Context mContext;
+	private final int DOWNLOAD_ITEM_ID;
+	private final Activity mActivity;
 	
 	/**
 	 * 
 	 * @param itemClickId id to use to mark a channel item click.
 	 */
-	public ChannelItemClickHandler(Context context, int playItemId, int viewItemID){
+	public ChannelItemClickHandler(Activity activity, int playItemId, int viewItemID, int downloadItemId){
 		this.PLAY_ITEM_ID = playItemId;
 		this.VIEW_ITEM_ID = viewItemID;
-		this.mContext = context;
+		this.DOWNLOAD_ITEM_ID = downloadItemId;
+		this.mActivity = activity;
 	}
 	
 	/**
@@ -61,7 +68,7 @@ public class ChannelItemClickHandler {
 	 * @return
 	 */
 	public boolean canHandle(final int clickType){
-		if(clickType == PLAY_ITEM_ID || clickType == VIEW_ITEM_ID /*|| any other item id's*/){
+		if(clickType == PLAY_ITEM_ID || clickType == VIEW_ITEM_ID  || clickType == DOWNLOAD_ITEM_ID/*|| any other item id's*/){
 			return true;
 		}else return false;
 	}
@@ -79,6 +86,8 @@ public class ChannelItemClickHandler {
 		}else if(clickType == VIEW_ITEM_ID){
 			viewItem(itemId);
 			return true;
+		}else if(clickType == DOWNLOAD_ITEM_ID){
+		    downloadItem(itemId);
 		}
 		return false;
 	}
@@ -89,7 +98,7 @@ public class ChannelItemClickHandler {
 	 */
 	protected void playStream(long itemId) {
 		Uri itemUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
-		Context context = mContext;
+		Context context = mActivity;
 		Intent systemDefault = null;
 		String type = null, dataUri = null;
 
@@ -121,6 +130,40 @@ public class ChannelItemClickHandler {
 	 * @param itemId
 	 */
 	protected void viewItem(long itemId){
-		mContext.startActivity(ItemInformationView.makeIntent(mContext, itemId));
+		Intent intent = new Intent(mActivity, ItemInformationView.class);
+		
+		Uri contentUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
+		intent.setData(contentUri);
+		mActivity.startActivity(intent);
 	}
+	
+	/**
+	 * Start the item downloading in a seperate service.
+	 * @param itemId
+	 */
+	protected void downloadItem(long itemId){
+	    File dlFolder = new File(Environment.getExternalStorageDirectory(), "Podcasts");
+        Intent downloadIntent = new Intent(mActivity, DownloadService.class);
+        downloadIntent.setData(Uri.parse(getDownloadLink(itemId)));
+        downloadIntent.putExtra(DownloadService.INT_DOWNLOAD_FOLDER, dlFolder.getAbsolutePath());
+        mActivity.startService(downloadIntent);
+	}
+	
+	/**
+     * Retrieves the Item's Enclosure download link.
+     * 
+     * @param itemID
+     *            the id of the item.
+     * @return the enclosure link.
+     */
+    private String getDownloadLink(long itemID) {
+        Uri queryUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemID);
+        Cursor c = mActivity.managedQuery(queryUri,
+                new String[] { Item._ID, Item.ENC_LINK, Item.ENC_SIZE }, null,
+                null, null);
+
+        c.moveToFirst();
+        String dlLnk = c.getString(c.getColumnIndex(Item.ENC_LINK));
+        return dlLnk;
+    }
 }

@@ -100,29 +100,38 @@ public class ItemInformationView extends Activity{
 	 * @param itemId, the database identifier for the item.
 	 */
 	protected void bindListeners(final long itemId) {
-		final Context context = this;
+		final Activity activity = this;
+		
+		final int ITEM_CLICK_PLAY = 1;
+        final int ITEM_CLICK_DOWNLOAD = 2;
+        
+        /**
+         * Handler for ChannelItem clicks.  We don't need
+         * to view this item (we already are) so make the VIEW_ID -1;
+         * 
+         * In this activity, the play on click handler is the
+         * only thing that will dispatch events to the 
+         * ChannelItemClickHandler. This means we can make the 
+         * object a field of the inner class, and not contribute
+         * to polluting the state of the overall activity. Locality FTW. 
+         */
+        final ChannelItemClickHandler itemClickHandler 
+            = new ChannelItemClickHandler(activity, ITEM_CLICK_PLAY, -1, ITEM_CLICK_DOWNLOAD);
+        
+		
 		mPlay.setOnClickListener(new View.OnClickListener() {
-			
-			static final int ITEM_CLICK_PLAY = 1;
-			
-			/**
-			 * Handler for ChannelItem clicks.  We don't need
-			 * to view this item (we already are) so make the VIEW_ID -1;
-			 * 
-			 * In this activity, the play on click handler is the
-			 * only thing that will dispatch events to the 
-			 * ChannelItemClickHandler. This means we can make the 
-			 * object a field of the inner class, and not contribute
-			 * to polluting the state of the overall activity. Locality FTW. 
-			 */
-			final ChannelItemClickHandler itemClickHandler 
-				= new ChannelItemClickHandler(context, ITEM_CLICK_PLAY, -1);
-			
 			@Override
 			public final void onClick(View v) {
 				itemClickHandler.onItemClick(ITEM_CLICK_PLAY, itemId);
 			}
 		});
+		
+		mDownload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public final void onClick(View paramView) {
+                itemClickHandler.onItemClick(ITEM_CLICK_DOWNLOAD, itemId);
+            }
+        });
 	}
 
 	/**

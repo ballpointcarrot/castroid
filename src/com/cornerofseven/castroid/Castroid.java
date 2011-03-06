@@ -108,7 +108,7 @@ public class Castroid extends Activity {
 	/**
 	 * Click handler for Channel items
 	 */
-	protected final ChannelItemClickHandler itemOnClickHandler = new ChannelItemClickHandler(this, MENU_ITEM_PLAY, MENU_ITEM_VIEW);
+	protected final ChannelItemClickHandler itemOnClickHandler = new ChannelItemClickHandler(this, MENU_ITEM_PLAY, MENU_ITEM_VIEW, MENU_ITEM_DOWNLOAD);
 	
 	//constants for any progress dialogs managed by handlers.
 	public static final int WHAT_START = 1;
@@ -235,14 +235,10 @@ public class Castroid extends Activity {
 		    {
 		        ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item
 		        .getMenuInfo();
-		        long itemID = info.id;
-		        File dlFolder = new File(Environment.getExternalStorageDirectory(), "Podcasts");
-		        Intent downloadIntent = new Intent(this, DownloadService.class);
-		        downloadIntent.setData(Uri.parse(getDownloadLink(itemID)));
-		        downloadIntent.putExtra(DownloadService.INT_DOWNLOAD_FOLDER, dlFolder.getAbsolutePath());
-		        Log.i(TAG, "Starting the download intent.");
-		        startService(downloadIntent);
-		        Log.i(TAG, "Service successfully started.");
+		        long itemId = info.id;
+		        
+		        itemOnClickHandler.onItemClick(MENU_ITEM_DOWNLOAD, itemId);
+		        
 		        return true;
 		    }
 		    case MENU_FEED_UPDATE:
@@ -272,25 +268,6 @@ public class Castroid extends Activity {
 		return super.onContextItemSelected(item);
 	}
 
-	/**
-	 * Retrieves the Item's Enclosure download link.
-	 * 
-	 * @param itemID
-	 *            the id of the item.
-	 * @return the enclosure link.
-	 */
-	private String getDownloadLink(long itemID) {
-		Uri queryUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemID);
-		Cursor c = managedQuery(queryUri,
-				new String[] { Item._ID, Item.ENC_LINK, Item.ENC_SIZE }, null,
-				null, null);
-
-		c.moveToFirst();
-		String dlLnk = c.getString(c.getColumnIndex(Item.ENC_LINK));
-		return dlLnk;
-	}
-
-	
 	/**
 	 * {@inheritDoc}
 	 */
