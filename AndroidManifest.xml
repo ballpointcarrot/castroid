@@ -44,6 +44,9 @@
 		</activity>
 
 		<activity android:name=".MediaStreamer"></activity>
+        
+        <!--Download Service-->
+        <service android:name=".network.DownloadService" />
 	</application>
 	<uses-sdk android:minSdkVersion="8" />
 

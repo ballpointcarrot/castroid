@@ -52,7 +52,7 @@ import com.cornerofseven.castroid.data.PodcastDAO;
 import com.cornerofseven.castroid.data.UpdateChannel;
 import com.cornerofseven.castroid.dialogs.DownloadDialog;
 import com.cornerofseven.castroid.handlers.ChannelItemClickHandler;
-import com.cornerofseven.castroid.network.AsyncDownloadManager;
+import com.cornerofseven.castroid.network.DownloadService;
 import com.cornerofseven.castroid.rss.MalformedRSSException;
 
 public class Castroid extends Activity {
@@ -83,7 +83,6 @@ public class Castroid extends Activity {
 
 	// DIALOG IDs
 	// TODO: Remove this, it shouldn't be needed.
-	public static final int PROGRESS_DIALOG_ID = 1;
 	public static final int UPDATE_PROGRESS_DIALOG_ID = 2;
 	public static final int ABOUT_DIALOG_ID = 3;
 
@@ -94,17 +93,13 @@ public class Castroid extends Activity {
 	 * the dialog to give as a reference to other objects that need
 	 * to update progress on the main screen.
 	 */
-	protected DownloadDialog mDownloadDialog;
+	//protected DownloadDialog mDownloadDialog;
 	
 	/**
 	 * Dialog to use to display progress during feed updates.
 	 */
 	protected ProgressDialog mUpdateProgress;
 	
-	/**
-	 * Used to download files on a seperate thread.
-	 */
-	protected AsyncDownloadManager mDownloadManager;
 	/**
 	 * Used to update the feeds on a separate thread.
 	 */
@@ -181,13 +176,6 @@ public class Castroid extends Activity {
 		Log.i(TAG, "Stoping castroid");
 	}
 	
-	@Override
-	public void onSaveInstanceState(Bundle outState){
-	    super.onSaveInstanceState(outState);
-	    Log.i(TAG, "Saving Stating");
-	    if(mDownloadManager != null && mDownloadManager.getStatus() != AsyncTask.Status.FINISHED)
-	        Log.w(TAG, "A download is in progress");
-	}
 	
 	protected void addFeed() {
 		Intent intent = new Intent(this, NewFeed.class);
@@ -249,8 +237,11 @@ public class Castroid extends Activity {
 		        .getMenuInfo();
 		        long itemID = info.id;
 		        File dlFolder = new File(Environment.getExternalStorageDirectory(), "Podcasts");
-		        mDownloadManager = new AsyncDownloadManager(this, dlFolder);
-		        mDownloadManager.execute(Uri.parse(getDownloadLink(itemID)));
+		        Intent downloadIntent = new Intent(this, DownloadService.class);
+		        downloadIntent.setData(Uri.parse(getDownloadLink(itemID)));
+		        downloadIntent.putExtra(DownloadService.INT_DOWNLOAD_FOLDER, dlFolder.getAbsolutePath());
+		        Log.i(TAG, "Starting the download intent.");
+		        startService(downloadIntent);
 		        return true;
 		    }
 		    case MENU_FEED_UPDATE:
@@ -306,25 +297,6 @@ public class Castroid extends Activity {
 	protected Dialog onCreateDialog(int id, Bundle args) {
 		
 		switch (id) {
-		case PROGRESS_DIALOG_ID:
-		{
-		    DownloadDialog pd;
-			//Uri downloadUri = Uri.parse(args.getString("URI"));
-			pd = new DownloadDialog(this, null);
-			pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface paramDialogInterface) {
-                    if(mDownloadManager != null){
-                        mDownloadManager.cancel(true);
-                        mDownloadManager = null;
-                    }
-                }
-            });
-			
-            pd.setTitle(R.string.downloading);
-			mDownloadDialog = pd; //log so the application can find it later.
-			return pd;
-		}
 		case UPDATE_PROGRESS_DIALOG_ID:
 		{
 		    //stack ref to the type information.
@@ -355,15 +327,6 @@ public class Castroid extends Activity {
 		}		
 	}
 
-	@Override
-	protected void onPrepareDialog(int id, Dialog dlg){
-	    switch(id){
-	        case PROGRESS_DIALOG_ID:
-	            ((ProgressDialog)dlg).setProgress(0);
-	            break;
-	        default: super.onPrepareDialog(id, dlg);
-	    }
-	}
 //	
 //	protected void playStream(long itemId) {
 //		Uri itemUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
@@ -426,13 +389,13 @@ public class Castroid extends Activity {
         mFeedUpdater.execute(feedId);
     }
 
-    /**
-     * Assuming the download dialog has been created, return its reference.
-     * @return reference to the download dialog object.
-     */
-    public DownloadDialog getDownloadDialog(){
-        return mDownloadDialog;
-    }
+//    /**
+//     * Assuming the download dialog has been created, return its reference.
+//     * @return reference to the download dialog object.
+//     */
+//    public DownloadDialog getDownloadDialog(){
+//        return mDownloadDialog;
+//    }
     
     
     private class PodcastTreeContextMenuListener implements

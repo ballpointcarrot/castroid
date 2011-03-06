@@ -185,11 +185,8 @@ public class DownloadService extends Service{
             Toast.makeText(this, "Download uri is null", Toast.LENGTH_LONG).show();
             return;
         }
-
-       
-
+        
         download.execute(dlUri);
-
     }
 
     /**
