@@ -116,7 +116,6 @@ public class FeedInformationView extends Activity{
 
 			int feedId;
 			
-			//TODO: install the image in the image view, if exists.
 			final String channelTitle = c.getString(c.getColumnIndex(Feed.TITLE));
 			final String channelDesc =  c.getString(c.getColumnIndex(Feed.DESCRIPTION));
 			feedId = c.getInt(c.getColumnIndex(Feed._ID));
