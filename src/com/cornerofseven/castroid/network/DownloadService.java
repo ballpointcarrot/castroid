@@ -161,7 +161,9 @@ public class DownloadService extends Service{
         
         //pull the download dir from the intent.
         Bundle bundle = intent.getExtras();
-        dlDir = new File(bundle.getString(INT_DOWNLOAD_FOLDER));
+        String filePath = bundle.getString(INT_DOWNLOAD_FOLDER);
+        Log.i(TAG, "Save to " + filePath);
+        dlDir = new File(filePath);
         
         dlUri = intent.getData();
         

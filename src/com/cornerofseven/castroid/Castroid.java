@@ -242,6 +242,7 @@ public class Castroid extends Activity {
 		        downloadIntent.putExtra(DownloadService.INT_DOWNLOAD_FOLDER, dlFolder.getAbsolutePath());
 		        Log.i(TAG, "Starting the download intent.");
 		        startService(downloadIntent);
+		        Log.i(TAG, "Service successfully started.");
 		        return true;
 		    }
 		    case MENU_FEED_UPDATE:
