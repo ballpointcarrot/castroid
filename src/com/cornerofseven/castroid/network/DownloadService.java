@@ -278,8 +278,6 @@ public class DownloadService extends Service{
 
         @Override
         public void onPostExecute(Long result){
-            //TODO: log message to handler
-            //Toast.makeText(mActivity, "Downloaded " + result, Toast.LENGTH_SHORT).show();
             cleanup();
         }
 
@@ -322,6 +320,7 @@ public class DownloadService extends Service{
             mHandler = null;
             dlDir = null;
             
+            Log.i(TAG, "SIGNALING HANDLER DONE");
             Bundle b = new Bundle();
             b.putBoolean(ServiceMsgHandler.PROGRESS_DONE, success);
             signalHandler(mHandler, ServiceMsgHandler.WHAT_DONE, b);
@@ -446,6 +445,7 @@ public class DownloadService extends Service{
         public static final String PROGRESS_UPDATE = "total";
         public static final String PROGRESS_DONE = "done";
         public static final String SEND_ID = "sender";
+        public static final String SEND_FILENAME = "filename";
 
          Context mContext;
 
@@ -469,9 +469,23 @@ public class DownloadService extends Service{
          * @see android.os.Handler#handleMessage(android.os.Message)
          */
         @Override
+        /**
+         * Sends a system notifaction with the SEND_ID and SEND_FILENAME
+         * in the bundle.
+         * 
+         * Notifaction uses the SEND_ID, which must be put into the extras
+         * by the sender as the notification id. This id should be the same
+         * as the start id from {@see #onStart(Intent, int)} or 
+         * {@see #onStartCommand(Intent, int, int)} to keep the notifications
+         * synced with the async downloaders sending them.
+         */
         public void handleMessage(Message msg) {
 
             Bundle data = msg.getData();
+            
+            String fileName = data.getString(SEND_FILENAME);
+            if(fileName == null) 
+                fileName = "";
             
             int senderId = data.getInt(SEND_ID, -1);
             
@@ -484,19 +498,14 @@ public class DownloadService extends Service{
             super.handleMessage(msg);
             switch (msg.what) {
                 case WHAT_START:
-                    int max = data.getInt(PROGRESS_MAX);
-                    //                setMax(max);
-                    //                setProgress(0);
-                    Log.i(TAG, "Download Max: " + max);
-                    notifyProgressStatus(senderId, 0);
+                    notifyProgressStatus(senderId, fileName, 0);
                     break;
                 case WHAT_UPDATE:
                     int total = data.getInt(PROGRESS_UPDATE);
-                    //setProgress(total);
-                    Log.i(TAG, "Download Total: " + total);
-                    notifyProgressStatus(senderId, total);
+                    notifyProgressStatus(senderId, fileName, total);
                     break;
                 case WHAT_DONE:
+                    Log.i(TAG, "NOTIFIED WITH WHAT_DONE");
                     boolean success = data.getBoolean(PROGRESS_DONE);
                     if(!success){
                         //Toast.makeText(context, "Download Failed", Toast.LENGTH_SHORT).show();
@@ -506,10 +515,13 @@ public class DownloadService extends Service{
                     notifyDone(senderId);
                     
                 case WHAT_CANCELED:
+                    break;
+                default:
+                    Log.w(TAG, "Unknown code " + msg.what + "sent to handler");
             }
         }
         
-        void notifyProgressStatus(int senderId, int numBytes){
+        void notifyProgressStatus(int senderId, String fileName, int numBytes){
             Notification notification;
             
             int icon = android.R.drawable.stat_sys_download;
@@ -519,7 +531,7 @@ public class DownloadService extends Service{
             notification = new Notification(icon, msg, when);
             
             Context context = mContext;
-            CharSequence contentTitle = "Castroid Download";
+            CharSequence contentTitle = "Downloading " + fileName;
             
             float megsDown = numBytes/BYTES_PER_MEG;
             
