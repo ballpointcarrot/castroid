@@ -84,12 +84,6 @@ public class FeedInformationView extends Activity{
 		}
 	}
 	
-	@Override
-	public void onSaveInstanceState(Bundle savedInstanceState){
-		super.onSaveInstanceState(savedInstanceState);
-		//TODO: Save the feed view state? or is it enough to get it from the intent	
-	}
-	
 	/**
 	 * Set the widget fields with the widgets from the view.
 	 */
