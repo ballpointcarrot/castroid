@@ -26,6 +26,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -39,6 +42,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.cornerofseven.castroid.Castroid;
 import com.cornerofseven.castroid.dialogs.DownloadDialog;
 
 /**
@@ -179,7 +183,7 @@ public class DownloadService extends Service{
             return;
         }
 
-        AsyncDownload download = new AsyncDownload(dlDir, mMessageHandler);
+        AsyncDownload download = new AsyncDownload(dlDir, mMessageHandler, startId);
         runningDownloads.add(download);
 
         //TODO: What happens if the downloadLink is invalid?
@@ -228,12 +232,13 @@ public class DownloadService extends Service{
 
         File dlDir;
         Handler mHandler;
-
+        final int downloadId;
         
         //ProgressDialog mProgressDialog;
-        public AsyncDownload(File dlDir, Handler handler){
+        public AsyncDownload(File dlDir, Handler handler, int downloadId){
             this.dlDir = dlDir;
             this.mHandler = handler;
+            this.downloadId = downloadId;
         }
         
         /* (non-Javadoc)
@@ -257,6 +262,7 @@ public class DownloadService extends Service{
         public void onCancelled(){
             Bundle b = new Bundle();
             b.putBoolean(DownloadDialog.PROGRESS_DONE, false);
+            b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
             signalHandler(mHandler, DownloadDialog.WHAT_CANCELED, b);
 
             cleanup();
@@ -266,6 +272,7 @@ public class DownloadService extends Service{
         public void onProgressUpdate(Integer... progresses){
             Bundle b = new Bundle();
             b.putInt(DownloadDialog.PROGRESS_UPDATE, progresses[0]);
+            b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
             signalHandler(mHandler, DownloadDialog.WHAT_UPDATE, b);
         }
 
@@ -286,6 +293,8 @@ public class DownloadService extends Service{
             finishDownload(this);
         }
 
+        
+        
         private void signalHandler(Handler handler, int msgType, Bundle data){
             if(handler != null) {
                 Message msg = handler.obtainMessage(msgType);
@@ -378,6 +387,7 @@ public class DownloadService extends Service{
                 //signal the max download size
                 Bundle b = new Bundle();
                 b.putInt(DownloadDialog.PROGRESS_MAX, totalSize);
+                b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
                 signalHandler(mHandler, DownloadDialog.WHAT_START, b);
 
                 //we'll do this the old fashioned way...copy buffered bytes from inputstream to output stream
@@ -424,11 +434,17 @@ public class DownloadService extends Service{
         public static final String PROGRESS_MAX = "max";
         public static final String PROGRESS_UPDATE = "total";
         public static final String PROGRESS_DONE = "done";
+        public static final String SEND_ID = "sender";
 
-        private Context mContext;
+         Context mContext;
 
+         NotificationManager mNotificationManager;
+        
         public ServiceMsgHandler(Context context){
             this.mContext = context;
+            
+            String ns = Context.NOTIFICATION_SERVICE;
+            mNotificationManager = (NotificationManager)(context.getSystemService(ns));
         }
         
         
@@ -441,29 +457,83 @@ public class DownloadService extends Service{
         @Override
         public void handleMessage(Message msg) {
 
-            Context context = mContext;
-
+            Bundle data = msg.getData();
+            
+            int senderId = data.getInt(SEND_ID, -1);
+            
+            if(senderId == -1){
+                Log.w(TAG, "NO SENDER ID IN handleMessage");
+                return;
+            }
+            
+            
             super.handleMessage(msg);
             switch (msg.what) {
                 case WHAT_START:
-                    int max = msg.getData().getInt(PROGRESS_MAX);
+                    int max = data.getInt(PROGRESS_MAX);
                     //                setMax(max);
                     //                setProgress(0);
                     Log.i(TAG, "Download Max: " + max);
+                    notifyProgressStatus(senderId, 0);
                     break;
                 case WHAT_UPDATE:
-                    int total = msg.getData().getInt(PROGRESS_UPDATE);
+                    int total = data.getInt(PROGRESS_UPDATE);
                     //setProgress(total);
                     Log.i(TAG, "Download Total: " + total);
+                    notifyProgressStatus(senderId, total);
                     break;
                 case WHAT_DONE:
-                    boolean success = msg.getData().getBoolean(PROGRESS_DONE);
+                    boolean success = data.getBoolean(PROGRESS_DONE);
                     if(!success){
                         //Toast.makeText(context, "Download Failed", Toast.LENGTH_SHORT).show();
                         Log.i(TAG, "Download Failed");
+                        
                     }
+                    
+                    notifyDone(senderId);
+                    
                 case WHAT_CANCELED:
             }
+        }
+        
+        void notifyProgressStatus(int senderId, int numBytes){
+            Notification notification;
+            
+            int icon = android.R.drawable.stat_sys_download;
+            String msg = "DOWNLOADING";
+            long when = System.currentTimeMillis();
+            
+            notification = new Notification(icon, msg, when);
+            
+            Context context = mContext;
+            CharSequence contentTitle = "Castroid Download";
+            CharSequence contentText = numBytes + " b";
+            Intent notificationIntent = new Intent(context, Castroid.class);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+            
+            notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+            
+            mNotificationManager.notify(senderId, notification);
+        }
+        
+        void notifyDone(int senderId){
+            Notification notification;
+            
+            int icon = android.R.drawable.stat_sys_download_done;
+            String msg = "DOWNLOADING";
+            long when = System.currentTimeMillis();
+            
+            notification = new Notification(icon, msg, when);
+            
+            Context context = mContext;
+            CharSequence contentTitle = "Castroid Download";
+            CharSequence contentText = "DOWNLOAD FINISHED";
+            Intent notificationIntent = new Intent(context, Castroid.class);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+         
+            notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+            
+            mNotificationManager.notify(senderId, notification);
         }
     }
 }
