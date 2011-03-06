@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import android.app.Notification;
@@ -449,7 +450,10 @@ public class DownloadService extends Service{
          Context mContext;
 
          NotificationManager mNotificationManager;
-        
+
+         final float BYTES_PER_MEG = 1048576f;
+         DecimalFormat decimalFormat = new DecimalFormat("####.00 MB");
+         
         public ServiceMsgHandler(Context context){
             this.mContext = context;
             
@@ -497,7 +501,6 @@ public class DownloadService extends Service{
                     if(!success){
                         //Toast.makeText(context, "Download Failed", Toast.LENGTH_SHORT).show();
                         Log.i(TAG, "Download Failed");
-                        
                     }
                     
                     notifyDone(senderId);
@@ -517,7 +520,10 @@ public class DownloadService extends Service{
             
             Context context = mContext;
             CharSequence contentTitle = "Castroid Download";
-            CharSequence contentText = numBytes + " b";
+            
+            float megsDown = numBytes/BYTES_PER_MEG;
+            
+            CharSequence contentText = decimalFormat.format(megsDown);
             Intent notificationIntent = new Intent(context, Castroid.class);
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
             
@@ -528,6 +534,8 @@ public class DownloadService extends Service{
         
         void notifyDone(int senderId){
             Notification notification;
+            
+            Log.i(TAG, "DONE");
             
             int icon = android.R.drawable.stat_sys_download_done;
             String msg = "DOWNLOADING";
