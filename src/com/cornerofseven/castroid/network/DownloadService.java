@@ -326,13 +326,14 @@ public class DownloadService extends Service{
          * from the list of running tasks.
          */
         private void cleanup(boolean success){
-            mHandler = null;
-            dlDir = null;
-            
             Log.i(TAG, "SIGNALING HANDLER DONE");
             Bundle b = new Bundle();
             b.putBoolean(ServiceMsgHandler.PROGRESS_DONE, success);
+            b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
             signalHandler(mHandler, ServiceMsgHandler.WHAT_DONE, b);
+            
+            mHandler = null;
+            dlDir = null;
             
             finishDownload(this);
         }
