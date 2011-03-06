@@ -43,7 +43,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.cornerofseven.castroid.Castroid;
-import com.cornerofseven.castroid.dialogs.DownloadDialog;
 
 /**
  * A service to allow asynchronous downloads to run
@@ -261,9 +260,9 @@ public class DownloadService extends Service{
         @Override
         public void onCancelled(){
             Bundle b = new Bundle();
-            b.putBoolean(DownloadDialog.PROGRESS_DONE, false);
+            b.putBoolean(ServiceMsgHandler.PROGRESS_DONE, false);
             b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
-            signalHandler(mHandler, DownloadDialog.WHAT_CANCELED, b);
+            signalHandler(mHandler, ServiceMsgHandler.WHAT_CANCELED, b);
 
             cleanup();
         }
@@ -271,9 +270,9 @@ public class DownloadService extends Service{
         @Override
         public void onProgressUpdate(Integer... progresses){
             Bundle b = new Bundle();
-            b.putInt(DownloadDialog.PROGRESS_UPDATE, progresses[0]);
+            b.putInt(ServiceMsgHandler.PROGRESS_UPDATE, progresses[0]);
             b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
-            signalHandler(mHandler, DownloadDialog.WHAT_UPDATE, b);
+            signalHandler(mHandler, ServiceMsgHandler.WHAT_UPDATE, b);
         }
 
         @Override
@@ -284,13 +283,11 @@ public class DownloadService extends Service{
         }
 
         /**
-         * Display a Toast message describing the problem.
+         * Display cleanup, with a failed message.
          * @param e
          */
         private void onError(Exception e){
-            //TODO: log message to handler
-            //Toast.makeText(mContext, "Error during download!\n" + e.getMessage(), Toast.LENGTH_LONG).show();
-            finishDownload(this);
+            cleanup(false);
         }
 
         
@@ -303,6 +300,14 @@ public class DownloadService extends Service{
             }
         }
 
+        
+        /**
+         * Deletes to cleanup(boolean), with a parmater of true.
+         */
+        private void cleanup(){
+            cleanup(true);
+        }
+        
         /**
          * Null out all the refs, we won't need them again.
          * Should only be called by onPostExecute or onCancelled.
@@ -312,9 +317,14 @@ public class DownloadService extends Service{
          * Calls finishDownload in the parent context to remove itself
          * from the list of running tasks.
          */
-        private void cleanup(){
+        private void cleanup(boolean success){
             mHandler = null;
             dlDir = null;
+            
+            Bundle b = new Bundle();
+            b.putBoolean(ServiceMsgHandler.PROGRESS_DONE, success);
+            signalHandler(mHandler, ServiceMsgHandler.WHAT_DONE, b);
+            
             finishDownload(this);
         }
 
@@ -386,9 +396,9 @@ public class DownloadService extends Service{
 
                 //signal the max download size
                 Bundle b = new Bundle();
-                b.putInt(DownloadDialog.PROGRESS_MAX, totalSize);
+                b.putInt(ServiceMsgHandler.PROGRESS_MAX, totalSize);
                 b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
-                signalHandler(mHandler, DownloadDialog.WHAT_START, b);
+                signalHandler(mHandler, ServiceMsgHandler.WHAT_START, b);
 
                 //we'll do this the old fashioned way...copy buffered bytes from inputstream to output stream
                 while(!isCancelled() && ( bytesRead = bInputStream.read(buffer)) > 0){
