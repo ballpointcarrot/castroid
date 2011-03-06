@@ -69,6 +69,15 @@ import com.cornerofseven.castroid.Castroid;
  * is that any method, which directly or
  * indirectly access the {@see #runningDownloads} field must be synchronized.
  * </p>
+ * 
+ * <h3>TODO's</h3>
+ * <ul>
+ * <li> Add ability to cancel a download</li>
+ * <li> Change where the notifaction intent dispatches.
+ * Currently goes to the main Castroid activity. Would
+ * probable make sense to dispatch to a "download manager"
+ * activity, or to at least dispatch ItemInformationView.
+ * </ul>
  * @author Sean Mooney
  * @since v0.1
  */
