@@ -242,6 +242,7 @@ public class DownloadService extends Service{
         File dlDir;
         Handler mHandler;
         final int downloadId;
+        File saveFile = null; //handle to the file being written to.
         
         //ProgressDialog mProgressDialog;
         public AsyncDownload(File dlDir, Handler handler, int downloadId){
@@ -330,10 +331,15 @@ public class DownloadService extends Service{
             Bundle b = new Bundle();
             b.putBoolean(ServiceMsgHandler.PROGRESS_DONE, success);
             b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
+            
+            if(saveFile != null){
+                b.putString(ServiceMsgHandler.SEND_FILENAME, saveFile.getAbsolutePath());
+            }
             signalHandler(mHandler, ServiceMsgHandler.WHAT_DONE, b);
             
             mHandler = null;
             dlDir = null;
+            saveFile = null;
             
             finishDownload(this);
         }
@@ -376,6 +382,9 @@ public class DownloadService extends Service{
             BufferedOutputStream bOutputStream = null;
             int downloadSize = 0;
 
+            //hold onto the save file, to report when done.
+            saveFile = dest;
+            
             try{
                 URL url = new URL(link);
                 FileOutputStream fileOutput = new FileOutputStream(dest);
@@ -423,6 +432,9 @@ public class DownloadService extends Service{
                         bytesSinceLastLog = 0;
                         //int msgArg = (int)(per * 100);
                         publishProgress(downloadSize);
+                        //flush to stream occasionally to make sure things are written
+                        //even if the download is interrupted.
+                        bOutputStream.flush();
                     }
                 }
             } catch (MalformedURLException e) {  
@@ -522,7 +534,11 @@ public class DownloadService extends Service{
                         Log.i(TAG, "Download Failed");
                     }
                     
-                    notifyDone(senderId);
+                    if("".equals(fileName)){
+                        notifyDone(senderId,null);
+                    }else{
+                        notifyDone(senderId,fileName);
+                    }
                     
                 case WHAT_CANCELED:
                     break;
@@ -554,13 +570,18 @@ public class DownloadService extends Service{
             mNotificationManager.notify(senderId, notification);
         }
         
-        void notifyDone(int senderId){
+        /**
+         * 
+         * @param senderId
+         * @param fileUri file uri, or null if the uri is not known. A null fileUri will result in the intent going to castroid, instead of a system intent to view.
+         */
+        void notifyDone(int senderId, String fileUri){
             Notification notification;
             
             Log.i(TAG, "DONE");
             
             int icon = android.R.drawable.stat_sys_download_done;
-            String msg = "DOWNLOADING";
+            String msg = "DOWNLOADED";
             long when = System.currentTimeMillis();
             
             notification = new Notification(icon, msg, when);
@@ -568,7 +589,15 @@ public class DownloadService extends Service{
             Context context = mContext;
             CharSequence contentTitle = "Castroid Download";
             CharSequence contentText = "DOWNLOAD FINISHED";
-            Intent notificationIntent = new Intent(context, Castroid.class);
+            
+            Intent notificationIntent;
+            if(fileUri != null){
+                notificationIntent = new Intent(Intent.ACTION_VIEW);
+                notificationIntent.setData(Uri.parse(fileUri)); //TODO: Error handling.
+            }else{
+                notificationIntent = new Intent(context, Castroid.class);
+            }
+
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
          
             notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
