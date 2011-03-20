@@ -45,10 +45,8 @@ import com.cornerofseven.castroid.rss.feed.RSSItem;
  */
 public class UpdateChannel {
 
-    private static final String DELETE_CLAUSE = Item.OWNER + " = ?";
     private static final String[] FEED_PROJ = new String[]{Feed._ID, Feed.RSS_URL};
     public static final String TAG = "UpdateChannel";
-    
     
     ContentResolver mContentResolver;
     public UpdateChannel(ContentResolver content){
@@ -63,18 +61,8 @@ public class UpdateChannel {
      */
     public void runUpdate(int channelId) throws MalformedURLException, MalformedRSSException{
         ContentResolver contentResolver = mContentResolver;
-        
-        //clear the current items.
-        Log.i(TAG, "Clearing out old items");
-        clearItems(contentResolver, channelId);
-        
         //get the feed url
         String url = getURL(contentResolver, channelId);
-        Log.i(TAG, "Lookup feed at: " + url);
-        
-        //process the feed with the feed builder
-        //re-add all the items.
-        Log.i(TAG, "Loading the new items");
         loadNewItems(contentResolver, channelId, url);
     }
     
@@ -92,16 +80,8 @@ public class UpdateChannel {
         } 
         
         for(RSSItem item : builder.getBuilder().getFeed().itemsAsArray()){
-            Log.i(TAG, "Loading item " + item.toString());
-            PodcastDAO.addRSSItem(resolver, channelId, item);
+            PodcastDAO.addRSSItemIfNew(resolver, channelId, item);
         }
-    }
-    
-    
-    private void clearItems(ContentResolver contentResolver, int channelId){
-        String[] deleteArgs = new String[]{Integer.toString(channelId)};
-    
-        contentResolver.delete(Item.CONTENT_URI, DELETE_CLAUSE, deleteArgs);
     }
     
     private String getURL(ContentResolver contentResolver, int channelId){

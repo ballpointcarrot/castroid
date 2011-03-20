@@ -40,6 +40,12 @@ import com.cornerofseven.castroid.rss.feed.RSSItem;
  */
 public class PodcastDAO {
 
+    /**
+     * Query to select a single RSS Item out the Item's table
+     * by Podcast/Item title.
+     */
+    private static final String SELECT_RSS_ITEM = Item.OWNER + " = ? and " + Item.TITLE + " = ?";
+    
 	/**
 	 * Add a new rss/podcast channel to the database.
 	 * @param contentResolver
@@ -104,6 +110,33 @@ public class PodcastDAO {
 		Uri itemUri = contentResolver.insert(Item.CONTENT_URI, values);
 		
 		return Integer.parseInt(itemUri.getLastPathSegment());
+	}
+	
+	/**
+	 * Add an item to the Item table, only if it wasn't already
+	 * in the table. {@see #addRSSItem(ContentResolver, int, RSSItem)}
+	 * @param contentResolver
+	 * @param channelID
+	 * @param item
+	 * @return
+	 */
+	public static boolean addRSSItemIfNew(ContentResolver contentResolver, int channelID, RSSItem item){
+	    
+	    String[] selectionArgs = {Integer.toString(channelID), item.getTitle()};
+	    
+	    Cursor c = contentResolver.query(Item.CONTENT_URI, 
+	            null, SELECT_RSS_ITEM, selectionArgs, null);
+	
+	   boolean foundItem = c.moveToFirst();
+	   c.close();
+	   
+	   if(foundItem){
+	       return false;
+	   }
+	   else{
+	       addRSSItem(contentResolver, channelID, item);
+	       return true;
+	   }
 	}
 	
 	/**
