@@ -3,56 +3,51 @@
 	package="com.cornerofseven.castroid" android:versionCode="1"
 	android:versionName="1.0">
 	<application android:label="@string/app_name"
-        android:theme="@android:style/Theme.Light"
-        android:icon="@drawable/ic_launcher_castroid">
+		android:theme="@android:style/Theme.Light" android:icon="@drawable/ic_launcher_castroid">
 
-		<!--
-		<provider android:name=".data.TransitDataProvider" 
-		android:authorities="com.mooney_ware.android.transit.TransitDataProvider"/>
-		-->
-		
-		<provider android:name=".data.PodcastDataProvider" 
-		android:authorities="com.cornerofseven.castroid.data.PodcastDataProvider"/>
-		
+		<!-- <provider android:name=".data.TransitDataProvider" android:authorities="com.mooney_ware.android.transit.TransitDataProvider"/> -->
+
+		<provider android:name=".data.PodcastDataProvider"
+			android:authorities="com.cornerofseven.castroid.data.PodcastDataProvider" />
+
 		<activity android:label="@string/app_name" android:name=".Castroid">
-						<intent-filter>
+			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
-		
+
 		</activity>
 		
 		<activity android:label="@string/app_name" android:name=".NewFeed">
-		
-		<intent-filter android:label="@string/resolve_addfeed"></intent-filter>
-</activity>
+		  <intent-filter android:label="@string/resolve_addfeed"></intent-filter>
+        </activity>
 		
 		<activity android:label="@string/app_name" android:name=".simpleinterfaces.FeedList">
-			<!-- <intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>-->
+			<!-- <intent-filter> <action android:name="android.intent.action.MAIN" 
+				/> <category android:name="android.intent.category.LAUNCHER" /> </intent-filter> -->
 		</activity>
-        
-        <activity android:label="@string/app_name" android:name=".FeedInformationView">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <data android:mimeType="vnd.android.cursor.dir/vnd.cornerofseven.feed"/>
-            </intent-filter>
-        </activity>
-        
-        <activity android:label="@string/app_name" android:name=".ItemInformationView">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <data android:mimeType="vnd.android.cursor.dir/vnd.cornerofseven.item"/>
-            </intent-filter>
-        </activity>
-		
+
+		<activity android:label="@string/app_name" android:name=".FeedInformationView">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.cornerofseven.feed" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity>
+
+		<activity android:label="@string/app_name" android:name=".ItemInformationView">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.cornerofseven.item" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity>
+
 		<activity android:name=".MediaStreamer"></activity>
 	</application>
 	<uses-sdk android:minSdkVersion="8" />
 
-<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 </manifest> 

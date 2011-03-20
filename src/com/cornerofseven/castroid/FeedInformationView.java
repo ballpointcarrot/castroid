@@ -84,12 +84,6 @@ public class FeedInformationView extends Activity{
 		}
 	}
 	
-	@Override
-	public void onSaveInstanceState(Bundle savedInstanceState){
-		super.onSaveInstanceState(savedInstanceState);
-		//TODO: Save the feed view state? or is it enough to get it from the intent	
-	}
-	
 	/**
 	 * Set the widget fields with the widgets from the view.
 	 */
@@ -122,7 +116,6 @@ public class FeedInformationView extends Activity{
 
 			int feedId;
 			
-			//TODO: install the image in the image view, if exists.
 			final String channelTitle = c.getString(c.getColumnIndex(Feed.TITLE));
 			final String channelDesc =  c.getString(c.getColumnIndex(Feed.DESCRIPTION));
 			feedId = c.getInt(c.getColumnIndex(Feed._ID));

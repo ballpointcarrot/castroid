@@ -17,7 +17,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:layout_gravity="left" />
+            android:layout_gravity="left" 
+            android:textSize="15pt"
+            />
 
         <TextView
             android:id="@+id/item_textview"
@@ -25,6 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="left"
             android:paddingLeft="5dip"
+            android:textSize="15pt"
              />
 
     </TableRow>
