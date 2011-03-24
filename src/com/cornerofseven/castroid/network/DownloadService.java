@@ -183,8 +183,10 @@ public class DownloadService extends Service{
         //pull the download URL from the intent.
         
         if(!dlDir.exists()){
-            Toast.makeText(this, dlDir.getAbsoluteFile() + " does not exist.", Toast.LENGTH_LONG).show();
-            return;
+            if(!dlDir.mkdirs()){
+                Toast.makeText(this, dlDir.getAbsoluteFile() + " does not exist.", Toast.LENGTH_LONG).show();
+                return;
+            }
         }
 
         if(!dlDir.canWrite()){
