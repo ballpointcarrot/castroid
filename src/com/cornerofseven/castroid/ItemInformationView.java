@@ -16,6 +16,7 @@
 package com.cornerofseven.castroid;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -40,7 +41,20 @@ public class ItemInformationView extends Activity{
 	protected WebView mItemDesc;
 	protected Button mPlay, mDownload;
 	
-	
+	/**
+	 * Create an intent that will dispatch to ItemInformationView
+	 * to display the given item
+	 * @param itemId
+	 * @return an intent that will display item info for itemId.
+	 */
+	public static Intent makeIntent(Context context, long itemId){
+	    Intent intent = new Intent(context, ItemInformationView.class);
+        
+        Uri contentUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
+        intent.setData(contentUri);
+        
+        return intent;
+	}
 	
 	
 	@Override
