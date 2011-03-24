@@ -14,7 +14,6 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.cornerofseven.castroid.Castroid;
 
 public class PodcastDataProvider extends ContentProvider{
 	private static final String TAG = "PodcastDataProvider";
@@ -219,7 +218,7 @@ public class PodcastDataProvider extends ContentProvider{
 		case FEED: 
 			db = helper.getWritableDatabase();
 			rowId = helper.insertFeed(db,values);
-			Log.d(Castroid.TAG, "Feed id " + rowId);
+			Log.d(TAG, "Feed id " + rowId);
 			if(rowId > 0){
 				Uri contentUri = ContentUris.withAppendedId(Feed.CONTENT_URI, rowId);
 				getContext().getContentResolver().notifyChange(contentUri, null);
@@ -229,7 +228,7 @@ public class PodcastDataProvider extends ContentProvider{
 		case ITEM:
 			db = helper.getWritableDatabase();
 			rowId = helper.insertItem(db,values);
-			Log.d(Castroid.TAG, "Item id " + rowId);
+			Log.d(TAG, "Item id " + rowId);
 			if(rowId > 0){
 				Uri contentUri = ContentUris.withAppendedId(Item.CONTENT_URI, rowId);
 				getContext().getContentResolver().notifyChange(contentUri, null);

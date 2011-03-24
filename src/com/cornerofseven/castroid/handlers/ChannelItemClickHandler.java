@@ -121,10 +121,6 @@ public class ChannelItemClickHandler {
 	 * @param itemId
 	 */
 	protected void viewItem(long itemId){
-		Intent intent = new Intent(mContext, ItemInformationView.class);
-		
-		Uri contentUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
-		intent.setData(contentUri);
-		mContext.startActivity(intent);
+		mContext.startActivity(ItemInformationView.makeIntent(mContext, itemId));
 	}
 }
