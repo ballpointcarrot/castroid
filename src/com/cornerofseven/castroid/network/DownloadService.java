@@ -238,7 +238,21 @@ public class DownloadService extends Service{
         return null;
     }
 
-    private class AsyncDownload extends AsyncTask<Uri, Integer, Long>{
+    /**
+     * Simple container to hold download progress information. 
+     *
+     */
+    private static class DownloadProgress{
+        int numBytes;
+        int totalBytes;
+        
+        public DownloadProgress(int numBytes, int totalBytes){
+            this.numBytes = numBytes;
+            this.totalBytes = totalBytes;
+        }
+    }
+    
+    private class AsyncDownload extends AsyncTask<Uri, DownloadProgress, Long>{
         static final String TAG = "Download";
 
         File dlDir;
@@ -281,9 +295,13 @@ public class DownloadService extends Service{
         }
 
         @Override
-        public void onProgressUpdate(Integer... progresses){
+        public void onProgressUpdate(DownloadProgress... progresses){
             Bundle b = new Bundle();
-            b.putInt(ServiceMsgHandler.PROGRESS_UPDATE, progresses[0]);
+            DownloadProgress dp = progresses[0];
+            b.putInt(ServiceMsgHandler.PROGRESS_UPDATE, dp.numBytes);
+            
+            b.putInt(ServiceMsgHandler.PROGRESS_MAX, dp.totalBytes);
+            
             b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
             signalHandler(mHandler, ServiceMsgHandler.WHAT_UPDATE, b);
         }
@@ -335,7 +353,9 @@ public class DownloadService extends Service{
             b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
             
             if(saveFile != null){
-                b.putString(ServiceMsgHandler.SEND_FILENAME, saveFile.getAbsolutePath());
+                String filePrefix = "file://";
+                String fileUri = filePrefix.concat(saveFile.getAbsolutePath());
+                b.putString(ServiceMsgHandler.SEND_FILENAME, fileUri);
             }
             signalHandler(mHandler, ServiceMsgHandler.WHAT_DONE, b);
             
@@ -421,6 +441,8 @@ public class DownloadService extends Service{
                 b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
                 signalHandler(mHandler, ServiceMsgHandler.WHAT_START, b);
 
+                final DownloadProgress downProgress = new DownloadProgress(0, totalSize);
+                
                 //we'll do this the old fashioned way...copy buffered bytes from inputstream to output stream
                 while(!isCancelled() && ( bytesRead = bInputStream.read(buffer)) > 0){
                     bOutputStream.write(buffer, 0, bytesRead);
@@ -429,11 +451,12 @@ public class DownloadService extends Service{
 
 
                     if(bytesSinceLastLog > K_PER_UPDATE){
-                        float per = (float)downloadSize / (float)totalSize;
-                        //Log.i(TAG, "Downloaded " + downloadSize + " bytes " + per + "%");
+                        //reset the byte count for the next update count.
                         bytesSinceLastLog = 0;
-                        //int msgArg = (int)(per * 100);
-                        publishProgress(downloadSize);
+                        
+                        downProgress.numBytes = downloadSize;
+                        publishProgress(downProgress);
+                        
                         //flush to stream occasionally to make sure things are written
                         //even if the download is interrupted.
                         bOutputStream.flush();
@@ -476,7 +499,14 @@ public class DownloadService extends Service{
          NotificationManager mNotificationManager;
 
          final float BYTES_PER_MEG = 1048576f;
-         DecimalFormat decimalFormat = new DecimalFormat("####.00 MB");
+         /**
+          * Format a decimal to two decimal places, with a megabyte label at the end.
+          */
+         final DecimalFormat decFormMB = new DecimalFormat("####.00 MB");
+         /**
+          * Format a decimal with no decimal places and a percent sign on the end.
+          */
+         final DecimalFormat decFormPer = new DecimalFormat("###0%");
          
         public ServiceMsgHandler(Context context){
             this.mContext = context;
@@ -522,14 +552,19 @@ public class DownloadService extends Service{
             super.handleMessage(msg);
             switch (msg.what) {
                 case WHAT_START:
-                    notifyProgressStatus(senderId, fileName, 0);
+                {
+                    int totalBytes = data.getInt(PROGRESS_MAX);
+                    notifyProgressStatus(senderId, fileName, 0, totalBytes);
+                }
                     break;
                 case WHAT_UPDATE:
-                    int total = data.getInt(PROGRESS_UPDATE);
-                    notifyProgressStatus(senderId, fileName, total);
+                {
+                    int bytesDown = data.getInt(PROGRESS_UPDATE);
+                    int totalBytes = data.getInt(PROGRESS_MAX);
+                    notifyProgressStatus(senderId, fileName, bytesDown, totalBytes);
+                }
                     break;
                 case WHAT_DONE:
-                    Log.i(TAG, "NOTIFIED WITH WHAT_DONE");
                     boolean success = data.getBoolean(PROGRESS_DONE);
                     if(!success){
                         //Toast.makeText(context, "Download Failed", Toast.LENGTH_SHORT).show();
@@ -549,11 +584,19 @@ public class DownloadService extends Service{
             }
         }
         
-        void notifyProgressStatus(int senderId, String fileName, int numBytes){
+        /**
+         * Publish a update to the notification bar of how much is downloaded.
+         * 
+         * @param senderId
+         * @param fileName
+         * @param numBytes bytes download
+         * @param totalBytes total to download
+         */
+        void notifyProgressStatus(int senderId, String fileName, int numBytes, int totalBytes){
             Notification notification;
             
             int icon = android.R.drawable.stat_sys_download;
-            String msg = "DOWNLOADING";
+            String msg = "Downloading" ;
             long when = System.currentTimeMillis();
             
             notification = new Notification(icon, msg, when);
@@ -561,9 +604,17 @@ public class DownloadService extends Service{
             Context context = mContext;
             CharSequence contentTitle = "Downloading " + fileName;
             
-            float megsDown = numBytes/BYTES_PER_MEG;
-            
-            CharSequence contentText = decimalFormat.format(megsDown);
+            CharSequence contentText;
+            /* on the off chance that this is called with 0 total size,
+             * just disply the total number of bytes down. Otherwise, display the percentage
+             */
+            if(totalBytes >0){
+                float per = ((float)numBytes/(float)totalBytes);
+                contentText = decFormPer.format(per);
+            }else{
+                float megsDown = numBytes/BYTES_PER_MEG;
+                contentText = decFormMB.format(megsDown);
+            }
             Intent notificationIntent = new Intent(context, Castroid.class);
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
             
@@ -580,29 +631,27 @@ public class DownloadService extends Service{
         void notifyDone(int senderId, String fileUri){
             Notification notification;
             
-            Log.i(TAG, "DONE");
-            
             int icon = android.R.drawable.stat_sys_download_done;
-            String msg = "DOWNLOADED";
+            String msg = "Download Finished";
             long when = System.currentTimeMillis();
             
             notification = new Notification(icon, msg, when);
             
             Context context = mContext;
-            CharSequence contentTitle = "Castroid Download";
-            CharSequence contentText = "DOWNLOAD FINISHED";
+            CharSequence contentTitle = "Download Finished";
             
             Intent notificationIntent;
             if(fileUri != null){
                 notificationIntent = new Intent(Intent.ACTION_VIEW);
                 notificationIntent.setData(Uri.parse(fileUri)); //TODO: Error handling.
+                Log.d(TAG, "Downloaded " + notificationIntent.getType());
             }else{
                 notificationIntent = new Intent(context, Castroid.class);
             }
 
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
          
-            notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+            notification.setLatestEventInfo(context, contentTitle, "", contentIntent);
             
             mNotificationManager.notify(senderId, notification);
         }
