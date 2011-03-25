@@ -574,7 +574,7 @@ public class DownloadService extends Service{
                     if("".equals(fileName)){
                         notifyDone(senderId,null);
                     }else{
-                        notifyDone(senderId,fileName);
+                        notifyDone(senderId, new File(fileName));
                     }
                     
                 case WHAT_CANCELED:
@@ -628,7 +628,7 @@ public class DownloadService extends Service{
          * @param senderId
          * @param fileUri file uri, or null if the uri is not known. A null fileUri will result in the intent going to castroid, instead of a system intent to view.
          */
-        void notifyDone(int senderId, String fileUri){
+        void notifyDone(int senderId, File downloadedFile){
             Notification notification;
             
             int icon = android.R.drawable.stat_sys_download_done;
@@ -641,10 +641,11 @@ public class DownloadService extends Service{
             CharSequence contentTitle = "Download Finished";
             
             Intent notificationIntent;
-            if(fileUri != null){
-                notificationIntent = new Intent(Intent.ACTION_VIEW);
-                notificationIntent.setData(Uri.parse(fileUri)); //TODO: Error handling.
-                Log.d(TAG, "Downloaded " + notificationIntent.getType());
+            if(downloadedFile != null){
+                Uri contentUri = Uri.fromFile(downloadedFile);
+                notificationIntent = new Intent(Intent.ACTION_VIEW,contentUri);
+                Log.d(TAG, "Content URI: " + contentUri);
+                Log.d(TAG, "Downloaded type " + notificationIntent.getType());
             }else{
                 notificationIntent = new Intent(context, Castroid.class);
             }
@@ -652,6 +653,7 @@ public class DownloadService extends Service{
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
          
             notification.setLatestEventInfo(context, contentTitle, "", contentIntent);
+            
             
             mNotificationManager.notify(senderId, notification);
         }
