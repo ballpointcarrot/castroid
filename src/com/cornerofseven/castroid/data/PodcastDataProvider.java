@@ -1,5 +1,13 @@
 package com.cornerofseven.castroid.data;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -14,6 +22,11 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.cornerofseven.castroid.Castroid;
+import com.cornerofseven.castroid.rss.MalformedRSSException;
+import com.cornerofseven.castroid.rss.RSSProcessor;
+import com.cornerofseven.castroid.rss.RSSProcessorFactory;
+import com.cornerofseven.castroid.rss.feed.RSSChannel;
 
 public class PodcastDataProvider extends ContentProvider{
 	private static final String TAG = "PodcastDataProvider";
@@ -70,6 +83,48 @@ public class PodcastDataProvider extends ContentProvider{
 					Item.ENC_TYPE + " TEXT, " +
 					Item.PUB_DATE + " DATE DEFAULT NULL, " +
 					Item.STREAM_POS + " INTEGER DEFAULT -1);");
+			
+			addDefaultPodcasts(db);
+		}
+		
+		private void addDefaultPodcasts(SQLiteDatabase db){
+		    String[] urls = {
+		            "http://www.npr.org/rss/podcast.php?id=35",
+		            "http://feeds.twit.tv/twit_video_small",
+		            "http://feeds.twit.tv/aaa_video_small",
+		            "http://feeds.twit.tv/sn_video_small",
+		            "http://feeds.feedburner.com/se-radio"
+		    };
+		    
+		    for(String url : urls){
+		        try {
+                    RSSProcessor rp = RSSProcessorFactory.getRSS2_0Processor(new URL(url));
+                    rp.process();
+                    RSSChannel channel = rp.getBuilder().getFeed();
+                    ContentValues values = new ContentValues();
+                    values.put(Feed.TITLE, channel.getmTitle());
+                    values.put(Feed.LINK, channel.getmLink());
+                    values.put(Feed.DESCRIPTION, channel.getmDesc());
+                    values.put(Feed.RSS_URL, channel.getRssUrl());
+                    values.put(Feed.IMAGE, channel.getImageLink());
+                    insertFeed(db, values);
+		        } catch (MalformedURLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (ParserConfigurationException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (SAXException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (MalformedRSSException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+		    }
 		}
 
 		@Override
