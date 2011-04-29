@@ -353,8 +353,7 @@ public class DownloadService extends Service{
             b.putInt(ServiceMsgHandler.SEND_ID, downloadId);
             
             if(saveFile != null){
-                String filePrefix = "file://";
-                String fileUri = filePrefix.concat(saveFile.getAbsolutePath());
+                String fileUri = saveFile.getAbsolutePath();
                 b.putString(ServiceMsgHandler.SEND_FILENAME, fileUri);
             }
             signalHandler(mHandler, ServiceMsgHandler.WHAT_DONE, b);
@@ -644,19 +643,25 @@ public class DownloadService extends Service{
             
             Intent notificationIntent;
             if(downloadedFile != null){
+                
                 Uri contentUri = Uri.fromFile(downloadedFile);
                 notificationIntent = new Intent(Intent.ACTION_VIEW,contentUri);
                 Log.d(TAG, "Content URI: " + contentUri);
                 Log.d(TAG, "Downloaded type " + notificationIntent.getType());
+            
+                Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+                mediaScanIntent.setData(contentUri);
+                Log.i(TAG, "Broadcasting media scan for " + contentUri);
+                mContext.sendBroadcast(mediaScanIntent);
             }else{
+                Log.i(TAG, "No file, cannot broadcast update.");
                 notificationIntent = new Intent(context, Castroid.class);
             }
 
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
          
             notification.setLatestEventInfo(context, contentTitle, "", contentIntent);
-            
-            
+           
             mNotificationManager.notify(senderId, notification);
         }
     }
