@@ -619,7 +619,9 @@ public class DownloadService extends Service{
             Intent notificationIntent = new Intent(context, Castroid.class);
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
             
+            int flags = Notification.FLAG_ONGOING_EVENT;
             notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+            notification.flags = flags;
             
             mNotificationManager.notify(senderId, notification);
         }
@@ -659,9 +661,13 @@ public class DownloadService extends Service{
             }
 
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-         
+        
+            //remove the notification as soon as clicked.
+            int flags = Notification.FLAG_AUTO_CANCEL;
+            
             notification.setLatestEventInfo(context, contentTitle, "", contentIntent);
-           
+            notification.flags = flags;
+            
             mNotificationManager.notify(senderId, notification);
         }
     }
