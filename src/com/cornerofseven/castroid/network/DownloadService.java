@@ -565,6 +565,7 @@ public class DownloadService extends Service{
                 }
                     break;
                 case WHAT_DONE:
+                {
                     boolean success = data.getBoolean(PROGRESS_DONE);
                     if(!success){
                         //Toast.makeText(context, "Download Failed", Toast.LENGTH_SHORT).show();
@@ -575,8 +576,9 @@ public class DownloadService extends Service{
                         notifyDone(senderId,null);
                     }else{
                         notifyDone(senderId, new File(fileName));
-                    }
-                    
+                    }   
+                }
+                    break;
                 case WHAT_CANCELED:
                     break;
                 default:
