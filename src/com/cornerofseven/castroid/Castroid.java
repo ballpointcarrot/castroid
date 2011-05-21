@@ -72,7 +72,7 @@ public class Castroid extends Activity {
 	// References to cursor columns
 	static final String[] FEED_PROJECTION = { Feed._ID, Feed.TITLE,
 			Feed.DESCRIPTION, Feed.LINK };
-	static final String[] ITEM_PROJECTION = new String[] { Item._ID,
+	static final String[] ITEM_PROJECTION = { Item._ID,
 			Item.OWNER, Item.TITLE, Item.LINK, Item.DESC };
 
 	// ExpandableListView formatting
@@ -163,8 +163,6 @@ public class Castroid extends Activity {
 		mPodcastTree
 				.setOnCreateContextMenuListener(new PodcastTreeContextMenuListener());
 
-		// Add a click listener to download a clicked on podcast
-		// TODO: Is this the control flow we want?
 		mPodcastTree
 				.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 					@Override
