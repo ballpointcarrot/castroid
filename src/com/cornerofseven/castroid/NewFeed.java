@@ -238,25 +238,30 @@ public class NewFeed extends Activity{
      * Save the feed into the dataprovider
      */
     protected void saveRSSFeed(){
-        if(mFeed == null){ //check the feed if the user didn't
-            //try to load the feed on save.
-            loadFeedOrError(mInputText.getText().toString(),
-                    new Lambda(){
-                public void apply(){
-                    //only save and finish the activity if something was loaded.
-                    //preserve the activity if a feed couldn't be processed.
-                    if(mFeed != null){
-                        ContentResolver content = getContentResolver();
-                        if(PodcastDAO.addRSS(content, mFeed)){ 
-                            finish();
-                        }else{
-                            //TODO: Error message, unable to save podcast to db.
-                        }
+
+        String rssUrl = mInputText.getText().toString();
+        
+        Lambda saveFeed = new Lambda(){
+            public void apply(){
+                //only save and finish the activity if something was loaded.
+                //preserve the activity if a feed couldn't be processed.
+                if(mFeed != null){
+                    ContentResolver content = getContentResolver();
+                    if(PodcastDAO.addRSS(content, mFeed)){ 
+                        finish();
                     }else{
-                        //TODO: Error message, no podcast to save.
+                        //TODO: Error message, unable to save podcast to db.
                     }
+                }else{
+                    //TODO: Error message, no podcast to save.
                 }
-            });
+            }
+        };
+
+        if(mFeed != null && mFeed.getRssUrl().equals(rssUrl)){
+            saveFeed.apply();
+        }else{
+            loadFeedOrError(rssUrl, saveFeed);
         }
     }
     
