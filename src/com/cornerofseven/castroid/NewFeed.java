@@ -64,7 +64,7 @@ public class NewFeed extends Activity{
     private static final int DIALOG_PROGRESS_ID = 1;
     
     //The controls we will need from the activity's view//
-    private Button mCreate = null;
+    private Button mCheckFeed = null;
     private EditText mInputText;
     private TextView mFeedTitle; 
     private TextView mFeedDesc;
@@ -91,7 +91,7 @@ public class NewFeed extends Activity{
         setContentView(R.layout.add_feed_screen); 
 
         //find all the controls in the view
-        mCreate = (Button)findViewById(R.id.afs_check);
+        mCheckFeed = (Button)findViewById(R.id.afs_check);
         mInputText = (EditText)findViewById(R.id.afs_url);
         mFeedTitle = (TextView)findViewById(R.id.feed_info_title);
         mFeedLink = (TextView)findViewById(R.id.feed_info_link);
@@ -102,7 +102,7 @@ public class NewFeed extends Activity{
         final EditText input = mInputText;
 
         //connect the CheckFeed button on click action.
-        mCreate.setOnClickListener(new View.OnClickListener() {
+        mCheckFeed.setOnClickListener(new View.OnClickListener() {
             /**
              * Redirect to the class method to handel checking,
              * parsing, display, etc. a new feed.
