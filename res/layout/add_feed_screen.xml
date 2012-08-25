@@ -15,7 +15,9 @@
 		displays: Title, Enclosure, Desc. -->
 	<EditText android:id="@+id/afs_url" 
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" />
+		android:layout_height="wrap_content" 
+        android:inputType="textUri"
+        />
 	
 	<!-- Sublayout to force both buttons on the same row -->
 	<LinearLayout

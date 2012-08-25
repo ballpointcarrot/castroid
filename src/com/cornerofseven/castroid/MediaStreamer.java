@@ -94,7 +94,7 @@ public class MediaStreamer extends Activity{
 
             view.start();
         }else{
-            Toast.makeText(this, "Nothing to play", Toast.LENGTH_LONG);
+            Toast.makeText(this, "Nothing to play", Toast.LENGTH_LONG).show();
         }
     }
 

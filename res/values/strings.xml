@@ -3,10 +3,10 @@
 	<string name="addFeedLabel">Add Feed</string>
     <string name="updateFeedsLabel">Update All</string>
 	<string name="settingsLabel">Settings</string>
-    <string name="aboutLabel">About</string>
+    <string name="aboutLabel">About Castroid v1.1</string>
 	<string name="app_name">CastDroid</string>
 	<string name="afs_check_label">Check</string>
-
+    <string name="version_string">v1.1</string>
 	
 	<string name="afs_savefeedLabel">Save</string>
 	<string name="afs_checkLabel">Check</string>
@@ -19,17 +19,18 @@
     <string name="menu_update">Update</string>
     <string name="menu_view_feed">View</string>
     
-	<string name="downloading">Downloading...</string>
+	<string name="downloading">Downloading&#8230;</string>
 	<string name="playing">Playing Stream</string>
 
 	<string name="download_root_dir">Podcasts</string>
     
     <!--TODO: Update as license and other things change-->
-    <string name="about_castroid">Castroid is a podcatcher and 
+    <string name="about_castroid">
+        Castroid v1.1 is a podcatcher and 
     rss reader, created by Sean Mooney and Christopher Kruse. It is 
-    licensed under the Apache 2.0 license. 
+    licensed under the Apache 2.0 license. \n
     
-    For more information visit ...somewhere...
+    For more information visit &#8230;somewhere&#8230; \n
     
     Portions of this page are modifications based on work created 
     and shared by Google and used according to terms described in 

@@ -477,7 +477,7 @@ public class DownloadService extends Service{
                             bInputStream.close();
                         } catch (IOException e) {}
             }
-            return new Long(downloadSize);
+            return Long.valueOf(downloadSize);
         }
     }
 
