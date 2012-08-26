@@ -136,16 +136,26 @@ public class SimpleFeedProcessor implements RSSProcessor{
 	private Node findRSSRoot(Element document) throws MalformedRSSException{
 		Node rss = null;
 		
+		/*
+		 * It may be the case that the starting tree is the RSS node we are looking for,
+		 * and not the document containing that node.
+		 *
+		 * Problem manifested after android 2.3.
+		 */
+		if(document.getNodeName().equals(RSSTags.RSS))
+		    return document;
+		
+		//Look for the RSS root node in the elements of the current node.
 		NodeList nl = document.getElementsByTagName(RSSTags.RSS);
 		int numNodes = nl.getLength();
 		if(numNodes == 1){
 			rss = nl.item(0);
 			return rss;
 		}
-		else if(nl.getLength() > 0){
+		else if(nl.getLength() == 0){
 			throw new MalformedRSSException("No RSS node found.");
 		}else{
-			throw new MalformedRSSException("Can only have 1 rss node in the document");
+			throw new MalformedRSSException("Found multiple RSS nodes. Can only have 1 rss node in the document");
 		}
 	}
 	
