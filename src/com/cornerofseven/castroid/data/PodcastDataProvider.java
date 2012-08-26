@@ -353,7 +353,7 @@ public class PodcastDataProvider extends ContentProvider{
 		SQLiteDatabase db = helper.getWritableDatabase();
 		int rowsUpdated = 0;
 		String id = "";
-		
+
 		switch(uriMatcher.match(uri)){
 		case ITEM_ID:
 			id = uri.getPathSegments().get(1);

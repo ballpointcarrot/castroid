@@ -17,13 +17,16 @@ package com.cornerofseven.castroid.handlers;
 
 import java.io.File;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.cornerofseven.castroid.ItemInformationView;
@@ -141,12 +144,28 @@ public class ChannelItemClickHandler {
 	 * Start the item downloading in a seperate service.
 	 * @param itemId
 	 */
-	protected void downloadItem(long itemId){
-	    File dlFolder = new File(Environment.getExternalStorageDirectory(), "Podcasts");
-        Intent downloadIntent = new Intent(mActivity, DownloadService.class);
-        downloadIntent.setData(Uri.parse(getDownloadLink(itemId)));
-        downloadIntent.putExtra(DownloadService.INT_DOWNLOAD_FOLDER, dlFolder.getAbsolutePath());
-        mActivity.startService(downloadIntent);
+	@SuppressLint("NewApi")
+    protected void downloadItem(long itemId){
+	    
+	    String[] dlInfo = getDownloadInfo(itemId);
+	    
+	    Object systemDM =  mActivity.getSystemService("download");
+	    if(systemDM != null){ //for 2.3+ android systems.
+	        DownloadManager sdm = (DownloadManager)systemDM;
+	        DownloadManager.Request dmr = new DownloadManager.Request(Uri.parse(dlInfo[0]));
+	        dmr.setDestinationInExternalPublicDir(Environment.DIRECTORY_PODCASTS, "Podcasts");
+	        dmr.setTitle(dlInfo[1]);
+	        //TODO: Run media scanner when done? Docs shows this method exists,
+	        // but it won't to compile
+	        //dmr.allowScanningByMediaScanner();
+	        sdm.enqueue(dmr);
+	    }else{ //2.2 or less systems.
+	        File dlFolder = new File(Environment.getExternalStorageDirectory(), "Podcasts");
+	        Intent downloadIntent = new Intent(mActivity, DownloadService.class);
+	        downloadIntent.setData(Uri.parse(dlInfo[0]));
+	        downloadIntent.putExtra(DownloadService.INT_DOWNLOAD_FOLDER, dlFolder.getAbsolutePath());
+	        mActivity.startService(downloadIntent);
+	    }
 	}
 	
 	/**
@@ -154,16 +173,17 @@ public class ChannelItemClickHandler {
      * 
      * @param itemID
      *            the id of the item.
-     * @return the enclosure link.
+     * @return A list download information: {link, title}.
      */
-    private String getDownloadLink(long itemID) {
+    private String[] getDownloadInfo(long itemID) {
         Uri queryUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemID);
         Cursor c = mActivity.managedQuery(queryUri,
-                new String[] { Item._ID, Item.ENC_LINK, Item.ENC_SIZE }, null,
+                new String[] { Item._ID, Item.TITLE, Item.ENC_LINK, Item.ENC_SIZE }, null,
                 null, null);
 
         c.moveToFirst();
         String dlLnk = c.getString(c.getColumnIndex(Item.ENC_LINK));
-        return dlLnk;
+        String dlTitle = c.getString(c.getColumnIndex(Item.TITLE));
+        return new String[]{dlLnk, dlTitle};
     }
 }
