@@ -1,11 +1,7 @@
-bin/
-gen/
 docs/
-.gitignore
 tests/src/com/cornerofseven/castroid/test/NetworkTests.java
 tools/
-res/drawable-*/*.png
 
-/gen
-
-res/values/colors.xml
+/**/*.iml
+/.idea
+/**/build/
