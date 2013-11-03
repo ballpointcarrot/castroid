@@ -133,7 +133,7 @@ public class Castroid extends Activity {
 
 		mPodcastTree = ((ExpandableListView) findViewById(R.id.podcastList));
 
-		Cursor c = managedQuery(Feed.CONTENT_URI, FEED_PROJECTION, null, null,
+        Cursor c = managedQuery(Feed.CONTENT_URI, FEED_PROJECTION, null, null,
 				null);
 		c.setNotificationUri(getContentResolver(), Feed.CONTENT_URI);
 
