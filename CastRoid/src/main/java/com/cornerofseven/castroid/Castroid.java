@@ -24,6 +24,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -133,8 +134,9 @@ public class Castroid extends Activity {
 
 		mPodcastTree = ((ExpandableListView) findViewById(R.id.podcastList));
 
-        Cursor c = managedQuery(Feed.CONTENT_URI, FEED_PROJECTION, null, null,
-				null);
+        CursorLoader loader = new CursorLoader(this,
+                Feed.CONTENT_URI, FEED_PROJECTION, null, null, null);
+        Cursor c = loader.loadInBackground();
 		c.setNotificationUri(getContentResolver(), Feed.CONTENT_URI);
 
 		mPodcastTree.setAdapter(new SimpleCursorTreeAdapter(this, c, LAYOUT,
