@@ -24,15 +24,7 @@ s
             android:label="@string/app_name" >
             <intent-filter android:label="@string/resolve_addfeed" />
         </activity>
-        <activity
-            android:name="com.cornerofseven.castroid.simpleinterfaces.FeedList"
-            android:label="@string/app_name" >
 
-            <!--
-                 <intent-filter> <action android:name="android.intent.action.MAIN" 
-				/> <category android:name="android.intent.category.LAUNCHER" /> </intent-filter>
-            -->
-        </activity>
         <activity
             android:name="com.cornerofseven.castroid.FeedInformationView"
             android:label="@string/app_name" >
