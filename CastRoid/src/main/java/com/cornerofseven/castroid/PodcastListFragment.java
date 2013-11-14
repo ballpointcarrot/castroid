@@ -1,13 +1,18 @@
 package com.cornerofseven.castroid;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
-import com.cornerofseven.castroid.dummy.DummyContent;
+import com.cornerofseven.castroid.data.Feed;
 
 /**
  * A list fragment representing a list of Podcasts. This fragment
@@ -18,7 +23,8 @@ import com.cornerofseven.castroid.dummy.DummyContent;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class PodcastListFragment extends ListFragment {
+public class PodcastListFragment extends ListFragment
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -37,6 +43,12 @@ public class PodcastListFragment extends ListFragment {
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
 
+
+    private SimpleCursorAdapter mAdapter;
+
+    static final String[] FEED_PROJECTION = { Feed._ID, Feed.TITLE };
+    static final String[] FROM = {Feed.TITLE};
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -46,7 +58,7 @@ public class PodcastListFragment extends ListFragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(long id);
     }
 
     /**
@@ -55,7 +67,7 @@ public class PodcastListFragment extends ListFragment {
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(long id) {
         }
     };
 
@@ -70,12 +82,17 @@ public class PodcastListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
+        mAdapter = new SimpleCursorAdapter(
                 getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+                android.R.layout.simple_list_item_1,
+                null,
+                FROM,
+                new int[]{android.R.id.text1},
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
+        );
+
+        setListAdapter(mAdapter);
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -87,6 +104,7 @@ public class PodcastListFragment extends ListFragment {
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
+
     }
 
     @Override
@@ -115,7 +133,7 @@ public class PodcastListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(id);
     }
 
     @Override
@@ -147,5 +165,22 @@ public class PodcastListFragment extends ListFragment {
         }
 
         mActivatedPosition = position;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        CursorLoader loader = new CursorLoader(getActivity(),
+                Feed.CONTENT_URI, FEED_PROJECTION, null, null, null);
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        mAdapter.changeCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        mAdapter.changeCursor(null);
     }
 }

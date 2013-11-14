@@ -38,8 +38,8 @@ public class PodcastDetailActivity extends FragmentActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(PodcastDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(PodcastDetailFragment.ARG_ITEM_ID));
+            arguments.putString(PodcastDetailFragment.ARG_FEED_ID,
+                    getIntent().getStringExtra(PodcastDetailFragment.ARG_FEED_ID));
             PodcastDetailFragment fragment = new PodcastDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
