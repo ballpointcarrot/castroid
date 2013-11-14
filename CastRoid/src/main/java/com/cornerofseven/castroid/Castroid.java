@@ -192,22 +192,22 @@ public class Castroid extends Activity {
 		return true;
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
 
-		switch (item.getItemId()) {
-		case R.id.addFeed:
-			addFeed();
-			return true;
-		case R.id.about:
-			showDialog(ABOUT_DIALOG_ID);
-			return true;
-		case R.id.updateAll:
-		    updateAllChannels();
-		    return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+        switch (item.getItemId()) {
+            case R.id.addFeed:
+                addFeed();
+                return true;
+            case R.id.about:
+                showDialog(ABOUT_DIALOG_ID);
+                return true;
+            case R.id.updateAll:
+                updateAllChannels();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
@@ -365,7 +365,7 @@ public class Castroid extends Activity {
      */
     protected void updateChannel(Integer... feedId){
         //TODO: Do we need to worry about mFeedUpdater still running?
-        mFeedUpdater = new AsyncFeedUpdater();
+        mFeedUpdater = new AsyncFeedUpdater(this);
         mFeedUpdater.execute(feedId);
     }
 
@@ -464,84 +464,4 @@ public class Castroid extends Activity {
             }
         }    
     };
-    
-    /**
-     * An asynchronous task for updating a feed.
-     * 
-     * Currently in the castroid activity instead of its 
-     * own class (a la DownloadManager) to simplify some of the scoping
-     * issues with an external class.
-     * @author Sean Mooney
-     *
-     * TODO: KnownIssues
-     * 1. Update dialog doesn't work right if this is triggered multiple times.
-     * 2. Move to its own class.
-     */
-    private class AsyncFeedUpdater extends AsyncTask<Integer, Integer, Integer>{
-
-        
-        /* (non-Javadoc)
-         * @see android.os.AsyncTask#doInBackground(Params[])
-         */
-        @Override
-        protected Integer doInBackground(Integer... feedIds) {
-            int numUpdated = 0;
-            
-            ContentResolver contentResolver = getContentResolver();
-            UpdateChannel update = new UpdateChannel(contentResolver);
-            Bundle startData = new Bundle();
-            startData.putInt(PROGRESS_MAX, feedIds.length);
-            signalHandler(WHAT_START, new Bundle());
-            for(int currentFeed : feedIds){
-                if(isCancelled()){
-                	break;
-                }
-                String feedName = PodcastDAO.getChannelTitle(contentResolver, currentFeed);
-                Bundle data = new Bundle();
-                data.putString(PROGRESS_ITEMNAME, feedName);
-                signalHandler(WHAT_PREITEM, data);
-                try {
-                    update.runUpdate(currentFeed);
-                } catch (MalformedURLException e) {
-                    String msg = "Unable to update " + feedName + "\n" + e.getMessage();
-                    Log.w(TAG, msg);
-                } catch (MalformedRSSException e) {
-                    String msg = "Unable to update " + feedName + "\n" + e.getMessage();
-                    Log.w(TAG, msg);
-                } finally{
-                    publishProgress(++numUpdated);
-                }
-            }
-            
-            return numUpdated;
-        }
-        
-        @Override
-        public void onCancelled(){
-            Bundle b = new Bundle();
-            b.putBoolean(DownloadDialog.PROGRESS_DONE, false);
-            signalHandler(DownloadDialog.WHAT_CANCELED, b);
-        }
-        
-        @Override
-        public void onProgressUpdate(Integer... progresses){
-            Bundle b = new Bundle();
-            b.putInt(DownloadDialog.PROGRESS_UPDATE, progresses[0]);
-            signalHandler(DownloadDialog.WHAT_UPDATE, b);
-        }
-        
-        @Override
-        public void onPostExecute(Integer result){
-            signalHandler(WHAT_DONE, null);
-        }
-        
-        private void signalHandler(int msgType, Bundle data){
-            Handler handler = mUpdateHandler;
-            if(handler != null) {
-                Message msg = handler.obtainMessage(msgType);
-                msg.setData(data);
-                handler.sendMessage(msg);
-            }
-        }
-    }
 }

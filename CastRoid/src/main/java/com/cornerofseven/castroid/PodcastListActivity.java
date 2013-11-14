@@ -1,8 +1,18 @@
 package com.cornerofseven.castroid;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.cornerofseven.castroid.data.DatabaseQuery;
+import com.cornerofseven.castroid.data.Feed;
+import com.cornerofseven.castroid.data.PodcastDAO;
 
 
 public class PodcastListActivity extends FragmentActivity
@@ -15,10 +25,14 @@ public class PodcastListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
 
+    private AsyncFeedUpdater mFeedUpdater;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_list);
+
+        mFeedUpdater = new AsyncFeedUpdater(this);
 
         if (findViewById(R.id.podcast_detail_container) != null) {
             // The detail container view will be present only in the
@@ -60,5 +74,73 @@ public class PodcastListActivity extends FragmentActivity
             detailIntent.putExtra(PodcastDetailFragment.ARG_FEED_ID, id);
             startActivity(detailIntent);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.addFeed:
+                addFeed();
+                return true;
+            case R.id.about:
+                Toast.makeText(this, "About this app.", Toast.LENGTH_SHORT).show();
+                //showDialog(ABOUT_DIALOG_ID);
+                return true;
+            case R.id.updateAll:
+                updateAllChannels();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    protected void addFeed() {
+        Intent intent = new Intent(this, NewFeed.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Update all the channels in the database.
+     * Runs asynchronously.
+     */
+    protected void updateAllChannels(){
+        final Activity activity = this; //bind the context for the thread.
+
+        DatabaseQuery feedIdsQ = PodcastDAO.getFeedIdsQuery();
+        Cursor c = activity.managedQuery(
+                feedIdsQ.getContentUri(),
+                feedIdsQ.getProjection(),
+                feedIdsQ.getSelection(),
+                feedIdsQ.getSelectionArgs(),
+                feedIdsQ.getSortOrder());
+
+        //marshal the data for the updateChannel method.
+        Integer[] feedIds = new Integer[c.getCount()];
+        int curIndex = 0;
+        int feedCol = c.getColumnIndex(Feed._ID);
+        while(c.moveToNext()){
+            feedIds[curIndex++] = c.getInt(feedCol);
+        }
+
+        updateChannel(feedIds);
+    }
+
+    /**
+     * Update the selected feed(s).
+     *
+     *  Can update multiple feeds on the same call.
+     *  Use this if/when the "update all" feature is added.
+     *
+     * @param feedId
+     */
+    protected void updateChannel(Integer... feedId){
+        mFeedUpdater.execute(feedId);
     }
 }
