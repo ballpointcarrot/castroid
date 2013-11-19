@@ -1,5 +1,6 @@
 package com.cornerofseven.castroid;
 
+import android.app.Activity;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.Item;
+import com.cornerofseven.castroid.handlers.ChannelItemClickHandler;
 import com.cornerofseven.castroid.network.AsyncImageDownloader;
 
 /**
@@ -45,6 +47,9 @@ public class PodcastDetailFragment extends Fragment {
     private static final int LOADER_FEED = 0;
     private static final int LOADER_FEED_ITEMS = 1;
 
+    static final int PLAY_ITEM = 1;
+    static final int VIEW_ITEM = 2;
+
 	private final int MAX_IMAGE_WIDTH = 75;
 	private final int MAX_IMAGE_HEIGHT = 75;
 
@@ -59,7 +64,10 @@ public class PodcastDetailFragment extends Fragment {
             = new FeedInfoLoaderCallbacks();
     private final LoaderManager.LoaderCallbacks<Cursor> mItemLoaderCallbacks
             = new FeedItemLoadCallbacks();
-    private final String[] itemProjection = new String[] {Item.DESC, Item.PUB_DATE};
+    private final String[] itemProjection = new String[] {Item.TITLE, Item.PUB_DATE};
+
+    protected ChannelItemClickHandler itemClickListener;
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -80,10 +88,10 @@ public class PodcastDetailFragment extends Fragment {
         }
 
         mItemAdapter = new SimpleCursorAdapter(getActivity(),
-                R.layout.item_view,
+                android.R.layout.simple_list_item_2,
                 null,
                 itemProjection,
-                new int[]{R.id.item_textview, R.id.item_date},
+                new int[]{android.R.id.text1, android.R.id.text2},
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
         );
 
@@ -103,19 +111,26 @@ public class PodcastDetailFragment extends Fragment {
         loaderManager.initLoader(LOADER_FEED, args, mFeedLoaderCallbacks);
         loaderManager.initLoader(LOADER_FEED_ITEMS, args, mItemLoaderCallbacks);
 
-
-
         //install the item listener. (Same listener from CastRoid)
         mChannelItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public final void onItemClick(final AdapterView<?> arg0, final View arg1,
                                           final int arg2, final long itemId) {
-                //itemClickListener.onItemClick(VIEW_ITEM, itemId);
+                if (itemClickListener != null) { //Shouldn't happen, but feeling careful today.
+                    itemClickListener.onItemClick(VIEW_ITEM, itemId);
+                }
             }
         });
 
         return rootView;
     }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        itemClickListener = new ChannelItemClickHandler(getActivity(), PLAY_ITEM, VIEW_ITEM, -1);
+    }
+
     /**
      * Set the widget fields with the widgets from the view.
      */
