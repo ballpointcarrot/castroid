@@ -4,6 +4,7 @@ local.properties
 docs/
 tests/src/com/cornerofseven/castroid/test/NetworkTests.java
 tools/
+.gradle/
 
 /**/*.iml
 /.idea
