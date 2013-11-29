@@ -23,7 +23,6 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.cornerofseven.castroid.Castroid;
 import com.cornerofseven.castroid.rss.MalformedRSSException;
 import com.cornerofseven.castroid.rss.RSSProcessor;
 import com.cornerofseven.castroid.rss.RSSProcessorFactory;
@@ -288,7 +287,7 @@ public class PodcastDataProvider extends ContentProvider{
 	 * 
 	 * @param uri
 	 * @param values
-	 * @returns the Uri of the inserted item, or {@link #Uri.EMPTY}
+	 * @returns the Uri of the inserted item, or {@link Uri#EMPTY}
 	 */
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
