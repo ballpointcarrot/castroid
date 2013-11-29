@@ -48,10 +48,12 @@ public class PodcastDataProvider extends ContentProvider{
 	private static class DbHelper extends SQLiteOpenHelper{
 		private static final String DB_NAME = "podcast.db";
 		private static final int DB_VERSION = 1;
+        private final Context mContext;
 
-		public DbHelper(Context ctx){
-			super(ctx, DB_NAME, null, DB_VERSION);
-		}
+		public DbHelper(Context context){
+			super(context, DB_NAME, null, DB_VERSION);
+		    this.mContext = context;
+        }
 		
 		@Override
 		public void onOpen(SQLiteDatabase db){
@@ -122,7 +124,12 @@ public class PodcastDataProvider extends ContentProvider{
                             values.put(Feed.DESCRIPTION, channel.getmDesc());
                             values.put(Feed.RSS_URL, channel.getRssUrl());
                             values.put(Feed.IMAGE, channel.getImageLink());
-                            insertFeed(db, values);
+                            long fid = insertFeed(db, values);
+
+                            mContext.getContentResolver().notifyChange(
+                                    ContentUris.withAppendedId(Feed.CONTENT_URI, fid),
+                                    null
+                            );
                         } catch (MalformedURLException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
