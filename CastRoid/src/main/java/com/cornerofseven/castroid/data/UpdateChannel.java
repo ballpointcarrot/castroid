@@ -15,17 +15,7 @@
  */
 package com.cornerofseven.castroid.data;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
 import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -34,39 +24,46 @@ import com.cornerofseven.castroid.rss.MalformedRSSException;
 import com.cornerofseven.castroid.rss.RSSProcessor;
 import com.cornerofseven.castroid.rss.RSSProcessorFactory;
 import com.cornerofseven.castroid.rss.feed.RSSItem;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Update a series of RSS channels.
- * 
- * 
- * @author Sean Mooney
  *
- *  //TODO: Unit tests.
+ * @author Sean Mooney
+ *         <p/>
+ *         //TODO: Unit tests.
  */
 public class UpdateChannel {
 
     private static final String[] FEED_PROJ = new String[]{Feed._ID, Feed.RSS_URL};
     public static final String TAG = "UpdateChannel";
-    
+
     ContentResolver mContentResolver;
-    public UpdateChannel(ContentResolver content){
+
+    public UpdateChannel(ContentResolver content) {
         this.mContentResolver = content;
     }
-    
+
     /**
      * Refresh the database for the given channel, by channel id.
+     *
      * @param channelId
      * @throws MalformedURLException
-     * @throws MalformedRSSException 
+     * @throws MalformedRSSException
      */
-    public void runUpdate(int channelId) throws MalformedURLException, MalformedRSSException{
+    public void runUpdate(int channelId) throws MalformedURLException, MalformedRSSException {
         ContentResolver contentResolver = mContentResolver;
         //get the feed url
         String url = getURL(contentResolver, channelId);
         loadNewItems(contentResolver, channelId, url);
     }
-    
-    private void loadNewItems(ContentResolver resolver, int channelId, String url) throws MalformedURLException, MalformedRSSException{
+
+    private void loadNewItems(ContentResolver resolver, int channelId, String url) throws MalformedURLException, MalformedRSSException {
         URL feedLocation = new URL(url);
         RSSProcessor builder = RSSProcessorFactory.getRSS2_0Processor(feedLocation);
         try {
@@ -77,25 +74,27 @@ public class UpdateChannel {
             throw new MalformedRSSException(e);
         } catch (SAXException e) {
             throw new MalformedRSSException(e);
-        } 
-        
-        for(RSSItem item : builder.getBuilder().getFeed().itemsAsArray()){
+        }
+
+        for (RSSItem item : builder.getBuilder().getFeed().itemsAsArray()) {
             PodcastDAO.addRSSItemIfNew(resolver, channelId, item);
         }
     }
-    
-    private String getURL(ContentResolver contentResolver, int channelId){
+
+    private String getURL(ContentResolver contentResolver, int channelId) {
         String channelUrl = "";
-        
-        Uri feedIdUri = ContentUris.withAppendedId(Feed.CONTENT_URI, channelId);
+
+
+
+        Uri feedIdUri = Feed.createItemAccessUri(channelId);
         Cursor c = contentResolver.query(feedIdUri, FEED_PROJ, null, null, null);
         if(c.getCount() >= 0){
             c.moveToFirst();
             channelUrl = c.getString(c.getColumnIndex(Feed.RSS_URL));
         }
-        
+
         c.close();
-        
+
         return channelUrl;
     }
 }
