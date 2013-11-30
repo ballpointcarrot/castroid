@@ -6,13 +6,10 @@ import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import android.accounts.Account;
+import android.content.*;
 import org.xml.sax.SAXException;
 
-import android.content.ContentProvider;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -112,6 +109,9 @@ public class PodcastDataProvider extends ContentProvider{
 
                 @Override
                 protected Void doInBackground(String[] urls) {
+                    //TODO: Dependency injection?
+                    CastRoidSyncController controller = new CastRoidSyncController(mContext);
+
                     for(String url : urls){
                         try {
                             RSSProcessor rp = RSSProcessorFactory.getRSS2_0Processor(new URL(url));
@@ -124,6 +124,8 @@ public class PodcastDataProvider extends ContentProvider{
                             values.put(Feed.RSS_URL, channel.getRssUrl());
                             values.put(Feed.IMAGE, channel.getImageLink());
                             long fid = insertFeed(db, values);
+
+                            controller.onManualSync((int)fid);
 
                             mContext.getContentResolver().notifyChange(
                                     ContentUris.withAppendedId(Feed.CONTENT_URI, fid),
