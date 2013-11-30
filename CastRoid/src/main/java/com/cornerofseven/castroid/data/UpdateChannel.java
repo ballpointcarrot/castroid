@@ -88,7 +88,7 @@ public class UpdateChannel {
 
         Uri feedIdUri = Feed.createItemAccessUri(channelId);
         Cursor c = contentResolver.query(feedIdUri, FEED_PROJ, null, null, null);
-        if(c.getCount() >= 0){
+        if (c.getCount() > 0) {
             c.moveToFirst();
             channelUrl = c.getString(c.getColumnIndex(Feed.RSS_URL));
         }
