@@ -15,7 +15,7 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-
+import com.cornerofseven.castroid.data.CastRoidSyncController;
 import com.cornerofseven.castroid.data.Feed;
 
 /**
@@ -49,6 +49,8 @@ public class PodcastListFragment extends ListFragment
 
 
     private SimpleCursorAdapter mAdapter;
+
+    private CastRoidSyncController mSyncController;
 
     static final String[] FEED_PROJECTION = { Feed._ID, Feed.TITLE };
     static final String[] FROM = {Feed.TITLE};
@@ -97,6 +99,8 @@ public class PodcastListFragment extends ListFragment
 
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
+
+        mSyncController = new CastRoidSyncController(getActivity());
     }
 
     @Override
