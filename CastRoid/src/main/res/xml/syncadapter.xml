@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sync-adapter
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:contentAuthority="com.cornerofseven.castroid.data.PodcastDataProvider"
+    android:accountType="com.cornerofsever.castroid"
+    android:userVisible="false"
+    android:supportsUploading="false"
+    android:allowParallelSyncs="true"
+    android:isAlwaysSyncable="true"
+    />
