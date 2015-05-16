@@ -16,16 +16,6 @@
 
 package com.cornerofseven.castroid.rss.test;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Iterator;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
 import android.net.Uri;
 import android.test.AndroidTestCase;
 import android.util.Log;
@@ -36,6 +26,14 @@ import com.cornerofseven.castroid.rss.RSSProcessor;
 import com.cornerofseven.castroid.rss.RSSProcessorFactory;
 import com.cornerofseven.castroid.rss.feed.RSSChannel;
 import com.cornerofseven.castroid.rss.feed.RSSItem;
+
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.Iterator;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * RSSParsing tests for the feeds that are

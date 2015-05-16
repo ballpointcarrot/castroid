@@ -16,17 +16,10 @@
 
 package com.cornerofseven.castroid.test;
 
-import android.content.ContentResolver;
-import android.database.Cursor;
 import android.test.UiThreadTest;
 import android.widget.ExpandableListView;
 
-import com.cornerofseven.castroid.Castroid;
-import com.cornerofseven.castroid.R;
-import com.cornerofseven.castroid.data.Feed;
-import com.cornerofseven.castroid.data.Item;
 import com.cornerofseven.castroid.data.PodcastDAO;
-import com.cornerofseven.castroid.data.PodcastDataProvider;
 import com.cornerofseven.castroid.rss.feed.RSSChannel;
 import com.cornerofseven.castroid.rss.feed.RSSItem;
 

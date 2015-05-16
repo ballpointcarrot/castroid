@@ -1,12 +1,12 @@
 package com.cornerofseven.castroid.data.test;
 
-import com.cornerofseven.castroid.data.Feed;
-import com.cornerofseven.castroid.data.Item;
-import com.cornerofseven.castroid.data.PodcastDataProvider;
-
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.test.ProviderTestCase2;
+
+import com.cornerofseven.castroid.data.Feed;
+import com.cornerofseven.castroid.data.Item;
+import com.cornerofseven.castroid.data.PodcastDataProvider;
 
 /**
  * A base class to set up the mock content podcast data provider.

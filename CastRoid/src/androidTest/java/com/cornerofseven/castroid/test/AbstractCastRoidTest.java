@@ -19,7 +19,7 @@ package com.cornerofseven.castroid.test;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.ExpandableListView;
 
-import com.cornerofseven.castroid.Castroid;
+import com.cornerofseven.castroid.PodcastListActivity;
 import com.cornerofseven.castroid.data.Feed;
 import com.cornerofseven.castroid.data.PodcastDataProvider;
 
@@ -30,14 +30,14 @@ import com.cornerofseven.castroid.data.PodcastDataProvider;
  * @author sean
  *
  */
-public abstract class AbstractCastRoidTest extends ActivityInstrumentationTestCase2<Castroid>{
+public abstract class AbstractCastRoidTest extends ActivityInstrumentationTestCase2<PodcastListActivity>{
 
-	protected Castroid mActivity = null;
+	protected PodcastListActivity mActivity = null;
 	protected ExpandableListView mPodcastList = null;
 	protected PodcastDataProvider mDataprovider = null;
 	
 	public AbstractCastRoidTest(){
-		super("com.cornerofsever.castroid.Castroid", Castroid.class);
+		super("com.cornerofsever.castroid.Castroid", PodcastListActivity.class);
 	}
 	
 	@Override

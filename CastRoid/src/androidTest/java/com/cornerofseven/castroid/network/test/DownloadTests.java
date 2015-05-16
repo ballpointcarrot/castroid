@@ -15,14 +15,6 @@
  */
 package com.cornerofseven.castroid.network.test;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -38,6 +30,14 @@ import com.cornerofseven.castroid.rss.RSSFeedBuilder;
 import com.cornerofseven.castroid.rss.RSSProcessor;
 import com.cornerofseven.castroid.rss.RSSProcessorFactory;
 import com.cornerofseven.castroid.rss.feed.RSSChannel;
+
+import org.xml.sax.SAXException;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * @author sean

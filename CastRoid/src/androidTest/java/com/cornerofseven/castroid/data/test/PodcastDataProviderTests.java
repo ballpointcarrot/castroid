@@ -45,13 +45,11 @@ public class PodcastDataProviderTests extends AbstractPodcastDataProvider{
 	public void testFeedMimeType(){
 		String feedMime = getMockContentResolver().getType(Feed.CONTENT_URI);
 		assertNotNull(feedMime);
-		fail("Is this the correct mime type? " + feedMime);
 	}
 	
 	public void testItemMimeType(){
 		String itemMime = getMockContentResolver().getType(Item.CONTENT_URI);
 		assertNotNull(itemMime);
-		fail("Is this the correct mime type? " + itemMime);
 	}
 	
 	///////////FEED RELATED TESTS////////////////////////

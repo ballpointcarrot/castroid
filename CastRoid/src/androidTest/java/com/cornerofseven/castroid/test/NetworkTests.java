@@ -15,13 +15,11 @@
  */
 package com.cornerofseven.castroid.test;
 
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.UnknownHostException;
-
 import android.net.Uri;
 import android.test.AndroidTestCase;
+
+import java.net.URL;
+import java.net.UnknownHostException;
 
 /**
  * Tests for misc. network based issues

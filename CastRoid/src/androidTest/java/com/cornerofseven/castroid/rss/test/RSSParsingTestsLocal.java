@@ -15,25 +15,13 @@
  */
 package com.cornerofseven.castroid.rss.test;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Scanner;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
 import android.content.Context;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 
 import com.cornerofseven.castroid.Castroid;
+import com.cornerofseven.castroid.NewFeed;
 import com.cornerofseven.castroid.R;
 import com.cornerofseven.castroid.rss.MalformedRSSException;
 import com.cornerofseven.castroid.rss.RSSFeedBuilder;
@@ -41,6 +29,18 @@ import com.cornerofseven.castroid.rss.RSSProcessor;
 import com.cornerofseven.castroid.rss.RSSProcessorFactory;
 import com.cornerofseven.castroid.rss.feed.RSSChannel;
 import com.cornerofseven.castroid.rss.feed.RSSItem;
+
+import org.xml.sax.SAXException;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.net.URL;
+import java.util.Scanner;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Test cases for parsing an RSS file that is located locally on the device.
@@ -52,7 +52,7 @@ import com.cornerofseven.castroid.rss.feed.RSSItem;
  * @author Sean Mooney
  *
  */
-public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castroid>{
+public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<NewFeed>{
 
 	//constants for expected item indexes
 	//name the indexes for easier reading.
@@ -68,12 +68,12 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 	static final String RSS2_0SampleFile = "rss2sample";
 	static final String WaitWaitSampleFile = "waitwait";
 	
-	private Castroid mActivity;
+	private NewFeed mActivity;
 	private Context mContext;
 	
 	public RSSParsingTestsLocal()
 	{
-		super("com.cornerofsever.castroid.Castroid", Castroid.class);
+		super("com.cornerofseven.castroid.NewFeed", NewFeed.class);
 	}
 
 
@@ -132,17 +132,17 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 					"How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia's <a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>.", 
 					"",
 					"-1",
-					"", ""},
+					"", "2003-06-03"},
 				{"", "", 
 				 "Sky watchers in Europe, Asia, and parts of Alaska and Canada will experience a <a href=\"http://science.nasa.gov/headlines/y2003/30may_solareclipse.htm\">partial eclipse of the Sun</a> on Saturday, May 31st.", 
-						"", "-1", "", ""},
+						"", "-1", "", "2003-05-30"},
 				{"The Engine That Does More", 
 							"http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp", "Before man travels to Mars, NASA hopes to design new engines that will let us fly through the Solar System more quickly.  The proposed VASIMR engine would do that.", 
-							"", "-1", "", ""},
+							"", "-1", "", "2003-05-27"},
 				{"Astronauts' Dirty Laundry", 
 								"http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp", 
 								"Compared to earlier spacecraft, the International Space Station has many luxuries, but laundry facilities are not one of them.  Instead, astronauts have other options.", 
-								"", "-1", "", ""}
+								"", "-1", "", "2003-05-20"}
 		};
 
 		doParsingTest(RSS2_0SampleFile, 
@@ -207,6 +207,8 @@ public class RSSParsingTestsLocal extends ActivityInstrumentationTestCase2<Castr
 			String[][] expectedItemData) throws ParserConfigurationException, IOException, SAXException, MalformedRSSException{
 		File dataFolder = mContext.getFilesDir();
 		File file = new File(dataFolder, fileName);
+
+		assertTrue(file.getName() + " does not exist.", file.exists());
 
 		Uri uri = Uri.fromFile(file);
 		URL url = new URL(uri.toString());

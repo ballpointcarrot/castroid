@@ -15,14 +15,13 @@
  */
 package com.cornerofseven.castroid.network.test;
 
-import java.io.File;
-
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 import android.test.ServiceTestCase;
 
 import com.cornerofseven.castroid.network.DownloadService;
+
+import java.io.File;
 
 /**
  * @author sean

@@ -5,6 +5,7 @@ import android.accounts.Account;
 import android.content.*;
 import android.os.Bundle;
 import android.util.Log;
+
 import com.cornerofseven.castroid.Castroid;
 import com.cornerofseven.castroid.rss.MalformedRSSException;
 
