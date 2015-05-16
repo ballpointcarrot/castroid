@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_unable_to_download">Unable to download</string>
+    <string name="error_unable_to_play_stream">Unable to play</string>
+    <string name="warn_update_in_progress">Update already in progress</string>
+</resources>

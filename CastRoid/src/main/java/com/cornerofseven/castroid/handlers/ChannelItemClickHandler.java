@@ -116,16 +116,20 @@ public class ChannelItemClickHandler {
 			systemDefault = new Intent(Intent.ACTION_VIEW);
 			systemDefault.setDataAndType(Uri.parse(dataUri), type);
 		}
-		
+
 		//close the cursor before starting the intent.
 		c.close();
-		if(systemDefault != null){
-			context.startActivity(systemDefault);
-		}else{
+		if (systemDefault != null) {
+			try {
+				context.startActivity(systemDefault);
+			} catch (Exception e) {
+				toastUnableToPlay(context);
+			}
+		} else {
 			Toast.makeText(context, "No media found to play", Toast.LENGTH_LONG).show();
 		}
 	}
-	
+
 	/**
 	 * Fire an intent to view the item.
 	 * @param itemId
@@ -149,28 +153,63 @@ public class ChannelItemClickHandler {
 	 */
 	@SuppressLint("NewApi")
     protected void downloadItem(long itemId){
-	    
+		final Context context = mActivity;
 	    String[] dlInfo = getDownloadInfo(itemId);
 	    
 	    Object systemDM =  mActivity.getSystemService("download");
-	    if(systemDM != null){ //for 2.3+ android systems.
-	        DownloadManager sdm = (DownloadManager)systemDM;
-	        DownloadManager.Request dmr = new DownloadManager.Request(Uri.parse(dlInfo[0]));
-	        dmr.setDestinationInExternalPublicDir(Environment.DIRECTORY_PODCASTS, "Podcasts");
-	        dmr.setTitle(dlInfo[1]);
-	        //TODO: Run media scanner when done? Docs shows this method exists,
-	        // but it won't to compile
-	        //dmr.allowScanningByMediaScanner();
-	        sdm.enqueue(dmr);
+
+		final Uri uri;
+		try {
+			uri = Uri.parse(dlInfo[0]);
+		} catch (NullPointerException npe) {
+			toastUnableToDownload(context);
+			return;
+		}
+
+		if(systemDM != null){ //for 2.3+ android systems.
+			downloadWithSystemService((DownloadManager)systemDM, uri, dlInfo[1]);
 	    }else{ //2.2 or less systems.
-	        File dlFolder = new File(Environment.getExternalStorageDirectory(), "Podcasts");
-	        Intent downloadIntent = new Intent(mActivity, DownloadService.class);
-	        downloadIntent.setData(Uri.parse(dlInfo[0]));
-	        downloadIntent.putExtra(DownloadService.INT_DOWNLOAD_FOLDER, dlFolder.getAbsolutePath());
-	        mActivity.startService(downloadIntent);
+			downloadWithCastroidService(uri);
 	    }
 	}
-	
+
+	protected void downloadWithSystemService(DownloadManager sdm, Uri uri, String title) {
+		try {
+			DownloadManager.Request dmr = new DownloadManager.Request(uri);
+			dmr.setDestinationInExternalPublicDir(Environment.DIRECTORY_PODCASTS, "Podcasts");
+			dmr.setTitle(title);
+			//TODO: Run media scanner when done? Docs shows this method exists,
+			// but it won't to compile
+			//dmr.allowScanningByMediaScanner();
+			sdm.enqueue(dmr);
+		} catch (Exception e) {
+			toastUnableToDownload(mActivity);
+		}
+	}
+
+	protected void downloadWithCastroidService(Uri uri) {
+		try {
+			File dlFolder = new File(Environment.getExternalStorageDirectory(), "Podcasts");
+			FragmentActivity activity = this.mActivity;
+
+			Intent downloadIntent = new Intent(activity, DownloadService.class);
+			downloadIntent.setData(uri);
+			downloadIntent.putExtra(DownloadService.INT_DOWNLOAD_FOLDER, dlFolder.getAbsolutePath());
+
+			activity.startService(downloadIntent);
+		} catch (Exception e) {
+			toastUnableToDownload(mActivity);
+		}
+	}
+
+	private void toastUnableToDownload(Context context) {
+		Toast.makeText(context, R.string.error_unable_to_download, Toast.LENGTH_SHORT).show();
+	}
+
+	private void toastUnableToPlay(Context context) {
+		Toast.makeText(context, R.string.error_unable_to_play_stream, Toast.LENGTH_SHORT).show();
+	}
+
 	/**
      * Retrieves the Item's Enclosure download link.
      * 

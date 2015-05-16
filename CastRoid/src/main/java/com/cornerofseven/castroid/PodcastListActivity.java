@@ -3,6 +3,7 @@ package com.cornerofseven.castroid;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -25,14 +26,10 @@ public class PodcastListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
 
-    private AsyncFeedUpdater mFeedUpdater;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_list);
-
-        mFeedUpdater = new AsyncFeedUpdater(this);
 
         if (findViewById(R.id.podcast_detail_container) != null) {
             // The detail container view will be present only in the
@@ -138,9 +135,10 @@ public class PodcastListActivity extends FragmentActivity
      *  Can update multiple feeds on the same call.
      *  Use this if/when the "update all" feature is added.
      *
-     * @param feedId
+     * @param feedIds
      */
-    protected void updateChannel(Integer... feedId){
-        mFeedUpdater.execute(feedId);
+    protected void updateChannel(Integer... feedIds){
+        new AsyncFeedUpdater(this).execute(feedIds);
     }
+
 }
