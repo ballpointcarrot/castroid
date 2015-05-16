@@ -380,7 +380,13 @@ public class PodcastDataProvider extends ContentProvider{
 		int rowsUpdated = 0;
 		String id = "";
 
-		switch(uriMatcher.match(uri)){
+		int match = uriMatcher.match(uri);
+
+		switch(match){
+			case FEED:
+			case FEED_ID:
+			case ITEM:
+				break;
 		case ITEM_ID:
 			id = uri.getPathSegments().get(1);
 			String where = Item._ID + "=?";
