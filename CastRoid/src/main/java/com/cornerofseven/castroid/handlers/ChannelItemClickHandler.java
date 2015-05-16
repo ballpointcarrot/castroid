@@ -18,18 +18,20 @@ package com.cornerofseven.castroid.handlers;
 import java.io.File;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
 import com.cornerofseven.castroid.ItemInformationView;
+import com.cornerofseven.castroid.R;
 import com.cornerofseven.castroid.data.Item;
 import com.cornerofseven.castroid.network.DownloadService;
 
@@ -42,7 +44,7 @@ import com.cornerofseven.castroid.network.DownloadService;
  * to create the item click logic, then any activity that
  * needs display channel items for click can use an instance
  * of this object to handle with the click.
- * 
+ *
  * @author Sean Mooney
  *
  */
@@ -52,13 +54,9 @@ public class ChannelItemClickHandler {
 	private final int PLAY_ITEM_ID; 
 	private final int VIEW_ITEM_ID;
 	private final int DOWNLOAD_ITEM_ID;
-	private final Activity mActivity;
-	
-	/**
-	 * 
-	 * @param itemClickId id to use to mark a channel item click.
-	 */
-	public ChannelItemClickHandler(Activity activity, int playItemId, int viewItemID, int downloadItemId){
+	private final FragmentActivity mActivity;
+
+	public ChannelItemClickHandler(FragmentActivity activity, int playItemId, int viewItemID, int downloadItemId){
 		this.PLAY_ITEM_ID = playItemId;
 		this.VIEW_ITEM_ID = viewItemID;
 		this.DOWNLOAD_ITEM_ID = downloadItemId;
@@ -133,12 +131,17 @@ public class ChannelItemClickHandler {
 	 * @param itemId
 	 */
 	protected void viewItem(long itemId){
-		Intent intent = new Intent(mActivity, ItemInformationView.class);
-		
-		Uri contentUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
-		intent.setData(contentUri);
-		mActivity.startActivity(intent);
-	}
+
+        Bundle args = ItemInformationView.createArgs(itemId);
+        ItemInformationView iiv = new ItemInformationView();
+        iiv.setArguments(args);
+
+        FragmentTransaction transaction = mActivity.getSupportFragmentManager().beginTransaction();
+	    //FIXME: NO COMMIT
+        transaction.replace(R.id.podcast_detail_container, iiv)
+                .addToBackStack(null)
+                .commit();
+    }
 	
 	/**
 	 * Start the item downloading in a seperate service.

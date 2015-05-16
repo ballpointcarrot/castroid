@@ -34,6 +34,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -56,7 +57,7 @@ import com.cornerofseven.castroid.handlers.ChannelItemClickHandler;
 import com.cornerofseven.castroid.network.DownloadService;
 import com.cornerofseven.castroid.rss.MalformedRSSException;
 
-public class Castroid extends Activity {
+public class Castroid extends FragmentActivity {
 	public static final String TAG = "Castroid";
 
 	// constants for the menus

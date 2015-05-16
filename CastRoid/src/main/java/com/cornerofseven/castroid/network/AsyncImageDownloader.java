@@ -21,13 +21,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.cornerofseven.castroid.Castroid;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
+
+import com.cornerofseven.castroid.Castroid;
 
 /**
  * Defines an AsyncTask that can be to download an image on a 
@@ -44,7 +44,7 @@ public class AsyncImageDownloader extends AsyncTask<String, Void, Bitmap>{
 	
 	/**
 	 * 
-	 * @param mImageView the image view the downloaded image will be bound to.
+	 * @param imageView the image view the downloaded image will be bound to.
 	 */
 	public AsyncImageDownloader(ImageView imageView){
 		mImageView = imageView;

@@ -43,8 +43,6 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.cornerofseven.castroid.Castroid;
-
 /**
  * A service to allow asynchronous downloads to run
  * and not block the main thread.
@@ -367,7 +365,7 @@ public class DownloadService extends Service{
 
         /**
          * Download a single file
-         * @param dlUrl
+         * @param dlUri
          * @return
          */
         public Long downloadUri(Uri dlUri){
@@ -616,11 +614,8 @@ public class DownloadService extends Service{
                 float megsDown = numBytes/BYTES_PER_MEG;
                 contentText = decFormMB.format(megsDown);
             }
-            Intent notificationIntent = new Intent(context, Castroid.class);
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-            
+
             int flags = Notification.FLAG_ONGOING_EVENT;
-            notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
             notification.flags = flags;
             
             mNotificationManager.notify(senderId, notification);
@@ -629,7 +624,7 @@ public class DownloadService extends Service{
         /**
          * 
          * @param senderId
-         * @param fileUri file uri, or null if the uri is not known. A null fileUri will result in the intent going to castroid, instead of a system intent to view.
+         * @param downloadedFile file uri, or null if the uri is not known. A null fileUri will result in the intent going to castroid, instead of a system intent to view.
          */
         void notifyDone(int senderId, File downloadedFile){
             Notification notification;
@@ -643,7 +638,7 @@ public class DownloadService extends Service{
             Context context = mContext;
             CharSequence contentTitle = "Download Finished";
             
-            Intent notificationIntent;
+            Intent notificationIntent = null;
             if(downloadedFile != null){
                 
                 Uri contentUri = Uri.fromFile(downloadedFile);
@@ -657,17 +652,18 @@ public class DownloadService extends Service{
                 mContext.sendBroadcast(mediaScanIntent);
             }else{
                 Log.i(TAG, "No file, cannot broadcast update.");
-                notificationIntent = new Intent(context, Castroid.class);
             }
 
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-        
-            //remove the notification as soon as clicked.
-            int flags = Notification.FLAG_AUTO_CANCEL;
-            
-            notification.setLatestEventInfo(context, contentTitle, "", contentIntent);
-            notification.flags = flags;
-            
+            if (notificationIntent != null) {
+                PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+
+                //remove the notification as soon as clicked.
+                int flags = Notification.FLAG_AUTO_CANCEL;
+
+                notification.setLatestEventInfo(context, contentTitle, "", contentIntent);
+                notification.flags = flags;
+            }
+
             mNotificationManager.notify(senderId, notification);
         }
     }

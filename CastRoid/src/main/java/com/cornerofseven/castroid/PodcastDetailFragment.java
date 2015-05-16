@@ -50,8 +50,8 @@ public class PodcastDetailFragment extends Fragment {
     static final int PLAY_ITEM = 1;
     static final int VIEW_ITEM = 2;
 
-	private final int MAX_IMAGE_WIDTH = 75;
-	private final int MAX_IMAGE_HEIGHT = 75;
+	private final int MAX_IMAGE_WIDTH = 256;
+	private final int MAX_IMAGE_HEIGHT = 256;
 
     /**
      * The fragment argument representing the item ID that this fragment

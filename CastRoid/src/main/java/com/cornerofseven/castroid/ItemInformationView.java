@@ -22,7 +22,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
@@ -35,7 +39,9 @@ import com.cornerofseven.castroid.handlers.ChannelItemClickHandler;
  * @author Sean Mooney
  *
  */
-public class ItemInformationView extends Activity{
+public class ItemInformationView extends Fragment{
+
+    public static final String ARG_ITEM_URI="arg.item.uri";
 
 	protected TextView mItemName;
 	protected WebView mItemDesc;
@@ -47,52 +53,56 @@ public class ItemInformationView extends Activity{
 	 * @param itemId
 	 * @return an intent that will display item info for itemId.
 	 */
-	public static Intent makeIntent(Context context, long itemId){
-	    Intent intent = new Intent(context, ItemInformationView.class);
-        
+	public static Bundle createArgs(long itemId){
+
+        Bundle args = new Bundle();
         Uri contentUri = ContentUris.withAppendedId(Item.CONTENT_URI, itemId);
-        intent.setData(contentUri);
+        args.putParcelable(ARG_ITEM_URI, contentUri);
         
-        return intent;
+        return args;
 	}
 	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.item_information_view);
-		
-		collectWidgets();
-		
-		Intent intent = getIntent();
-		if(intent != null){
-			Uri dataUri = intent.getData();
-			if(dataUri != null){
-				bindData(dataUri);
-				
-				try{
-					long itemId = Long.parseLong(dataUri.getPathSegments().get(1));
-					bindListeners(itemId);
-				}catch(NumberFormatException nfe){
-					Toast.makeText(this, "Unknown item id in uri " 
-							+ dataUri.toString(), Toast.LENGTH_LONG).show();
-				}
-				
-			}
-		}
-		
 	}
-	
 
-	/**
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.item_information_view, null, true);
+        collectWidgets(v);
+
+
+        Bundle args = getArguments();
+        if(args != null){
+            Uri dataUri = (Uri)args.get(ARG_ITEM_URI);
+            if(dataUri != null){
+                bindData(dataUri);
+
+                try{
+                    long itemId = Long.parseLong(dataUri.getPathSegments().get(1));
+                    bindListeners(itemId);
+                }catch(NumberFormatException nfe){
+                    Toast.makeText(getActivity(), "Unknown item id in uri "
+                            + dataUri.toString(), Toast.LENGTH_LONG).show();
+                }
+
+            }
+        }
+
+        return v;
+    }
+
+    /**
 	 * Bind the elements from the view to the proper fields.
 	 */
-	protected void collectWidgets(){
-		mItemName = (TextView)findViewById(R.id.iiv_item_name);
-		mItemDesc = (WebView)findViewById(R.id.iiv_item_desc);
+	protected void collectWidgets(View view){
+		mItemName = (TextView)(view.findViewById(R.id.iiv_item_name));
+		mItemDesc = (WebView)(view.findViewById(R.id.iiv_item_desc));
 		
-		mPlay = (Button)findViewById(R.id.iiv_play);
-		mDownload = (Button)findViewById(R.id.iiv_download);
+		mPlay = (Button)(view.findViewById(R.id.iiv_play));
+		mDownload = (Button)(view.findViewById(R.id.iiv_download));
 	}
 	
 	/**
@@ -100,7 +110,7 @@ public class ItemInformationView extends Activity{
 	 * @param itemId, the database identifier for the item.
 	 */
 	protected void bindListeners(final long itemId) {
-		final Activity activity = this;
+		final FragmentActivity activity = getActivity();
 		
 		final int ITEM_CLICK_PLAY = 1;
         final int ITEM_CLICK_DOWNLOAD = 2;
@@ -145,22 +155,28 @@ public class ItemInformationView extends Activity{
 				Item.DESC,
 				Item.PUB_DATE,
 		};
-		Cursor c = managedQuery(dataLocation, projection, null, null, null);
-	
-		if(c.moveToFirst()){
-			String title = c.getString(c.getColumnIndex(Item.TITLE));
-			String desc = c.getString(c.getColumnIndex(Item.DESC));
-			
-			//TODO: Display the publication date.
-			String pubDate = c.getString(c.getColumnIndex(Item.PUB_DATE));
-			
-			mItemName.setText(title);
-			
-			mItemDesc.loadData(desc, "text/html", "utf-8");
-			
-		}/*
-		  * else, didn't return anything, which implies the data location
-		  * was invalid. TODO: Do we warn/inform or just not display anything?
-		  */
+		Cursor c = getActivity().getContentResolver().query(dataLocation, projection, null, null, null);
+
+        try {
+            if (c.moveToFirst()) {
+                String title = c.getString(c.getColumnIndex(Item.TITLE));
+                String desc = c.getString(c.getColumnIndex(Item.DESC));
+
+                //TODO: Display the publication date.
+                String pubDate = c.getString(c.getColumnIndex(Item.PUB_DATE));
+
+                mItemName.setText(title);
+
+                mItemDesc.loadData(desc, "text/html", "utf-8");
+
+            }/*
+		      * else, didn't return anything, which implies the data location
+		      * was invalid. TODO: Do we warn/inform or just not display anything?
+		      */
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
 	}
 }
